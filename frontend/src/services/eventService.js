@@ -5,7 +5,7 @@ const finalURL = localURL; // Use this for development; change it to `cloudURL` 
 // Function to fetch events from backend
 async function displayEvents() {
     try {
-        const res = await axiosInstance.get(`${finalURL}/displayEvents`);
+        const res = await axiosInstance.get(`${finalURL}/api/displayEvents`);
         // Return the list of events
         return res.data;
     } catch (error) {

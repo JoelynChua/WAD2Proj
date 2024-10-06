@@ -1,7 +1,10 @@
 // server.js
+require("dotenv").config();
 const express = require('express');
+const bodyParser = require("body-parser");
 const cors = require('cors'); // Import CORS middleware
 const { displayEvents, displayAttractions } = require('../src/api/ticketMasterApi'); // Assign the imported module immediately
+const routes = require("../routes/route");
 
 const app = express();
 
@@ -11,9 +14,16 @@ app.use(cors({
     methods: ['GET', 'POST', 'PUT', 'DELETE'], // Specify allowed methods
 }));
 
-// Define routes
-app.get('/displayEvents', displayEvents);
-app.get('/displayAttractions', displayAttractions);
+// Define routes -- move to
+// app.get('/displayEvents', displayEvents); 
+// app.get('/displayAttractions', displayAttractions);
+
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+
+// From firebase
+app.use("/api", routes);
+
 
 const PORT = process.env.PORT || 8000;
 app.listen(PORT, () => {
