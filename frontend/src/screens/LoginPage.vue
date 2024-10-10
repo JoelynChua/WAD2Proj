@@ -1,0 +1,80 @@
+<template>
+    <div class="login-container">
+      <img src="logo" alt="Logo" width="150">
+      <h5 class="text-center">Log in to your account</h5>
+      <form @submit.prevent="login">
+        <div class="mb-3">
+          <label for="email" class="form-label">Email</label>
+          <input type="email" class="form-control" id="email" v-model="email" placeholder="moklay@smu.edu.sg" required>
+        </div>
+        <div class="mb-3">
+          <label for="password" class="form-label">Password</label>
+          <input :type="passwordFieldType" class="form-control" id="password" v-model="password" placeholder="Password" required>
+          <input type="checkbox" @click="togglePasswordVisibility"> Show Password
+        </div>
+        <button type="submit" class="btn btn-primary w-100">Log in</button>
+      </form>
+      <div class="text-center mt-3">
+        <p>Don't have an account? <a href="/signup">Sign Up</a></p>
+      </div>
+    </div>
+  </template>
+  
+  <script>
+  import { auth } from "../firebase/firebaseClientConfig";
+  import { signInWithEmailAndPassword } from "firebase/auth";
+  
+  export default {
+    data() {
+      return {
+        email: '',
+        password: '',
+        passwordFieldType: 'password'
+      };
+    },
+    methods: {
+      togglePasswordVisibility() {
+        this.passwordFieldType = this.passwordFieldType === 'password' ? 'text' : 'password';
+      },
+      async login() {
+        try {
+          const userCredential = await signInWithEmailAndPassword(auth, this.email, this.password);
+          const user = userCredential.user;
+          console.log('User logged in:', user);
+          this.$router.push('/');
+        } catch (error) {
+          console.error('Error logging in:', error.message);
+          alert(error.message);
+        }
+      }
+    }
+  };
+  </script>
+  
+  <style>
+  body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: pink;
+  }
+  
+  .login-container {
+    width: 300px;
+    padding: 20px;
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .login-container img {
+    display: block;
+    margin: 0 auto 20px;
+  }
+  
+  .login-container a {
+    color: #007bff;
+  }
+  </style>

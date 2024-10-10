@@ -29,10 +29,12 @@
 
 
   <template>
-    <div id="app">
-      <img alt="Vue logo" src="./assets/logo.png">
-      <router-view />
-    </div>
+  <v-app>
+    <v-main>
+       <Navbar v-if="false" /> <!-- Change to true when navbar is completed -->
+      <router-view/>  
+    </v-main>
+  </v-app>
   </template>
   
   <script>
