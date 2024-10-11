@@ -5,6 +5,8 @@ const bodyParser = require("body-parser");
 const cors = require('cors'); // Import CORS middleware
 const { displayEvents, displayAttractions } = require('../src/api/ticketMasterApi'); // Assign the imported module immediately
 const routes = require("../routes/route");
+const expenseRoutes = require("../routes/expenseroute"); // Import expense routes
+
 
 const app = express();
 
@@ -23,6 +25,8 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 // From firebase
 app.use("/api", routes);
+app.use("/routes/expenseroute", expenseRoutes); // Expense routes under /routes/expenseroute
+
 
 
 const PORT = process.env.PORT || 8000;

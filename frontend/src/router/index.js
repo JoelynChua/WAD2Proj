@@ -3,6 +3,8 @@ import HomePage from '../screens/homePage.vue';
 import EventDetails from '../screens/eventDetails.vue';
 import AttractionsList from '../screens/attractionsList.vue';
 import AttractionDetails from '../screens/attractionDetails.vue';
+import Signup from '../screens/NewUser.vue';
+import LoginPage from '../screens/LoginPage.vue';
 
 const routes = [
   {
@@ -13,18 +15,28 @@ const routes = [
   {
     path: '/eventDetails/:id',
     name: 'EventDetails',
-    component: EventDetails
+    component: EventDetails,
   },
   {
     path: '/attractionsList',
-    name: 'attractionsList',
-    component: AttractionsList
+    name: 'AttractionsList',
+    component: AttractionsList,
   },
   {
     path: '/attractionDetails/:id',
-    name: 'attractionDetails',
-    component: AttractionDetails
+    name: 'AttractionDetails',
+    component: AttractionDetails,
   },
+  {
+    path: '/signup',
+    name: 'NewUser',
+    component: Signup,
+  },
+  {
+    path: '/loginpage',
+    name: 'LoginPage',
+    component: LoginPage,
+  }
   // You can add more routes here
 ];
 
