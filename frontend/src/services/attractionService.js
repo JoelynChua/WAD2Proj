@@ -3,31 +3,30 @@ const localURL = "http://localhost:8000";
 const finalURL = localURL; // Use this for development; change it to `cloudURL` when in production
 
 // Function to fetch events from backend
-async function displayEvents() {
+async function displayAttractions() {
     try {
-        const res = await axiosInstance.get(`${finalURL}/api/displayEvents`);
-        // Return the list of events
+        const res = await axiosInstance.get(`${finalURL}/api/displayAttractions`);
+        // Return the list of attractions
         return res.data;
     } catch (error) {
-        console.error("Error fetching events:", error);
+        console.error("Error fetching attractions:", error);
         throw error;
     }
 }
 
 
-async function goToEventDetails(eventId) {
+async function goToAttractionDetails(attractionId) {
     try {
-        const res = await axiosInstance.get(`${finalURL}/api/eventDetails/${eventId}`);
+        const res = await axiosInstance.get(`${finalURL}/api/attractionDetails/${attractionId}`);
         console.log(res)
-        // Return the list of events
         return res.data;
     } catch (error) {
-        console.error("Error fetching events:", error);
+        console.error("Error fetching attraction:", error);
         throw error;
     }
 }
 
 export default {
-    displayEvents,
-    goToEventDetails
+    displayAttractions,
+    goToAttractionDetails
 };
