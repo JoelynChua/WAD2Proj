@@ -40,8 +40,24 @@ router.get('/attractionDetails/:attractionID', (req, res) => {
 });
 
 
+
+// Get all itineraries
 router.get("/itinerary", itineraryController.getAllItinerary);
-router.post('/PostItinerary', itineraryController.addItinerary);
+
+// Get an itinerary by ID
+router.get("/itinerary/:id", itineraryController.getItineraryByID);
+
+// Get itineraries by userID (where the user is a collaborator)
+router.get("/itinerary/user/:userID", itineraryController.getItineraryByUserID);
+
+// Post a new itinerary
+router.post('/PostItinerary', itineraryController.postItinerary);
+
+// Update an itinerary by ID
+router.put('/updateItinerary/:id', itineraryController.updateItinerary);
+
+// Delete an itinerary by ID
+router.delete('/deleteItinerary/:id', itineraryController.deleteItinerary);
 
 
 module.exports = router;
