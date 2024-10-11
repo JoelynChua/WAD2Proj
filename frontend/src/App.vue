@@ -21,7 +21,7 @@
 
 <script>
 // import HelloWorld from './components/HelloWorld.vue'
-import Navbar from './components/Navbar.vue'; // Import Navbar if necessary
+import Navbar from './components/naviBar.vue'; // Import Navbar if necessary
 import ExpenseForm from './components/ExpenseForm.vue';
 import ExpenseList from './components/ExpenseList.vue';
 import ExpenseChart from './components/ExpenseChart.vue';
