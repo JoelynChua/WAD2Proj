@@ -1,58 +1,44 @@
-  <!-- <template>
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
-  </template>
-
-  <script>
-  import HelloWorld from './components/HelloWorld.vue'
-
-  export default {
-    name: 'App',
-    components: {
-      HelloWorld
-    }
-  }
-  </script>
-
-  <style>
-  #app {
-    font-family: Avenir, Helvetica, Arial, sans-serif;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    text-align: center;
-    color: #2c3e50;
-    margin-top: 60px;
-  }
-  </style> -->
-
-
-
-
-  <template>
+<template>
   <v-app>
     <v-main>
-       <Navbar v-if="false" /> <!-- Change to true when navbar is completed -->
+      <Navbar v-if="false" /> <!-- Change to true when navbar is completed -->
+      <div id="app">
+        <h1>Expense Tracker</h1>
+        <ExpenseForm />
+        <ExpenseList />
+        <ExpenseChart />
+      </div>
       <router-view/>  
     </v-main>
   </v-app>
-  </template>
-  
-  <script>
-  export default {
-    name: 'App',
+</template>
+
+<script>
+import Navbar from './components/Navbar.vue'; // Import Navbar if necessary
+import ExpenseForm from './components/ExpenseForm.vue';
+import ExpenseList from './components/ExpenseList.vue';
+import ExpenseChart from './components/ExpenseChart.vue';
+
+export default {
+  name: 'App',
+  components: {
+    Navbar,
+    ExpenseForm,
+    ExpenseList,
+    ExpenseChart
   }
-  </script>
-  
-  <style>
-  #app {
-    font-family: Avenir, Helvetica, Arial, sans-serif;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    text-align: center;
-    color: #2c3e50;
-    margin-top: 60px;
-  }
-  </style>
-  
+};
+</script>
+
+<style>
+#app {
+  font-family: Avenir, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-align: center;
+  color: #2c3e50;
+  margin-top: 60px;
+}
+</style>
 
 
