@@ -37,7 +37,7 @@
       goToAttractionDetails(id) {
         // Use Vue Router's 'push' method to navigate to AttractionDetails page
         // name follows what is declare in the router {name:}
-        this.$router.push({ name: 'attractionDetails', params: { id } });
+        this.$router.push({ name: 'AttractionDetails', params: { id } });
       },
     },
   };
