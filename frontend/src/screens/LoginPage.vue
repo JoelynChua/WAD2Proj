@@ -1,6 +1,7 @@
 <template>
-    <div class="login-container">
-      <img src="logo" alt="Logo" width="150">
+  <div class="d-flex justify-content-center align-items-center vh-100 bg-pink">
+    <div class="login-container p-4">
+      <!-- <img src="../assets/apple.png" alt="Logo" width="150"> -->
       <h5 class="text-center">Log in to your account</h5>
       <form @submit.prevent="login">
         <div class="mb-3">
@@ -18,6 +19,7 @@
         <p>Don't have an account? <a href="/signup">Sign Up</a></p>
       </div>
     </div>
+  </div>
   </template>
   
   <script>
@@ -52,29 +54,17 @@
   </script>
   
   <style scoped>
-  body {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
+  .bg-pink {
     background-color: pink;
   }
-  
   .login-container {
     width: 300px;
-    padding: 20px;
     background-color: white;
     border: 1px solid #ccc;
     border-radius: 8px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   }
-  
-  .login-container img {
-    display: block;
-    margin: 0 auto 20px;
-  }
-  
-  .login-container a {
-    color: #007bff;
+  #app {
+      margin: 0;
   }
   </style>

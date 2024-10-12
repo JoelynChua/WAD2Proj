@@ -1,13 +1,23 @@
 <template>
   <div id="app">
-    <img style="display: block; margin: 0 auto; width: 30%; height: 50%;" alt="logo" src="./assets/tabiLog_logo.png" />
-    <collapsibleNavibar />
+    <!-- Logo centered on the page -->
+    <img
+      style="display: block; margin: 0 auto; width: 30%; height: auto;"
+      alt="logo"
+      src="./assets/tabiLog_logo.png"
+    />
+    
+    <!-- Collapsible Navigation Bar -->
+    <collapsible-navibar />
+    
+    <!-- Router View for Dynamic Content -->
     <router-view />
   </div>
 </template>
 
 <script>
-import collapsibleNavibar from './components/naviBar.vue'; // Adjust the path as needed
+// Import collapsibleNavibar component
+import collapsibleNavibar from './components/naviBar.vue'; // Adjust the path if necessary
 
 export default {
   name: 'App',
@@ -24,6 +34,8 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-  margin-top: 0px;
+  margin-top: 0;
 }
+
+@import 'bootstrap/dist/css/bootstrap.min.css';
 </style>

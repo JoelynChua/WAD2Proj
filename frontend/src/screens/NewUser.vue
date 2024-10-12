@@ -1,7 +1,7 @@
 <template>
   <div class="d-flex justify-content-center align-items-center vh-100 bg-pink">
     <div class="login-container p-4">
-      <img src="logo" alt="Logo" width="150" class="mb-3 d-block mx-auto">
+      <!-- <img src="" alt="Logo" width="150" class="mb-3 d-block mx-auto"> -->
       <h5 class="text-center">Sign up for a new account</h5>
       <form @submit.prevent="signUp">
         <div class="mb-3">

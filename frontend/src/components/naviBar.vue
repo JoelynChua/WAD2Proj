@@ -3,10 +3,9 @@
     <div class="container-fluid">
       <a class="navbar-brand" href="#">Tabi-log</a>
 
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-        aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation" @click="toggleNavbar">
-        <span class="navbar-toggler-icon"></span>
-      </button>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
 
       <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav ms-auto">
@@ -29,28 +28,9 @@
 </template>
 
 <script>
-import 'bootstrap/dist/css/bootstrap.min.css'; // Import Bootstrap CSS
-import 'bootstrap'; // Import Bootstrap JS
 
 export default {
-  name: "NavigationBar",
-
-  methods: {
-    toggleNavbar() {
-      const navbarCollapse = document.querySelector('.navbar-collapse');
-      console.log(navbarCollapse);
-
-      if (navbarCollapse.classList.contains('collapsing show')) {
-        console.log(navbarCollapse);
-        // If the navbar is currently shown, remove the 'show' class
-        navbarCollapse.classList.remove('collapsing show');
-      } else {
-        // If the navbar is not shown, add the 'show' class
-        navbarCollapse.classList.add('show');
-      }
-    }
-
-  }
+  name: "navbarNav"
 };
 </script>
 
