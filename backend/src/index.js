@@ -1,29 +1,46 @@
 // server.js
-require("dotenv").config();
+require('dotenv').config();
 const express = require('express');
-const bodyParser = require("body-parser");
+const bodyParser = require('body-parser');
 const cors = require('cors'); // Import CORS middleware
-const { displayEvents, displayAttractions } = require('../src/api/ticketMasterApi'); // Assign the imported module immediately
-const routes = require("../routes/route");
+const {
+    displayEvents,
+    displayAttractions,
+} = require('../src/api/ticketMasterApi'); // Assign the imported module immediately
+const routes = require('../routes/route');
 
 const app = express();
 
 // Enable CORS for all routes
-app.use(cors({
-    origin: 'http://localhost:8080', // Allow requests from this origin
-    methods: ['GET', 'POST', 'PUT', 'DELETE'], // Specify allowed methods
-}));
+app.use(
+    cors({
+        origin: ['http://localhost:8000', 'http://localhost:8080'], // Allow requests from this origin
+        methods: ['GET', 'POST', 'PUT', 'DELETE'], // Specify allowed methods
+        credentials: true,
+    })
+);
+
+// Add headers for Cross-Origin-Opener-Policy (COOP) and Cross-Origin-Embedder-Policy (COEP)
+app.use((req, res, next) => {
+    res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
+    res.setHeader('Cross-Origin-Embedder-Policy', 'require-corp');
+    next();
+});
 
 // Define routes -- move to
-// app.get('/displayEvents', displayEvents); 
+// app.get('/displayEvents', displayEvents);
 // app.get('/displayAttractions', displayAttractions);
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 // From firebase
-app.use("/api", routes);
+app.use('/api', routes);
 
+// Define a route to get the Google client ID
+app.get('/api/google-client-id', (req, res) => {
+    res.json({ clientId: process.env.GOOGLE_CLIENT_ID });
+});
 
 const PORT = process.env.PORT || 8000;
 app.listen(PORT, () => {
