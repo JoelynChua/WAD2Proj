@@ -30,10 +30,6 @@ export default {
         return {
             events: [], // Initialize events as an empty array
         };
-        return {
-            //events is initialized as an empty array. This ensures that events is reactive and can be updated later when data is fetched from the server.
-            events: [], // Initialize events as an empty array
-        };
     },
 
     /* mounted() hook is part of Vue's lifecycle methods. It is called when the component is fully 
