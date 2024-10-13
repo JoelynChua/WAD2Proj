@@ -5,6 +5,7 @@ import AttractionsList from '../screens/attractionsList.vue';
 import AttractionDetails from '../screens/attractionDetails.vue';
 import Signup from '../screens/NewUser.vue';
 import LoginPage from '../screens/LoginPage.vue';
+import ExpensePage from '../screens/ExpensePage.vue';
 
 const routes = [
   {
@@ -36,6 +37,11 @@ const routes = [
     path: '/loginpage',
     name: 'LoginPage',
     component: LoginPage,
+  },
+  {
+    path: '/ExpensePage',
+    name: 'ExpensePage',
+    component: ExpensePage,
   }
   // You can add more routes here
 ];

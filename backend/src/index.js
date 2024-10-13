@@ -25,7 +25,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 // From firebase
 app.use("/api", routes);
-app.use("/routes/expenseroute", expenseRoutes); // Expense routes under /routes/expenseroute
+app.use("/api/expenses", expenseRoutes);
 
 
 
