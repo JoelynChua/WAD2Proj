@@ -11,7 +11,7 @@ async function displayEvents(req, res) {
         for (i in events) {
             let eventObject = events[i];
             let eventName = eventObject.name;
-            console.log(eventName);
+            //console.log(eventName);
         }
 
         // Send the fetched events as a response
@@ -22,6 +22,35 @@ async function displayEvents(req, res) {
     }
 }
 
+
+//Id has to be passed as a URL parameter because using external API
+//because id is sent in as a HTTP request to server, so we must use req.params.eventID then sent that into the ticketMasterLink
+//whereas e.g. getEventById(id) -- is query from local database(firebase) thus does not depend on HTTP request to retrieve id
+async function getEventById(req, res) {
+    const apiKey = process.env.ticketMasterAPI;
+    const eventID = req.params.eventID; // Extract eventID from request parameters
+
+    if (!eventID) {
+        return res.status(400).send('Event ID is required');
+    }
+
+    try {
+        // Fetch the specific event by ID
+        const eventResponse = await axios.get(`https://app.ticketmaster.com/discovery/v2/events/${eventID}.json?apikey=${apiKey}`);
+
+        // Log the event details
+        console.log(eventResponse.data); // Log the event details
+        res.json(eventResponse.data); // Send the fetched event as a response
+    } catch (error) {
+        console.error('Error fetching event:', error);
+        res.status(500).send('Failed to fetch event');
+    }
+}
+
+
+
+
+// Attractions
 // Need to make the part after v2/_ to be dynamic, based on navigation bar, then send in through params
 async function displayAttractions(req, res) {
     const apiKey = process.env.ticketMasterAPI;
@@ -34,7 +63,7 @@ async function displayAttractions(req, res) {
         for (i in attractions) {
             let attractionObject = attractions[i];
             let attractiontName = attractionObject.name;
-            console.log(attractiontName);
+            //console.log(attractiontName);
         }
 
         // Send the fetched events as a response
@@ -45,4 +74,27 @@ async function displayAttractions(req, res) {
     }
 }
 
-module.exports = { displayEvents, displayAttractions };  // Ensure that you are exporting it this way
+
+async function getAttractionsById(req, res) {
+    const apiKey = process.env.ticketMasterAPI;
+    const attractionID = req.params.attractionID; // Extract eventID from request parameters
+
+    if (!attractionID) {
+        return res.status(400).send('attraction ID is required');
+    }
+
+    try {
+        // Fetch the specific event by ID
+        const attractionResponse = await axios.get(`https://app.ticketmaster.com/discovery/v2/attractions/${attractionID}.json?apikey=${apiKey}`);
+
+        // Log the event details
+        console.log(attractionResponse.data); // Log the event details
+        res.json(attractionResponse.data); // Send the fetched event as a response
+    } catch (error) {
+        console.error('Error fetching event:', error);
+        res.status(500).send('Failed to fetch attraction');
+    }
+}
+
+
+module.exports = { displayEvents, displayAttractions, getEventById, getAttractionsById };  // Ensure that you are exporting it this way

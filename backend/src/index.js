@@ -8,6 +8,7 @@ const {
     displayAttractions,
 } = require('../src/api/ticketMasterApi'); // Assign the imported module immediately
 const routes = require('../routes/route');
+const expenseRoutes = require('../routes/expenseroute'); // Import expense routes
 
 const app = express();
 
@@ -36,6 +37,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 // From firebase
 app.use('/api', routes);
+app.use('/api/expenses', expenseRoutes);
 
 // Define a route to get the Google client ID
 app.get('/api/google-client-id', (req, res) => {

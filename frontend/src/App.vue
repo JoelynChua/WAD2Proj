@@ -1,56 +1,41 @@
-  <!-- <template>
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
-  </template>
+<template>
+  <div id="app">
+    <!-- Logo centered on the page -->
+    <img
+      style="display: block; margin: 0 auto; width: 30%; height: auto;"
+      alt="logo"
+      src="./assets/tabiLog_logo.png"
+    />
+    
+    <!-- Collapsible Navigation Bar -->
+    <collapsible-navibar />
+    
+    <!-- Router View for Dynamic Content -->
+    <router-view />
+  </div>
+</template>
 
-  <script>
-  import HelloWorld from './components/HelloWorld.vue'
+<script>
+// Import collapsibleNavibar component
+import collapsibleNavibar from './components/naviBar.vue'; // Adjust the path if necessary
 
-  export default {
-    name: 'App',
-    components: {
-      HelloWorld
-    }
-  }
-  </script>
+export default {
+  name: 'App',
+  components: {
+    collapsibleNavibar, // Register the NavigationBar component
+  },
+}
+</script>
 
-  <style>
-  #app {
-    font-family: Avenir, Helvetica, Arial, sans-serif;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    text-align: center;
-    color: #2c3e50;
-    margin-top: 60px;
-  }
-  </style> -->
+<style>
+#app {
+  font-family: Avenir, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-align: center;
+  color: #2c3e50;
+  margin-top: 0;
+}
 
-
-
-
-  <template>
-    <div id="app">
-      <img alt="Vue logo" src="./assets/logo.png">
-      <router-view />
-    </div>
-  </template>
-  
-  <script>
-  export default {
-    name: 'App',
-  }
-  </script>
-  
-  <style>
-  #app {
-    font-family: Avenir, Helvetica, Arial, sans-serif;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    text-align: center;
-    color: #2c3e50;
-    margin-top: 60px;
-  }
-  </style>
-  
-
-
+@import 'bootstrap/dist/css/bootstrap.min.css';
+</style>

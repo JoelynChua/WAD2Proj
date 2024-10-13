@@ -1,13 +1,20 @@
 <template>
     <div class="homepage">
-        <GoogleLogin :callback="callback" />
         <h1>Upcoming Events</h1>
         <div class="event-container" v-if="events.length">
-            <div class="event" v-for="event in events" :key="event.id">
+            <div
+                class="event"
+                v-for="event in events"
+                :key="event.id"
+                @click="goToEventDetails(event.id)"
+                style="cursor: pointer"
+            >
                 <h2>{{ event.name }}</h2>
-                <p>Date: {{ event.date }}</p>
-                <p>Location: {{ event.location }}</p>
-                <p>Description: {{ event.description }}</p>
+                <p>Type: {{ event.type }}</p>
+                <p>
+                    Age Restrictions:
+                    {{ event.ageRestrictions.legalAgeEnforced }}
+                </p>
             </div>
         </div>
         <p v-else>No events available.</p>
@@ -23,22 +30,30 @@ export default {
         return {
             events: [], // Initialize events as an empty array
         };
+        return {
+            //events is initialized as an empty array. This ensures that events is reactive and can be updated later when data is fetched from the server.
+            events: [], // Initialize events as an empty array
+        };
     },
+
+    /* mounted() hook is part of Vue's lifecycle methods. It is called when the component is fully 
+    mounted (i.e., inserted into the DOM). This is a good place to perform actions like fetching data from APIs.
+    runs when the component is fully loaded and shown to the user. It's often used to load data from a server or API.*/
     async mounted() {
         try {
             this.events = await eventService.displayEvents(); // Fetch events from the service
+            console.log(this.events);
         } catch (error) {
             console.error('Failed to fetch events:', error);
         }
     },
-};
-</script>
 
-<script setup>
-const callback = (response) => {
-    // This callback will be triggered when the user selects or login to
-    // his Google account from the popup
-    console.log('Handle the response', response);
+    methods: {
+        goToEventDetails(id) {
+            // Use Vue Router's 'push' method to navigate to EventDetails page
+            this.$router.push({ name: 'EventDetails', params: { id } });
+        },
+    },
 };
 </script>
 
