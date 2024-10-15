@@ -10,7 +10,8 @@
         </div>
         <div class="mb-3">
           <label for="password" class="form-label">Password</label>
-          <input :type="passwordFieldType" class="form-control" id="password" v-model="password" placeholder="Password" required>
+          <input :type="passwordFieldType" class="form-control" id="password" v-model="password" placeholder="Password"
+            required>
           <input type="checkbox" @click="togglePasswordVisibility"> Show Password
         </div>
         <button type="submit" class="btn btn-primary w-100">Log in</button>
@@ -20,51 +21,59 @@
       </div>
     </div>
   </div>
-  </template>
-  
-  <script>
-  import { auth } from "../firebase/firebaseClientConfig";
-  import { signInWithEmailAndPassword } from "firebase/auth";
-  
-  export default {
-    data() {
-      return {
-        email: '',
-        password: '',
-        passwordFieldType: 'password'
-      };
+</template>
+
+<script>
+import { auth } from "../firebase/firebaseClientConfig";
+import { signInWithEmailAndPassword } from "firebase/auth";
+
+export default {
+  data() {
+    return {
+      email: '',
+      password: '',
+      passwordFieldType: 'password'
+    };
+  },
+  methods: {
+    togglePasswordVisibility() {
+      this.passwordFieldType = this.passwordFieldType === 'password' ? 'text' : 'password';
     },
-    methods: {
-      togglePasswordVisibility() {
-        this.passwordFieldType = this.passwordFieldType === 'password' ? 'text' : 'password';
-      },
-      async login() {
-        try {
-          const userCredential = await signInWithEmailAndPassword(auth, this.email, this.password);
-          const user = userCredential.user;
-          console.log('User logged in:', user);
-          this.$router.push('/');
-        } catch (error) {
-          console.error('Error logging in:', error.message);
-          alert(error.message);
-        }
+    async login() {
+      try {
+        const userCredential = await signInWithEmailAndPassword(auth, this.email, this.password);
+        const user = userCredential.user;
+        console.log('User logged in:', user);
+
+
+        console.log('Uid:', user.uid);
+        // Store uid in sessionStorage
+        sessionStorage.setItem('uid', user.uid);
+
+        this.$router.push('/');
+      } catch (error) {
+        console.error('Error logging in:', error.message);
+        alert(error.message);
       }
     }
-  };
-  </script>
-  
-  <style scoped>
-  .bg-pink {
-    background-color: pink;
   }
-  .login-container {
-    width: 300px;
-    background-color: white;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  }
-  #app {
-      margin: 0;
-  }
-  </style>
+};
+</script>
+
+<style scoped>
+.bg-pink {
+  background-color: pink;
+}
+
+.login-container {
+  width: 300px;
+  background-color: white;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+#app {
+  margin: 0;
+}
+</style>

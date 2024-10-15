@@ -16,7 +16,7 @@
             <a class="nav-link" href="/attractionsList">Attractions</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="#">Itinerary</a>
+            <a class="nav-link" href="/itineraryList">Itinerary</a>
           </li>
           <li class="nav-item">
             <a class="nav-link" href="#">Contact</a>

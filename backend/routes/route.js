@@ -39,6 +39,15 @@ router.get('/attractionDetails/:attractionID', (req, res) => {
     getAttractionsById(req, res, attractionID);     // Pass the eventID to the getEventById function
 });
 
+//New func for itinerary
+router.post('/getEventByIdItinerary', async (req, res) => {
+    await getEventByIdItinerary(req, res);
+});
+router.post('/getAttractionByIdItinerary', async (req, res) => {
+    await getAttractionByIdItinerary(req, res);
+});
+
+
 
 
 // Get all itineraries

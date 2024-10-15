@@ -3,9 +3,12 @@ import HomePage from '../screens/homePage.vue';
 import EventDetails from '../screens/eventDetails.vue';
 import AttractionsList from '../screens/attractionsList.vue';
 import AttractionDetails from '../screens/attractionDetails.vue';
+import itineraryList from '../screens/itineraryList.vue';
 import Signup from '../screens/NewUser.vue';
 import LoginPage from '../screens/LoginPage.vue';
 import ExpensePage from '../screens/ExpensePage.vue';
+import ItineraryDetails from '../screens/itineraryDetails.vue';
+import ItineraryForm from '../screens/itineraryForm.vue';
 
 const routes = [
   {
@@ -27,6 +30,21 @@ const routes = [
     path: '/attractionDetails/:id',
     name: 'AttractionDetails',
     component: AttractionDetails,
+  },
+  {
+    path: '/itineraryList',
+    name: 'itineraryList',
+    component: itineraryList,
+  },
+  {
+    path: '/ItineraryDetails/:id',
+    name: 'ItineraryDetails',
+    component: ItineraryDetails,
+  },
+  {
+    path: '/ItineraryForm',
+    name: 'ItineraryForm',
+    component: ItineraryForm,
   },
   {
     path: '/signup',
