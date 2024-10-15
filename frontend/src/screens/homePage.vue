@@ -1,6 +1,7 @@
 <template>
     <div class="homepage">
         <h1>Upcoming Events</h1>
+        <GoogleLogin />
         <div class="event-container" v-if="events.length">
             <div
                 class="event"
@@ -51,6 +52,10 @@ export default {
         },
     },
 };
+</script>
+
+<script setup>
+import GoogleLogin from '../components/GoogleLogin.vue';
 </script>
 
 <style>
