@@ -62,7 +62,7 @@ export default {
 
 <style scoped>
 .bg-pink {
-  background-color: pink;
+  background-color: black
 }
 
 .login-container {
