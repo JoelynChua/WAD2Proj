@@ -34,6 +34,8 @@
                     Log in
                 </button>
             </form>
+            <br>
+            <p>or access quickly</p>
             <GoogleLogin />
 
             <div class="text-center mt-3">
@@ -94,7 +96,7 @@ import GoogleLogin from '../components/GoogleLogin.vue';
 }
 
 .login-container {
-    width: 300px;
+    width: 400px;
     background-color: white;
     border: 1px solid #ccc;
     border-radius: 8px;

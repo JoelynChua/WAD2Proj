@@ -87,7 +87,7 @@ export default {
   background-color: black;
 }
 .login-container {
-  width: 300px;
+  width: 400px;
   background-color: white;
   border: 1px solid #ccc;
   border-radius: 8px;
