@@ -96,5 +96,75 @@ async function getAttractionsById(req, res) {
     }
 }
 
+// New function to get attraction by event ID from the request body
+async function getAttractionByIdItinerary(req, res) {
+    const apiKey = process.env.ticketMasterAPI;
+    const { eventID } = req.body; // Parse eventID from request body
 
-module.exports = { displayEvents, displayAttractions, getEventById, getAttractionsById };  // Ensure that you are exporting it this way
+    // Validate eventID presence
+    if (!eventID) {
+        return res.status(400).send('Event ID is required');
+    }
+
+    try {
+        // Fetch the attraction related to the specific event ID
+        const attractionResponse = await axios.get(`https://app.ticketmaster.com/discovery/v2/events/${eventID}/attractions.json?apikey=${apiKey}`);
+
+        // Log the attraction details
+        console.log(attractionResponse.data); // Log the attraction details
+        res.json(attractionResponse.data); // Send the fetched attraction as a response
+    } catch (error) {
+        console.error('Error fetching attraction by event ID:', error);
+        if (error.response) {
+            // If the error response is available, send the error details
+            res.status(error.response.status).send(error.response.data);
+        } else {
+            // For other types of errors (e.g., network issues)
+            res.status(500).send('Failed to fetch attraction by event ID');
+        }
+    }
+}
+
+
+
+// New function to get event by ID from request body
+async function getEventByIdItinerary(req, res) {
+    const apiKey = process.env.ticketMasterAPI;
+    const { eventIDs } = req.body; // Parse eventIDs from request body
+
+    if (!Array.isArray(eventIDs) || eventIDs.length === 0) {
+        return res.status(400).send('Event IDs are required and should be an array');
+    }
+
+    try {
+        // Fetch event details for each ID in the array
+        const eventPromises = eventIDs.map(eventID => 
+            axios.get(`https://app.ticketmaster.com/discovery/v2/events/${eventID}.json?apikey=${apiKey}`)
+        );
+
+        // Wait for all promises to resolve
+        const eventResponses = await Promise.all(eventPromises);
+
+        // Extract the event data from each response
+        const eventsData = eventResponses.map(response => response.data);
+
+        // Log the event details
+        console.log(eventsData); // Log all event details
+        res.json(eventsData); // Send the fetched events as a response
+    } catch (error) {
+        console.error('Error fetching events by event IDs:', error);
+
+        // Check if the error response is defined and log it
+        if (error.response) {
+            console.error('Error Response Status:', error.response.status);
+            console.error('Error Response Data:', error.response.data);
+        }
+
+        res.status(500).send('Failed to fetch events by event IDs');
+    }
+}
+
+
+
+module.exports = { displayEvents, displayAttractions, getEventById, getAttractionsById, 
+    getAttractionByIdItinerary, getEventByIdItinerary };  // Ensure that you are exporting it this way

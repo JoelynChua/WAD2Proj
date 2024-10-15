@@ -1,22 +1,20 @@
 class Itinerary {
     constructor(
         id,
-        eventName,
+        title,
         date,
-        timing,
-        restriction = null, // Default to null if not provided
-        location,
-        cost,
-        collaborators // Default to an empty array if not provided
+        budget,
+        totalCost = null,    // Default to null if not provided
+        collaborators = [], // Default to an empty array if not provided
+        events = []         // Default to an empty array if not provided
     ) {
-        this.id = id;
-        this.eventName = eventName;
+        this.id = id; 
+        this.title = title;
         this.date = date;
-        this.timing = timing;
-        this.restriction = restriction;
-        this.location = location;
-        this.cost = cost;
-        this.collaborators = collaborators;
+        this.budget = budget;
+        this.totalCost = totalCost; // Allow totalCost to be null
+        this.collaborators = collaborators; // Array of collaborator names or IDs
+        this.events = events; // Array of event IDs
     }
 }
 

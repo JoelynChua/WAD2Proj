@@ -7,6 +7,7 @@ const finalURL = localURL; // Use this for development; change it to `cloudURL` 
 async function getAllItinerary() {
     try {
         const res = await axiosInstance.get(`${finalURL}/api/itinerary`);
+        console.log(res.data)
         // Return the list of attractions
         return res.data;
     } catch (error) {
@@ -38,9 +39,9 @@ async function getItineraryByUserID(userID) {
     }
 }
 
-async function addItinerary() {
+async function postItinerary(newItinerary) {
     try {
-        const res = await axiosInstance.get(`${finalURL}/api/itinerary/PostItinerary`);
+        const res = await axiosInstance.post(`${finalURL}/api/postItinerary`, newItinerary);
         console.log(res)
         return res.data;
     } catch (error) {
@@ -75,7 +76,7 @@ export default {
     getAllItinerary,
     getItineraryByID,
     getItineraryByUserID,
-    addItinerary,
+    postItinerary,
     updateItinerary,
     deleteItinerary
 };
