@@ -68,8 +68,9 @@ export default {
         // Create New User on Firebase
         const userCredential = await createUserWithEmailAndPassword(auth, this.email, this.password);
         const user = userCredential.user;
+        sessionStorage.setItem('uid', user.uid);
         console.log('User signed up:', user);
-        this.$router.push('/home');
+        this.$router.push('/profile');
       } catch (error) {
         console.error('Error signing up:', error.message);
         alert(error.message);
@@ -83,7 +84,7 @@ export default {
 
 <style scoped>
 .bg-pink {
-  background-color: pink;
+  background-color: black;
 }
 .login-container {
   width: 300px;

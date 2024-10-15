@@ -1,26 +1,26 @@
+// services/itineraryService.js
 const db = require("../config/firebase");
 const Itinerary = require("../models/itineraryModel");
 
-
+// Get all itineraries
 exports.getAllItinerary = async () => { 
     const snapshot = await db.ref("itinerary").once("value");
-    const itinerary = snapshot.val();
+    const itineraries = snapshot.val();
     
-    return Object.keys(itinerary).map(
-        (key, index) => new Itinerary(
+    return Object.keys(itineraries).map(
+        (key) => new Itinerary(
             key,
-            itinerary[key].eventName,
-            itinerary[key].date,
-            itinerary[key].timing, 
-            itinerary[key].restriction || null,  // Default to null if restriction is not provided
-            itinerary[key].location,
-            itinerary[key].cost,
-            itinerary[key].collaborators || []   // Default to an empty array if collaborators are not provided
+            itineraries[key].title,
+            itineraries[key].date,
+            itineraries[key].budget, // Include budget from DB
+            itineraries[key].totalCost || null, // Allow totalCost to be null
+            itineraries[key].collaborators || [], // Default to an empty array if collaborators are not provided
+            itineraries[key].events || [] // Default to an empty array if events are not provided
         )
     );
 };
 
-//Get itinerary By itineraryID
+// Get itinerary by itineraryID
 exports.getItineraryByID = async (id) => {
     const snapshot = await db.ref(`itinerary/${id}`).once("value");
     const itinerary = snapshot.val();
@@ -31,17 +31,16 @@ exports.getItineraryByID = async (id) => {
     
     return new Itinerary(
         id,                                  // Itinerary ID
-        itinerary.eventName,                 // Event name
-        itinerary.date,                 
-        itinerary.timing,                    // Timing
-        itinerary.restriction || null,       // Handle missing restriction by defaulting to null
-        itinerary.location,                  // Location
-        itinerary.cost,                      // Cost
-        itinerary.collaborators              // Handle missing collaborators by defaulting to empty array
+        itinerary.title,                     // Title
+        itinerary.date,                      // Date
+        itinerary.budget,                   // Budget
+        itinerary.totalCost || null,       // Allow totalCost to be null
+        itinerary.collaborators || [],       // Handle missing collaborators by defaulting to empty array
+        itinerary.events || []                // Handle missing events by defaulting to empty array
     );
 };
 
-//Get itinerary by userID
+// Get itinerary by userID
 exports.getItineraryByUserID = async (userID) => {
     const snapshot = await db.ref("itinerary").once("value");
     const itineraries = snapshot.val();
@@ -50,22 +49,21 @@ exports.getItineraryByUserID = async (userID) => {
         throw new Error("No itineraries found");
     }
 
-    // Filter itineraries where the userID is in the collaborators array
     const filteredItineraries = Object.keys(itineraries)
         .filter(key => {
             const itinerary = itineraries[key];
             return itinerary.collaborators && 
                 Array.isArray(itinerary.collaborators) && 
-                itinerary.collaborators.some(collaborator => collaborator.userID === userID);
+                itinerary.collaborators.includes(userID);
         })
         .map(key => new Itinerary(
             key,  // Itinerary ID
-            itineraries[key].eventName,
-            itineraries[key].timing,
-            itineraries[key].restriction || null,  // Handle missing restriction by defaulting to null
-            itineraries[key].location,
-            itineraries[key].cost,
-            itineraries[key].collaborators || []   // Handle missing collaborators by defaulting to an empty array
+            itineraries[key].title,
+            itineraries[key].date,
+            itineraries[key].budget, // Include budget from DB
+            itineraries[key].totalCost || null, // Allow totalCost to be null
+            itineraries[key].collaborators || [], // Default to empty array if not provided
+            itineraries[key].events || []           // Default to empty array if not provided
         ));
 
     if (filteredItineraries.length === 0) {
@@ -75,27 +73,34 @@ exports.getItineraryByUserID = async (userID) => {
     return filteredItineraries;
 };
 
-
-
-
-
 // POST
 exports.addItinerary = async (newItinerary) => {
     const itineraryRef = db.ref('itinerary').push(); // Generates a new key
-    await itineraryRef.set(newItinerary); // Sets the new itinerary data at that key
+    console.log(newItinerary);
+    const itineraryData = {
+        title: newItinerary.title, // Title from the incoming data
+        date: newItinerary.date,
+        budget: newItinerary.budget, // Include budget from incoming data
+        totalCost: null, // Initialize totalCost to null
+        collaborators: newItinerary.collaborators || [], // Default to empty array if not provided
+        events: newItinerary.events || [], // Default to empty array if not provided
+    };
+    
+    await itineraryRef.set(itineraryData); // Sets the new itinerary data at that key
+    
     return new Itinerary(
         itineraryRef.key, // Automatically generated key
-        newItinerary.eventName, // Event name from the incoming data
-        newItinerary.date,
-        newItinerary.timing,
-        newItinerary.restriction || null,    // Handle null restriction
-        newItinerary.location,
-        newItinerary.cost,
-        newItinerary.collaborators   
+        itineraryData.title,
+        itineraryData.date,
+        itineraryData.budget,
+        itineraryData.totalCost, // Initialize totalCost as null
+        itineraryData.collaborators,
+        itineraryData.events
     );
 };
 
-//Update
+
+// Update
 exports.updateItinerary = async (id, updatedData) => {
     const itineraryRef = db.ref(`itinerary/${id}`);
     const snapshot = await itineraryRef.once('value');
@@ -105,20 +110,18 @@ exports.updateItinerary = async (id, updatedData) => {
     }
 
     const updatedItinerary = {
-        eventName: updatedData.eventName,
-        timing: updatedData.timing,
-        restriction: updatedData.restriction || null,       // Handle null restriction
-        location: updatedData.location,
-        cost: updatedData.cost,
-        collaborators: updatedData.collaborators           // Handle empty collaborators
+        title: updatedData.title,
+        date: updatedData.date,
+        collaborators: updatedData.collaborators || [], // Default to empty array if not provided
+        events: updatedData.events || [] // Default to empty array if not provided
+        // Do not include totalCost as it's not editable
     };
 
     await itineraryRef.update(updatedItinerary);
     return { id, ...updatedItinerary, message: 'Itinerary updated successfully' };
 };
 
-
-//Delete
+// Delete
 exports.deleteItinerary = async (id) => {
     const itineraryRef = db.ref(`itinerary/${id}`);
     const snapshot = await itineraryRef.once('value');

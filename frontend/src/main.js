@@ -1,33 +1,29 @@
 import { createApp } from 'vue';
 import App from './App.vue';
-import router from './router/index'; // Import the router
-// import { createPinia } from 'pinia';
+import router from './router';
+import { auth } from './firebase/firebaseClientConfig'; // Adjust the path to your Firebase config
+import { onAuthStateChanged } from 'firebase/auth'; // Import Firebase Auth function
+
 import vue3GoogleLogin from 'vue3-google-login';
 import { getGoogleClientId } from './services/getGoogleClientId';
 
-const app = createApp(App);
+let app;
 
-// Use the router for route management
-// app.use(router);
+onAuthStateChanged(auth, (user) => {
+    // This function runs whenever the authentication state changes
+    if (!app) {
+        app = createApp(App);
+        getGoogleClientId().then((clientId) => {
+            app.use(vue3GoogleLogin, {
+                clientId: clientId,
+            });
 
-// app.use(createPinia());
+            // Mount the app only after the Google Login plugin has been initialized
+            app.use(router);
+            app.mount('#app');
+        });
+    }
 
-// app.use(vue3GoogleLogin, {
-//     clientId:
-//         '281323249244-aiubdghlhqq6f39t97oo4qcnjucjl62b.apps.googleusercontent.com', // TODO: Remember to change to your client id
-// });
-
-// // app.use(getGoogleClientId);
-
-// // Mount the Vue app
-// app.mount('#app');
-
-getGoogleClientId().then((clientId) => {
-    app.use(vue3GoogleLogin, {
-        clientId: clientId,
-    });
-
-    // Mount the app only after the Google Login plugin has been initialized
-    app.use(router);
-    app.mount('#app');
+    // You can add console logs here to check user state
+    console.log('User state changed:', user ? 'Logged in' : 'Logged out');
 });
