@@ -21,32 +21,13 @@ async function fetchGoogleClientId() {
 
 // Fetch the clientId, then initialize the Google login plugin
 fetchGoogleClientId().then((clientId) => {
+    // console.log(clientId);
     if (clientId) {
         app.use(vue3GoogleLogin, {
             clientId: clientId,
             scope: 'openid profile email https://www.googleapis.com/auth/calendar',
             prompt: 'consent',
-            // Callback when login is successful
-            onSuccess: (response) => {
-                // Save credentials in localStorage or sessionStorage
-                localStorage.setItem(
-                    'google_access_token',
-                    response.access_token
-                );
-                localStorage.setItem(
-                    'google_profile',
-                    JSON.stringify(response.profileObj)
-                );
-
-                // Redirect to the new page (e.g., Dashboard)
-                router.push({ name: 'userDashboard' });
-            },
-            onFailure: (error) => {
-                console.error('Google login failed', error);
-            },
         });
-    } else {
-        console.error('Google Client ID not available.');
     }
 
     // Use the router for route management
