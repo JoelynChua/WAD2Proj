@@ -394,7 +394,10 @@ export default {
   background-color: #ffffff;
   padding: 2rem;
   border-radius: 8px;
-  width: 400px;
+  width: 90%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
@@ -587,6 +590,95 @@ input[type="color"] {
   font-weight: bold;
 }
 
+@media (max-width: 768px) {
+  .event-popup-content {
+    padding: 1rem;
+    width: 95%;
+    max-height: 95vh;
+  }
+
+  h2 {
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+  }
+
+  .form-group {
+    margin-bottom: 0.75rem;
+  }
+
+  label {
+    font-size: 0.9rem;
+  }
+
+  input[type="text"],
+  input[type="date"],
+  input[type="time"],
+  textarea {
+    font-size: 0.9rem;
+    padding: 0.4rem;
+  }
+
+  textarea {
+    height: 80px;
+  }
+
+  input[type="color"] {
+    height: 35px;
+  }
+
+  .button-group {
+    margin-top: 1rem;
+  }
+
+  .btn {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .event-popup-content {
+    padding: 0.75rem;
+  }
+
+  h2 {
+    font-size: 1.1rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .form-group {
+    margin-bottom: 0.5rem;
+  }
+
+  label {
+    font-size: 0.85rem;
+  }
+
+  input[type="text"],
+  input[type="date"],
+  input[type="time"],
+  textarea {
+    font-size: 0.85rem;
+    padding: 0.3rem;
+  }
+
+  textarea {
+    height: 60px;
+  }
+
+  input[type="color"] {
+    height: 30px;
+  }
+
+  .button-group {
+    margin-top: 0.75rem;
+  }
+
+  .btn {
+    padding: 0.3rem 0.6rem;
+    font-size: 0.85rem;
+  }
+}
 
 
 </style>
