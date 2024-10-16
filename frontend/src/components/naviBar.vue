@@ -25,6 +25,9 @@
           <li class="nav-item">
             <a class="nav-link" href="/ExpensePage">Expense</a>
           </li>
+          <li class="nav-item" v-if="isAuthenticated">
+            <a class="nav-link" href="/calendar">Calendar</a>
+          </li>
         </ul>
 
         <ul class="navbar-nav"> <!-- Separate nav for Profile and Log In / Sign Up -->
