@@ -5,7 +5,7 @@
   </template>
   
   <script>
-  import CalendarComponent from '../components/CalendarComponent.vue'
+  import CalendarComponent from '../components/Calendar/CalendarComponent.vue'
   
   export default {
     name: 'CalendarPage',
