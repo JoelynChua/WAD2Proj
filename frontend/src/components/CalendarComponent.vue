@@ -151,6 +151,12 @@ export default {
         center: 'title',
         right: 'createEventButton dayGridMonth,timeGridWeek,timeGridDay'
       },
+      dayMaxEventRows: true, 
+      views: {
+        timeGrid: {
+          dayMaxEventRows: 6 
+        }
+      },
       weekends: true,
       events: events,
       editable: true,
@@ -168,11 +174,15 @@ export default {
       eventContent: (arg) => {
         const eventElement = document.createElement('div')
         eventElement.classList.add('fc-event-content')
+        eventElement.style.backgroundColor = arg.event.backgroundColor
+        eventElement.style.borderColor = arg.event.borderColor
 
         if (!arg.event.allDay) {
           const timeElement = document.createElement('div')
           timeElement.classList.add('fc-event-time')
-          timeElement.textContent = arg.timeText
+          const startTime = arg.event.start ? formatTimeDisplay(arg.event.start) : ''
+          const endTime = arg.event.end ? formatTimeDisplay(arg.event.end) : ''
+          timeElement.textContent = endTime ? `${startTime} - ${endTime}` : startTime
           eventElement.appendChild(timeElement)
         }
 
@@ -190,6 +200,10 @@ export default {
         return { domNodes: [eventElement] }
       }
     })
+
+    function formatTimeDisplay(date) {
+      return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    }
 
     function openCreateEventPopup() {
       const today = new Date();
@@ -348,7 +362,8 @@ export default {
       editingEvent,
       closeEventEditor,
       formatDate,
-      formatTime
+      formatTime,
+      formatTimeDisplay
     }
   }
 }
@@ -548,6 +563,8 @@ input[type="color"] {
 
 :deep(.fc-event-content) {
   padding: 2px 4px;
+  color: #ffffff;
+  width: 100%;
 }
 
 :deep(.fc-event-description) {
@@ -569,5 +586,7 @@ input[type="color"] {
 :deep(.fc-event-title) {
   font-weight: bold;
 }
+
+
 
 </style>
