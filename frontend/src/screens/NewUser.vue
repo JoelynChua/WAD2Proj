@@ -70,7 +70,7 @@ export default {
         const user = userCredential.user;
         sessionStorage.setItem('uid', user.uid);
         console.log('User signed up:', user);
-        this.$router.push('/profile');
+        this.$router.push('/ProfilePage');
       } catch (error) {
         console.error('Error signing up:', error.message);
         alert(error.message);
