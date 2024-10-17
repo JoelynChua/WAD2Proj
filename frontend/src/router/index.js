@@ -12,6 +12,7 @@ import ExpensePage from '../screens/ExpensePage.vue';
 import ItineraryDetails from '../screens/itineraryDetails.vue';
 import ItineraryForm from '../screens/itineraryForm.vue';
 import ProfilePage from '../screens/ProfilePage.vue';
+import CalendarPage from '../screens/CalendarPage.vue';
 
 const routes = [
   {
@@ -77,6 +78,10 @@ const routes = [
     component: ProfilePage,
     meta: { requiresAuth: true }, // Requires authentication
   },
+  { path: '/calendar',
+    name: 'calendar',
+    component: CalendarPage,
+  }
   // You can add more routes here
 ];
 
