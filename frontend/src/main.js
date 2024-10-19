@@ -3,7 +3,8 @@ import App from './App.vue';
 import router from './router';
 import { auth } from './firebase/firebaseClientConfig'; // Adjust the path to your Firebase config
 import { onAuthStateChanged } from 'firebase/auth'; // Import Firebase Auth function
-
+import Antd from 'ant-design-vue';
+import 'ant-design-vue/dist/reset.css';
 import vue3GoogleLogin from 'vue3-google-login';
 import { getGoogleClientId } from './services/getGoogleClientId';
 
@@ -13,6 +14,9 @@ onAuthStateChanged(auth, (user) => {
     // This function runs whenever the authentication state changes
     if (!app) {
         app = createApp(App);
+
+        app.use(Antd);
+
         getGoogleClientId().then((clientId) => {
             app.use(vue3GoogleLogin, {
                 clientId: clientId,

@@ -13,6 +13,7 @@
         "@fullcalendar/interaction": "^6.1.15",
         "@fullcalendar/timegrid": "^6.1.15",
         "@fullcalendar/vue3": "^6.1.15",
+        "ant-design-vue": "^4.2.5",
         "axios": "^1.7.7",
         "bootstrap": "^5.3.3",
         "chart.js": "^4.4.4",

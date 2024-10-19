@@ -8,7 +8,7 @@
                     <span class="text-black-50 mt-4">{{ email }}</span>
                 </div>
             </div>
-            <div class="col-md-5 border-right">
+            <div class="col-md-8 col-lg-5 border-right">
                 <div class="p-3 py-5">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <h4 class="text-right">Profile Setup</h4>
@@ -24,7 +24,8 @@
                         </div>
                         <div>
                             <label for="dob">Date of Birth:</label>
-                            <input type="date" class="form-control" id="dob" v-model="dateOfBirth" />
+                            <!-- <input type="date" class="form-control" id="dob" v-model="dateOfBirth" /> -->
+                            <a-date-picker class="form-control" id="dob" placeholder="" :format="'DD/MM/YYYY'" v-model="dateOfBirth" />
                         </div>
                         <div class="col-md-12">
                             <label class="labels">Address Line 1</label>
