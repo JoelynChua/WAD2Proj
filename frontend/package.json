@@ -24,6 +24,7 @@
         "vue": "^3.2.13",
         "vue-chartjs": "^5.3.1",
         "vue-router": "^4.4.5",
+        "vue3-country-region-select": "^1.0.0",
         "vue3-google-login": "^2.0.33"
     },
     "devDependencies": {

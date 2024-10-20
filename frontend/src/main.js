@@ -7,6 +7,7 @@ import Antd from 'ant-design-vue';
 import 'ant-design-vue/dist/reset.css';
 import vue3GoogleLogin from 'vue3-google-login';
 import { getGoogleClientId } from './services/getGoogleClientId';
+import vueCountryRegionSelect from 'vue3-country-region-select'
 
 let app;
 
@@ -16,6 +17,7 @@ onAuthStateChanged(auth, (user) => {
         app = createApp(App);
 
         app.use(Antd);
+        app.use(vueCountryRegionSelect);
 
         getGoogleClientId().then((clientId) => {
             app.use(vue3GoogleLogin, {

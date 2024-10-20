@@ -15,20 +15,24 @@
                     </div>
                     <div class="row mt-2 text-start">
                         <div class="col-md-6">
-                            <label class="labels">Name</label>
+                            <label class="labels">Name <span class="required">*</span></label>
                             <input type="text" class="form-control" placeholder="" v-model="displayName">
                         </div>
                         <div class="col-md-6">
-                            <label class="labels">Mobile Number</label>
+                            <label class="labels">Mobile Number <span class="required">*</span></label>
                             <input type="text" class="form-control" placeholder="" v-model="mobileNumber">
                         </div>
+                        <div class="col-md-12">
+                            <label class="labels">Email ID <span class="required">*</span></label>
+                            <input type="text" class="form-control" placeholder="" v-model="email" disabled>
+                        </div>
                         <div>
-                            <label for="dob">Date of Birth:</label>
-                            <!-- <input type="date" class="form-control" id="dob" v-model="dateOfBirth" /> -->
-                            <a-date-picker class="form-control" id="dob" placeholder="" :format="'DD/MM/YYYY'" v-model="dateOfBirth" />
+                            <label for="dob">Date of Birth: <span class="required">*</span></label>
+                            <a-date-picker class="form-control" id="dob" placeholder="" :format="'DD/MM/YYYY'"
+                                v-model="dateOfBirth" />
                         </div>
                         <div class="col-md-12">
-                            <label class="labels">Address Line 1</label>
+                            <label class="labels">Address Line 1 <span class="required">*</span></label>
                             <input type="text" class="form-control" v-model="address1">
                         </div>
                         <div class="col-md-12">
@@ -36,12 +40,12 @@
                             <input type="text" class="form-control" v-model="address2">
                         </div>
                         <div class="col-md-12">
-                            <label class="labels">Postal Code</label>
+                            <label class="labels">Postal Code <span class="required">*</span></label>
                             <input type="text" class="form-control" placeholder="" v-model="postcode">
                         </div>
                         <div class="col-md-12">
-                            <label class="labels">Email ID</label>
-                            <input type="text" class="form-control" placeholder="" v-model="email" disabled>
+                            <label class="labels">Country <span class="required">*</span></label>
+                            <country-select class="form-control" v-model="country" :country="country" topCountry="SG" />
                         </div>
                     </div>
                     <!-- <div class="row mt-3">
@@ -111,10 +115,11 @@ export default {
                 postcode: this.postcode,
                 email: this.email,
                 country: this.country,
-                dateofBirth: this.dateofBirth,
+                dateOfBirth: this.dateOfBirth,
             })
                 .then(() => {
                     alert('Profile saved successfully!');
+                    location.reload()
                 })
                 .catch((error) => {
                     console.error('Error saving profile:', error);
@@ -145,4 +150,7 @@ export default {
 
 <style lang="scss" scoped>
 /* Your existing styles */
+.required{
+    color: red;
+}
 </style>
