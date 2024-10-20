@@ -1,15 +1,14 @@
 <template>
   <div id="app">
     <!-- Logo centered on the page -->
-    <img
-      style="display: block; margin: auto; width: 30%; height: auto;"
-      alt="logo"
-      src="./assets/tabiLog_logo.png"
-    />
-    
+    <a href="/">
+      <img style="display: block; margin: auto; width: 30%; height: auto;" alt="logo" src="./assets/tabiLog_logo.png" />
+    </a>
+
+
     <!-- Collapsible Navigation Bar -->
     <collapsible-navibar />
-    
+
     <!-- Router View for Dynamic Content -->
     <router-view />
   </div>

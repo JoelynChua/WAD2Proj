@@ -50,9 +50,9 @@ async function postItinerary(newItinerary) {
     }
 }
 
-async function updateItinerary(itineraryID) {
+async function updateItinerary(itineraryID,updatedData) {
     try {
-        const res = await axiosInstance.get(`${finalURL}/api/updateItinerary/${itineraryID}`);
+        const res = await axiosInstance.put(`${finalURL}/api/updateItinerary/${itineraryID}`,updatedData);
         console.log(res)
         return res.data;
     } catch (error) {
@@ -63,11 +63,49 @@ async function updateItinerary(itineraryID) {
 
 async function deleteItinerary(itineraryID) {
     try {
-        const res = await axiosInstance.get(`${finalURL}/api/deleteItinerary/${itineraryID}`);
+        const res = await axiosInstance.delete(`${finalURL}/api/deleteItinerary/${itineraryID}`);
         console.log(res)
         return res.data;
     } catch (error) {
         console.error("Error fetching attraction:", error);
+        throw error;
+    }
+}
+
+
+// wishlist
+// Get user wishlist
+async function getUserWishlist(userID) {
+    try {
+        const res = await axiosInstance.get(`${finalURL}/api/wishlist/user/${userID}`);
+        console.log(res);
+        return res.data;
+    } catch (error) {
+        console.error("Error fetching wishlist:", error); // Updated error message for clarity
+        throw error;
+    }
+}
+
+// Add a new wishlist
+async function addWishlist(newWishlist) { // Updated parameter name for clarity
+    try {
+        const res = await axiosInstance.post(`${finalURL}/api/addWishlist`, newWishlist); // Updated endpoint
+        console.log(res);
+        return res.data;
+    } catch (error) {
+        console.error("Error adding wishlist:", error); // Updated error message for clarity
+        throw error;
+    }
+}
+
+// Delete a wishlist
+async function deleteWishlist(wishlistID) {
+    try {
+        const res = await axiosInstance.delete(`${finalURL}/api/deleteWishlist/${wishlistID}`); // Updated endpoint
+        console.log(res);
+        return res.data;
+    } catch (error) {
+        console.error("Error deleting wishlist:", error); // Updated error message for clarity
         throw error;
     }
 }
@@ -78,5 +116,8 @@ export default {
     getItineraryByUserID,
     postItinerary,
     updateItinerary,
-    deleteItinerary
+    deleteItinerary,
+    getUserWishlist,
+    addWishlist,
+    deleteWishlist
 };

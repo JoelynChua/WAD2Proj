@@ -1,6 +1,6 @@
 <template>
-  <div class="itinerary-list">
-    <h2>My Itineraries</h2>
+  <div style="margin-top: 30px;" class="itinerary-list">
+    <h1>My Itineraries</h1>
     <!-- Add itinerary -->
     <button style="margin-bottom: 20px; display: block;" @click="toItineraryForm()" class="btn btn-primary">
       <span class="plus-sign">+</span>
@@ -49,7 +49,7 @@ export default {
   async mounted() {
     try {
       //the properties defined in data() are accessible via this, which refers to the component instance.
-      this.itineraries = await itineraryService.getAllItinerary(); // Fetch itineraries from the service
+      this.itineraries = await itineraryService.getItineraryByUserID(sessionStorage.getItem('uid')); // Fetch itineraries from the service
       console.log(this.itineraries);
     } catch (error) {
       console.error("Failed to fetch itineraries:", error);

@@ -1,11 +1,22 @@
 <template>
-    <div class="container vh-100 d-flex justify-content-center align-items-center">
+    <div class="container d-flex flex-column align-items-center">
         <div class="row justify-content-center">
             <div class="col-md-12 text-center">
-                <!-- Due to the error of: Cannot read properties of undefined (reading 'start')
-                TypeError: Cannot read properties of undefined (reading 'start') 
-                need to do the v-if to prevent error if the scenario that the attribute is not found-->
-                <!-- Event Details -->
+                <div class="d-flex align-items-start">
+                    <img v-if="eventDetails.images?.length" :src="eventDetails.images[0].url" class="img-fluid me-3"
+                        alt="Event Image" style="margin: 30px; width: 500px; height: 300px" />
+
+                    <!-- Ticket Box -->
+                    <div class="col-auto ticket-box text-center container-fluid">
+                        <p class="ticket-title">Learn More</p>
+                        <button class="btn btn-danger get-tickets-btn" @click="openTickets">TicketMaster</button>
+                        
+                        <!-- Button trigger modal -->
+                        <button type="button" class="btn btn-primary get-tickets-btn" data-bs-toggle="modal"
+                            data-bs-target="#staticBackdrop">Seatmap</button>
+                    </div>
+                </div>
+
                 <h1 v-if="eventDetails.name">{{ eventDetails.name }}</h1>
                 <p v-if="eventDetails.type">Type: {{ eventDetails.type }}</p>
                 <p v-if="eventDetails.dates?.start?.localDate">Date: {{ eventDetails.dates.start.localDate }}</p>
@@ -14,22 +25,16 @@
                 <p v-if="eventDetails.dates?.status?.code">Status: {{ eventDetails.dates.status.code }}</p>
                 <hr />
                 <h3>Sales:</h3>
-                <p v-if="eventDetails.sales?.public?.startDateTime">Start date: {{
-                    eventDetails.sales.public.startDateTime }}</p>
+                <p v-if="eventDetails.sales?.public?.startDateTime">Start date:
+                    {{ eventDetails.sales.public.startDateTime }}</p>
                 <p v-if="eventDetails.sales?.public?.endDateTime">End date: {{ eventDetails.sales.public.endDateTime }}
                 </p>
                 <p v-if="eventDetails.priceRanges">
                     Price range:
-                    {{
-                        `${eventDetails.priceRanges[0].min || 'N/A'} to ${eventDetails.priceRanges[0].max || 'N/A'}
-                    ${eventDetails.priceRanges[0].currency || ''}`
-                    }}
+                    {{ `${eventDetails.priceRanges[0].min || 'N/A'} to ${eventDetails.priceRanges[0].max || 'N/A'}
+                    ${eventDetails.priceRanges[0].currency || ''}` }}
                 </p>
 
-                <!-- Button trigger modal -->
-                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
-                    Seatmap
-                </button>
             </div>
         </div>
 
@@ -43,14 +48,8 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <!-- For vue
-                        Use {{ }} inside elements to display text values directly.
-                        Use : or v-bind to bind dynamic values to attributes (like src, href, class, etc.)-->
                         <img v-if="eventDetails.seatmap?.staticUrl" :src="eventDetails.seatmap.staticUrl"
                             class="img-fluid" alt="Seatmap" />
-                        <!-- optional chaining operator (?.) is a feature in JavaScript that allows you to safely access 
-                             deeply nested properties without having to explicitly check each level of the object. -->
-                        <!-- ?: save time in the case of not having a seatmapURL -> immediate go to the else part -->
                         <p v-else>No seatmap available.</p>
                     </div>
                     <div class="modal-footer">
@@ -61,6 +60,7 @@
         </div>
     </div>
 </template>
+
 
 <script>
 import { Modal } from "bootstrap";
@@ -90,6 +90,9 @@ export default {
                 console.error("Failed to fetch event details:", error);
             }
         },
+        openTickets() {
+            window.open(this.eventDetails.url, '_blank');
+        },
         showSeatmap() {
             const myModal = new Modal(document.getElementById("staticBackdrop"));
             myModal.show();
@@ -101,5 +104,67 @@ export default {
 <style>
 .aligned {
     text-align: center;
+}
+
+.ticket-box {
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    margin: 30px;
+    padding: 20px;
+    background-color: #ffffff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    z-index: 1000; /* Ensure it appears above other content */
+}
+
+/* Media query for viewports larger than md */
+@media (min-width: 1100px) {
+    .ticket-box {
+        /* Optional adjustments for larger viewports */
+        margin-right: 100px; /* Space between image and ticket box */
+        position: fixed; /* Adjusted to use relative positioning */
+        right: 0;
+    }
+}
+
+/* Media query for viewports smaller than md */
+@media (max-width: 1100px) {
+    .ticket-box {
+        width: 100%; /* Cover the full width of the viewport */
+        height: auto; /* Height can be auto or a specific value */
+        position: fixed; /* Fixed positioning for bottom placement */
+        bottom: 0; /* Place it at the bottom of the viewport */
+        left: 0; /* Align to the left */
+        margin: 0; /* Remove margin to cover full width */
+        padding: 20px; /* Add padding if needed */
+        box-shadow: none; /* Optional: remove shadow for a flatter design */
+    }
+}
+
+/* Ensure the container has padding to prevent content overlap */
+.container {
+    padding-bottom: 150px;
+    /* Adjust as needed for fixed ticket box */
+}
+
+.ticket-title {
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 15px;
+}
+
+.get-tickets-btn {
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.get-tickets-btn:hover {
+    background-color: #f5a358;
+    transform: scale(1.10);
 }
 </style>

@@ -7,6 +7,7 @@ async function displayAttractions() {
     try {
         const res = await axiosInstance.get(`${finalURL}/api/displayAttractions`);
         // Return the list of attractions
+        console.log(res.data)
         return res.data;
     } catch (error) {
         console.error("Error fetching attractions:", error);
