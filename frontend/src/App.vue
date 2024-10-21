@@ -3,7 +3,7 @@
         <!-- Logo centered on the page -->
         <a href="/">
         <img
-            style="display: block; margin: 0 auto; width: 5%; height: auto"
+            style="display: block; margin: 0 auto; width: 30%; height: auto"
             alt="logo"
             src="./assets/tabiLog_logo.png"
         />
