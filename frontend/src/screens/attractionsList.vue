@@ -9,7 +9,7 @@
           class="bookmark-icon" @click.stop="toggleWishlist(attraction.id)" />
         <h2>{{ attraction.name }}</h2>
         <p>Type: {{ attraction.type }}</p>
-        <p>Genre: {{ attraction.classifications[0].genre.name }}</p>
+        <p>Genre: {{ attraction.classifications[0].genre?.name }}</p>
       </div>
     </div>
     <p v-else>No attractions available.</p>
@@ -78,6 +78,7 @@ export default {
     isBookmarked(attractionID) {
       return this.wishlists.some(wishlist => wishlist.attractionID === attractionID);
     },
+
     async reloadWishlists() {
       try {
         if (this.userID) {
@@ -88,6 +89,7 @@ export default {
         console.error("Failed to reload wishlists:", error);
       }
     },
+
     async toggleWishlist(attractionID) {
       const existingWishlist = this.wishlists.find(wishlist => wishlist.attractionID === attractionID);
       const wishlistID = existingWishlist ? existingWishlist.id : null; // Safely access id

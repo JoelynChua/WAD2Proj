@@ -52,7 +52,9 @@
                                     <tbody @drop="onDrop($event, event)" @dragover="allowDrop">
                                         <tr v-for="event in sortedEvents" :key="event.eventID" :draggable="true"
                                             @dragstart="onDragStart($event, event)" :data-event-id="event.eventID">
+
                                             <td>{{ event.time }}</td>
+
                                             <template v-if="eventDetails[event.eventID]">
                                                 <td class="event-details-wrapper"
                                                     style="border: 1px solid #ccc; border-radius: 10px; padding: 10px; margin: 10px;">
@@ -61,9 +63,14 @@
                                                         {{ eventDetails[event.eventID].type }}<br>
                                                         Status: {{ eventDetails[event.eventID].dates.status.code ||
                                                             'N/A' }}
+
+                                                        <!-- Remove Icon at top-right -->
+                                                        <font-awesome-icon :icon="['fas', 'minus']"
+                                                            @click="onRemoveEvent(event.eventID)" class="remove-icon" />
                                                     </div>
                                                 </td>
                                             </template>
+
                                             <template v-else-if="attractionDetails[event.eventID]">
                                                 <td class="attraction-details-wrapper"
                                                     style="border: 1px solid #ccc; border-radius: 10px; padding: 10px; margin: 10px;">
@@ -73,15 +80,23 @@
                                                         Genre: {{
                                                             attractionDetails[event.eventID].classifications[0]?.genre.name
                                                             || 'N/A' }}
+
+                                                        <!-- Remove Icon at top-right -->
+                                                        <font-awesome-icon :icon="['fas', 'minus']"
+                                                            @click="onRemoveEvent(event.eventID)" class="remove-icon" />
                                                     </div>
+
+
                                                 </td>
                                             </template>
+
                                             <template v-else>
                                                 <td
                                                     style="border: 1px solid #ccc; border-radius: 10px; padding: 10px; margin: 10px;">
-                                                    <!-- Empty cell for unmatched event -->
+                                                    <span style="color: #aaa; font-style: italic;">Drag and drop</span>
                                                 </td>
                                             </template>
+
                                         </tr>
                                     </tbody>
 
@@ -130,8 +145,18 @@ import itineraryService from "../services/itineraryService"; // Update to your i
 import eventService from "../services/eventService"; // Import event service
 import attractionService from "../services/attractionService"; // Import attraction service
 import { debounce } from "lodash";
+import { library } from '@fortawesome/fontawesome-svg-core';
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
+import { faMinus } from '@fortawesome/free-solid-svg-icons'; // Import the icon you want to use
+
+// Add the icon to the library
+library.add(faMinus);
+
 
 export default {
+    components: {
+        FontAwesomeIcon,
+    },
     data() {
         return {
             itineraryDetails: {}, // Initialize as an empty object
@@ -196,8 +221,10 @@ export default {
                             const attractionDetails = await attractionService.goToAttractionDetails(wishlistItem.attractionID);
                             console.log("Wishlist Attraction Details:", attractionDetails);
                             this.attractionDetails[wishlistItem.attractionID] = attractionDetails; // Store attraction details
-                        } catch (error) {
-                            console.error("Failed to fetch attraction details for wishlist:", error);
+                        } catch {
+                            // Skip logging the error for attraction details
+                            // Optionally, you can set a state or flag to indicate failure
+                            this.errorState = true; // Example of setting an error state
                         }
                     }
                 }
@@ -213,23 +240,37 @@ export default {
 
                 // Automatically fetch details for each event after itinerary details are loaded
                 console.log(this.itineraryDetails.events);
+
+                // Initialize a counter for tracking fetch calls
+                this.fetchDetailsCounter = 0;
+
                 this.itineraryDetails.events.forEach(event => {
-                    const eventID = event.eventID; // Access eventID
-                    if (eventID != "") {
+                    // Access eventID -- only runs when eventID is not empty
+                    const eventID = event.eventID;
+                    if (eventID !== null && eventID !== undefined && eventID.trim() !== "") {
+                        console.log(eventID, "COUNTER");
                         this.fetchDetails(eventID); // Fetch details for each eventID
+                        this.fetchDetailsCounter++; // Increment the counter
                     }
                 });
+
+                // Log the total number of fetch calls after processing all events
+                console.log("Total fetchDetails calls made:", this.fetchDetailsCounter);
+
             } catch (error) {
                 console.error("Failed to fetch itinerary details:", error);
             }
         },
+
 
         async fetchDetails(eventID) {
             try {
                 const eventDetails = await eventService.goToEventDetails(eventID);
                 console.log("Event Details:", eventDetails);
                 this.eventDetails[eventID] = eventDetails; // Store event details keyed by eventID
-            } catch {
+            }
+
+            catch {
                 // If fetching event details fails, try fetching attraction details
                 try {
                     const attractionDetails = await attractionService.goToAttractionDetails(eventID);
@@ -243,11 +284,70 @@ export default {
             }
         },
 
+        async updateEventTiming(draggedEventID, newTime) {
+            try {
+                // Prepare updated itinerary details with eventID null for the old event and new eventID for the new time
+                const updatedData = {
+                    title: this.itineraryDetails.title,
+                    date: this.itineraryDetails.date,
+                    budget: this.itineraryDetails.budget,
+                    collaborators: this.itineraryDetails.collaborators || [],
+                    events: this.sortedEvents.map(event => {
+                        if (event.eventID === draggedEventID) {
+                            // Clear the eventID from the old event
+                            return {
+                                ...event,
+                                eventID: null, // Old event: set eventID to null
+                            };
+                        } else if (event.time === newTime) {
+                            // Assign the dragged eventID to the new time slot
+                            return {
+                                ...event,
+                                eventID: draggedEventID, // New event: assign dragged eventID
+                            };
+                        }
+                        return event; // For other events, leave them unchanged
+                    }),
+                };
+
+                // Call update itinerary service to save changes
+                const id = this.$route.params.id;
+                await itineraryService.updateItinerary(id, updatedData);
+
+                this.updateMessage = "Event timing updated successfully."; // Success message
+                setTimeout(() => {
+                    this.updateMessage = null;
+                }, 2000);
+
+            } catch (error) {
+                this.updateError = "Error updating event timing: " + error.message; // Error message
+                console.error("Error updating event timing:", error);
+            }
+        },
+
+
+        // Method to remove the eventID of a specific event without removing the entire row
+        onRemoveEvent(eventID) {
+            const eventToUpdate = this.sortedEvents.find(event => event.eventID === eventID);
+
+            if (eventToUpdate) {
+                eventToUpdate.eventID = null; // Clear the eventID, keep other details intact
+                eventToUpdate.name = null; // Optionally, clear the name or any other related fields
+                console.log(`Event ${eventID} removed from the itinerary.`);
+
+                // Optionally, call a service to update the state on the server if needed
+                this.handleUpdate(); // Call the update method to save the changes
+            } else {
+                console.error(`Event with eventID ${eventID} not found.`);
+            }
+        },
+
 
 
         async handleUpdate() {
             this.updateMessage = null; // Reset previous success message
             this.updateError = null;   // Reset previous error message
+
             try {
                 // Prepare updated itinerary details
                 const updatedData = {
@@ -256,16 +356,8 @@ export default {
                     budget: this.itineraryDetails.budget, // Access budget directly from itineraryDetails
                     collaborators: this.itineraryDetails.collaborators || [], // Access collaborators
                     events: this.sortedEvents.map(event => ({
-                        time: event.time, //using event object's time
+                        time: event.time, // Using event object's time
                         eventID: event.eventID,
-                        name: this.eventDetails[event.eventID]?.name,
-                        type: this.eventDetails[event.eventID]?.type,
-                        priceRanges: [
-                            {
-                                min: this.eventDetails[event.eventID]?.priceRanges[0]?.min,
-                                max: this.eventDetails[event.eventID]?.priceRanges[0]?.max,
-                            },
-                        ],
                     })),
                 };
 
@@ -275,6 +367,8 @@ export default {
 
                 this.updateMessage = "Itinerary updated successfully."; // Success message
                 this.firstLoad = false;
+
+                // Clear the success message after 2 seconds
                 setTimeout(() => {
                     this.updateMessage = null;
                 }, 2000);
@@ -286,22 +380,26 @@ export default {
             }
         },
 
+
         // Methods for drag and drop of wishlist item into events table
         // Method to handle the drag start event
-        onDragStart(event, wishlistItem) {
-            event.dataTransfer.setData('text/plain', JSON.stringify(wishlistItem)); // Store the dragged item data
+        onDragStart(event, draggedItemData) {
+            console.log("Drag started", draggedItemData);
+            // event.dataTransfer.setData('dragSource', 'table');
+            event.dataTransfer.setData('text/plain', JSON.stringify(draggedItemData));
         },
 
+
         onDrop(event) {
-            event.preventDefault(); // Prevent default behavior (e.g., opening as a link)
+            event.preventDefault(); // Prevent default behavior
 
             // Get the dragged item data
             const wishlistItem = JSON.parse(event.dataTransfer.getData('text/plain'));
+            console.log(wishlistItem, "EVENT DRAGGED");
 
             // Find the closest row element that is the target for the drop
-            const droppedRow = event.target.closest('tr'); // Get the closest table row
+            const droppedRow = event.target.closest('tr');
 
-            // Make sure droppedRow is defined
             if (droppedRow) {
                 const time = droppedRow.querySelector('td:first-child').textContent; // Get the timing from the first cell
 
@@ -309,12 +407,23 @@ export default {
                 console.log("Time:", time);
                 console.log("Wishlist Item:", wishlistItem);
 
-                // Assign eventID based on the available ID in wishlistItem
                 const eventID = wishlistItem.eventID || wishlistItem.attractionID;
 
+                // Check the length of the dragged item data to determine the source
                 if (eventID) {
-                    // Call addToEvent with the wishlist item and the time
-                    this.addToEvent(wishlistItem, { eventID, time });
+
+                    if (Object.keys(wishlistItem).length === 2) {
+                        // If length is 2, treat it as coming from the table
+                        console.log("Dragging within the table, updating event timing.");
+                        this.updateEventTiming(wishlistItem.eventID, time);
+                        // Reload the page after updating the event timing
+                        location.reload();
+                    } else {
+                        // Otherwise, treat it as coming from the wishlist
+                        console.log("Dragging from the wishlist, adding to event.");
+                        this.addToEvent(wishlistItem, { eventID, time }); //WORKS
+
+                    }
                 } else {
                     console.error("Wishlist item does not have a valid eventID or attractionID.");
                 }
@@ -324,41 +433,11 @@ export default {
         },
 
 
-
         //Dragging events within the events table
         // Handle when an event drag starts
         onEventDragStart(event) {
             event.dataTransfer.setData('eventID', event.eventID); // Pass eventID
         },
-
-        // // Handle dropping the dragged event into a new time slot
-        // onEventDrop(e, targetEvent) {
-        //     e.preventDefault();
-        //     const draggedEventID = e.dataTransfer.getData('eventID'); // Get the dragged event's eventID
-
-        //     // Find the dragged event in the sortedEvents array
-        //     const draggedEvent = this.sortedEvents.find(event => event.eventID === draggedEventID);
-
-        //     if (draggedEvent && targetEvent) {
-        //         // Swap the timings between draggedEvent and targetEvent
-        //         const tempTime = draggedEvent.time;
-        //         draggedEvent.time = targetEvent.time;
-        //         targetEvent.time = tempTime;
-
-        //         // Update the itinerary to reflect the new event timings
-        //         this.handleUpdate();
-        //     }
-        // },
-        // updateEventTiming(updatedEvent) {
-        //     // Update the time of the dragged event in sortedEvents array
-        //     const index = this.sortedEvents.findIndex(event => event.eventID === updatedEvent.eventID);
-        //     if (index !== -1) {
-        //         this.sortedEvents[index].time = updatedEvent.time;
-        //     }
-        // },
-        //end
-
-
 
         // Method to allow dropping
         allowDrop(event) {
@@ -367,23 +446,24 @@ export default {
 
 
         // Method to handle adding the item to the event
-        async addToEvent(wishlistItem, time) {
-            const eventID = wishlistItem.eventID || wishlistItem.attractionID; // Use either eventID or attractionID
+        async addToEvent(wishlistItem, { eventID, time }) {
+            // Use either eventID or attractionID
+            const id = wishlistItem.eventID || wishlistItem.attractionID;
 
             // Check if an event already exists in the itinerary with the same time
-            const existingEvent = this.sortedEvents.find(event => event.time === time.time); // Match by time
+            const existingEvent = this.sortedEvents.find(event => event.time === time);
 
             if (existingEvent) {
                 // Update the existing event with details from the wishlist
-                existingEvent.eventID = eventID; // Update eventID if necessary
-                existingEvent.name = this.eventDetails[eventID]?.name || this.attractionDetails[eventID]?.name; // Update name
+                existingEvent.eventID = id; // Update eventID if necessary
+                existingEvent.name = this.eventDetails[id]?.name || this.attractionDetails[id]?.name; // Update name
                 // Update other details if needed
             } else {
                 // If the event does not exist, create a new one
                 this.sortedEvents.push({
-                    time: time.time, // Set time as a string (not an object)
+                    time: time, // Set time as a string
                     eventID: eventID,
-                    name: this.eventDetails[eventID]?.name || this.attractionDetails[eventID]?.name,
+                    name: this.eventDetails[eventID]?.name || this.attractionDetails[id]?.name,
                 });
             }
 
@@ -391,14 +471,29 @@ export default {
             try {
                 await itineraryService.deleteWishlist(wishlistItem.id); // Remove from server
 
-                this.wishlists = this.wishlists.filter(wishlist => wishlist.id !== wishlistItem.id); // Remove from local state
+                // Remove from local state
+                this.wishlists = this.wishlists.filter(wishlist => wishlist.id !== wishlistItem.id);
             } catch (error) {
                 console.error("Failed to delete wishlist item:", error);
                 // Optionally handle the error, such as showing a message to the user
             }
 
-            // Call the handleUpdate to save the changes
-            this.handleUpdate();
+            try {
+                await this.handleUpdate(); // Await the completion of the update
+
+                // Confirm that the update is completed before reloading
+                console.log("Update completed, reloading page...");
+
+                // Display the success message and wait for a few seconds before reloading
+                setTimeout(() => {
+                    location.reload(); // Reload after the message is displayed
+                }, 2000); // Adjust the time as necessary
+
+                // location.reload(); // Reload only after the update is confirmed
+            } catch (error) {
+                console.error("Failed to update itinerary:", error);
+                // Optionally handle the error (e.g., show an error message)
+            }
         },
 
     },
@@ -440,5 +535,26 @@ export default {
     text-align: center;
     width: 100%;
     /* Ensures the input takes full width */
+}
+
+.event-details-wrapper,
+.attraction-details-wrapper {
+    position: relative;
+    /* Required for absolute positioning of child elements */
+    padding: 10px;
+    /* Ensure padding is included for content */
+}
+
+.remove-icon {
+    position: absolute;
+    top: 10px;
+    /* Adjust as needed */
+    right: 10px;
+    /* Adjust as needed */
+    cursor: pointer;
+    color: #f00;
+    /* Change color as needed */
+    font-size: 1.2em;
+    /* Adjust size as needed */
 }
 </style>

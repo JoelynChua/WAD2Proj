@@ -14,12 +14,12 @@
 
             <div class="mb-3">
                 <label for="date" class="form-label">Date</label>
-                <input type="date" class="form-control" id="date" v-model="formData.date" required />
+                <input type="date" class="form-control" id="date" v-model="formData.date" :min="today" required />
             </div>
 
             <div class="mb-3">
                 <label for="collaborators" class="form-label">Collaborators</label>
-                <input type="text" class="form-control" id="collaborators" v-model="formData.collaborators"
+                <input type="text" class="form-control" id="collaborators" v-model="displayedEmail"
                     placeholder="Comma-separated names" />
             </div>
 
@@ -50,6 +50,8 @@
 
 <script>
 import ItineraryService from '../services/itineraryService';
+import { getAuth } from 'firebase/auth';
+
 
 export default {
     data() {
@@ -61,21 +63,40 @@ export default {
                 date: '',
                 collaborators: '',  // Will be populated from sessionStorage
                 events: {}, // Initialize as an empty object
+                displayedEmail: "", //create a displayedEmail variable
             },
             hours: [],  // Initialize empty and populate in created hook
+            isLoading: true
         };
     },
     created() {
-        this.hours = this.generateHours(); // Generate the hour slots
-        this.formData.events = this.initializeTimetable(); // Initialize events after hours is populated
+        this.hours = this.generateHours();
+        this.formData.events = this.initializeTimetable();
 
+        const auth = getAuth();
+        const user = auth.currentUser;
 
-        // Fetch uid from sessionStorage and populate collaborators field
-        const uid = sessionStorage.getItem('uid');
-        console.log(uid)
-        if (uid) {
-            this.formData.collaborators = uid;
+        if (user) {
+            const uid = sessionStorage.getItem('uid');
+            this.formData.collaborators = uid || ''; // Check if uid exists
+            this.formData.email = user.email || ''; // Default to empty string if email is not available
+            this.displayedEmail = user.email|| '';
+            console.log('User email:', this.formData.email);
+        } else {
+            console.log('No user is signed in');
         }
+
+        this.isLoading = false; // Set loading to false after data retrieval
+    },
+
+    computed: {
+        today() {
+            const today = new Date(); // Get today's date
+            const dd = String(today.getDate()).padStart(2, '0'); // Day
+            const mm = String(today.getMonth() + 1).padStart(2, '0'); // Month
+            const yyyy = today.getFullYear(); // Year
+            return `${yyyy}-${mm}-${dd}`; // Return in YYYY-MM-DD format
+        },
     },
 
     methods: {
