@@ -15,7 +15,7 @@ const app = express();
 // Enable CORS for all routes
 app.use(
     cors({
-        origin: ['http://localhost:8000', 'http://localhost:8080'], // Allow requests from this origin
+        origin: ['http://localhost:8080', 'http://localhost:8081'], // Allow requests from this origin
         methods: ['GET', 'POST', 'PUT', 'DELETE'], // Specify allowed methods
         credentials: true,
     })

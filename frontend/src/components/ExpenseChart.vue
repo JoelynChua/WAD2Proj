@@ -1,7 +1,8 @@
 <template>
   <div class="chart-container">
     <h2 class="chart-title">Expense Visualization</h2>
-    <Bar :chart-data="chartData" :options="chartOptions" />
+    <Bar v-if="hasData" :chart-data="chartData" :options="chartOptions" />
+    <p v-else>No data available to display.</p>
   </div>
 </template>
 
@@ -19,16 +20,26 @@ export default {
   data() {
     return {
       chartData: {
-        labels: [],
-        datasets: [{
-          label: 'Expenses',
-          backgroundColor: '#f87979',
-          data: []
-        }]
+        labels: [], // Initialize labels as an empty array
+        datasets: [
+          {
+            label: 'Expenses', // Default label for the dataset
+            data: [] // Initialize data as an empty array
+          }
+        ]
       },
       chartOptions: {
         responsive: true,
         maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: false // Hide the legend
+          },
+          title: {
+            display: true,
+            text: 'Expense Visualization' // Set chart title
+          }
+        },
         scales: {
           y: {
             beginAtZero: true,
@@ -47,32 +58,74 @@ export default {
               color: '#555'
             }
           }
-        },
-        plugins: {
-          legend: {
-            labels: {
-              color: '#555'
-            }
-          }
         }
       }
     };
   },
-  async created() {
-    try {
-      const response = await expenseservice.getExpenses();
-      const labels = [];
-      const data = [];
-      
-      response.forEach(expense => {
-        labels.push(expense.description);
-        data.push(expense.amount);
-      });
 
-      this.chartData.labels = labels;
-      this.chartData.datasets[0].data = data;
-    } catch (error) {
-      console.error("Error loading chart data:", error);
+  computed: {
+    hasData() {
+      return this.chartData && this.chartData.labels.length > 0; // Check if chartData has labels
+    }
+  },
+
+  async mounted() {
+    await this.fetchChartData(); // Fetch data when component is mounted
+  },
+
+  methods: {
+    async fetchChartData() {
+      try {
+        const response = await expenseservice.getExpenses();
+
+        console.log("Expenses Response:", response);
+
+        if (Array.isArray(response) && response.length > 0) {
+          const labels = response.map(expense => {
+            const description = String(expense.description || 'Unknown');
+            return description.trim() || 'Unnamed Expense';
+          });
+
+          const data = response.map(expense => {
+            const amount = Number(expense.amount) || 0;
+            console.log("Amount:", amount, "Type:", typeof amount);
+            return amount;
+          });
+
+          // Update chart data with labels and data
+          this.chartData = {
+            labels,
+            datasets: [
+              {
+                label: 'Expenses',
+                backgroundColor: '#f87979',
+                data, // Ensure this is not undefined
+              },
+            ],
+          };
+
+          console.log("Labels:", labels, "Data:", data);
+        } else {
+          console.warn("No expenses found in the response.");
+          this.resetChartData(); // Reset chart data structure
+        }
+      } catch (error) {
+        console.error("Error loading chart data:", error);
+        this.resetChartData(); // Reset chart data structure in case of error
+      }
+    },
+    resetChartData() {
+      // Maintain chartData structure to avoid undefined issues
+      this.chartData = {
+        labels: [],
+        datasets: [
+          {
+            label: 'Expenses',
+            backgroundColor: '#f87979',
+            data: [],
+          },
+        ],
+      };
     }
   }
 };
@@ -80,7 +133,7 @@ export default {
 
 <style scoped>
 .chart-container {
-  max-width: 600px; /* Adjust width as needed */
+  max-width: 600px;
   margin: 20px auto;
   padding: 20px;
   background-color: #f9f9f9;

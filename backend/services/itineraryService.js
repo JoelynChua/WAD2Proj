@@ -3,10 +3,10 @@ const db = require("../config/firebase");
 const Itinerary = require("../models/itineraryModel");
 
 // Get all itineraries
-exports.getAllItinerary = async () => { 
+exports.getAllItinerary = async () => {
     const snapshot = await db.ref("itinerary").once("value");
     const itineraries = snapshot.val();
-    
+
     return Object.keys(itineraries).map(
         (key) => new Itinerary(
             key,
@@ -24,11 +24,11 @@ exports.getAllItinerary = async () => {
 exports.getItineraryByID = async (id) => {
     const snapshot = await db.ref(`itinerary/${id}`).once("value");
     const itinerary = snapshot.val();
-    
+
     if (!itinerary) {
         throw new Error("Itinerary not found");
     }
-    
+
     return new Itinerary(
         id,                                  // Itinerary ID
         itinerary.title,                     // Title
@@ -52,8 +52,8 @@ exports.getItineraryByUserID = async (userID) => {
     const filteredItineraries = Object.keys(itineraries)
         .filter(key => {
             const itinerary = itineraries[key];
-            return itinerary.collaborators && 
-                Array.isArray(itinerary.collaborators) && 
+            return itinerary.collaborators &&
+                Array.isArray(itinerary.collaborators) &&
                 itinerary.collaborators.includes(userID);
         })
         .map(key => new Itinerary(
@@ -85,9 +85,9 @@ exports.addItinerary = async (newItinerary) => {
         collaborators: newItinerary.collaborators || [], // Default to empty array if not provided
         events: newItinerary.events || [], // Default to empty array if not provided
     };
-    
+
     await itineraryRef.set(itineraryData); // Sets the new itinerary data at that key
-    
+
     return new Itinerary(
         itineraryRef.key, // Automatically generated key
         itineraryData.title,
@@ -112,11 +112,12 @@ exports.updateItinerary = async (id, updatedData) => {
     const updatedItinerary = {
         title: updatedData.title,
         date: updatedData.date,
+        budget: updatedData.budget,
         collaborators: updatedData.collaborators || [], // Default to empty array if not provided
         events: updatedData.events || [] // Default to empty array if not provided
         // Do not include totalCost as it's not editable
     };
-
+    console.log(updatedItinerary)
     await itineraryRef.update(updatedItinerary);
     return { id, ...updatedItinerary, message: 'Itinerary updated successfully' };
 };

@@ -1,12 +1,13 @@
 <template>
     <div id="app">
         <!-- Logo centered on the page -->
+        <a href="/">
         <img
             style="display: block; margin: 0 auto; width: 5%; height: auto"
             alt="logo"
             src="./assets/tabiLog_logo.png"
         />
-
+    </a>
         <!-- Collapsible Navigation Bar -->
         <collapsible-navibar />
 
