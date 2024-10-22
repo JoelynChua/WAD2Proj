@@ -1,7 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import { auth } from '../firebase/firebaseClientConfig'; // Adjust the path to your Firebase config
 import HomePage from '../screens/homePage.vue';
-import UserDashboard from '../screens/userDashboard.vue';   
 import EventDetails from '../screens/eventDetails.vue';
 import AttractionsList from '../screens/attractionsList.vue';
 import AttractionDetails from '../screens/attractionDetails.vue';
@@ -20,11 +19,6 @@ const routes = [
     name: 'Home',
     component: HomePage,
   },
-  {
-    path: '/userdashboard', // The new page where the user will be redirected after login
-    name: 'userDashboard',
-    component: UserDashboard, // Your dashboard component
-  },  
   {
     path: '/eventDetails/:id',
     name: 'EventDetails',
@@ -73,8 +67,8 @@ const routes = [
     component: ExpensePage,
   },
   {
-    path: '/ProfilePage',
-    name: 'ProfilePage',
+    path: '/dashboard',
+    name: 'UserDashboard',
     component: ProfilePage,
     meta: { requiresAuth: true }, // Requires authentication
   },

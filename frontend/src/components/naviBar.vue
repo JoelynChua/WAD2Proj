@@ -20,7 +20,7 @@
           <span class="navbar-toggler-icon" :class="{'navbar-button-small': isSmall}"
           ></span>
         </button>
-        <a class="navbar-brand" href="/">Tabi-log</a>
+        <RouterLink class="navbar-brand" to="/">Tabi-log</RouterLink>
       </div>
 
       <div 
@@ -28,24 +28,21 @@
         :class="{ hiddencollapse: isHidden }" 
         id="navbarNav" 
         style="background-color: #f7f5f5">
-        <ul class="navbar-nav mx-auto"> <!-- Center the nav items -->
+        <ul class="navbar-nav mx-auto gap-3"> <!-- Center the nav items -->
           <li class="nav-item">
-            <a class="nav-link active" aria-current="page" href="/">Events</a>
+            <RouterLink class="nav-link active" aria-current="page" to="/">Events</RouterLink>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="/attractionsList">Attractions</a>
+            <RouterLink class="nav-link" to="/attractionsList">Attractions</RouterLink>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="/itineraryList">Itinerary</a>
+            <RouterLink class="nav-link" to="/itineraryList">Itinerary</RouterLink>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="#">Contact</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="/ExpensePage">Expense</a>
+            <RouterLink class="nav-link" to="/ExpensePage">Expense</RouterLink>
           </li>
           <li class="nav-item" v-if="isAuthenticated">
-            <a class="nav-link" href="/calendar">Calendar</a>
+            <RouterLink class="nav-link" to="/calendar">Calendar</RouterLink>
           </li>
         </ul>
 
@@ -70,7 +67,7 @@
             </a>
             <ul class="dropdown-menu dropdown-menu-end" :class="{ hidden: isHidden }" aria-labelledby="navbarDropdown">
               <li>
-                <a class="dropdown-item" href="/ProfilePage">Profile</a> <!-- Link to profile -->
+                <RouterLink class="dropdown-item" to="/dashboard">Profile</RouterLink> <!-- Link to profile -->
               </li>
               <li>
                 <a class="dropdown-item" href="#" @click.prevent="signOut">Sign Out</a> <!-- Sign out link -->
@@ -97,7 +94,7 @@ export default {
       isHidden: false,       // Track if the navbar should be hidden
       lastScrollY: 0,       // Store the last scroll position
       stickyTop: 0,         // Store the offset top of the navbar
-      scrollThreshold: 200,  // Threshold for hiding the navbar
+      scrollThreshold: 750,  // Threshold for hiding the navbar
     };
   },
   created() {
@@ -123,7 +120,7 @@ export default {
 
       // Check if the scroll position has reached the navbar's position
       this.isSticky = scrollY >= this.stickyTop;
-      this.isSmall = scrollY > 100; // Adjust threshold for small navbar
+      this.isSmall = scrollY > 200; // Adjust threshold for small navbar
 
       // Only hide the navbar if the user has scrolled down past the threshold
       if (scrollY > this.scrollThreshold) {
@@ -158,7 +155,7 @@ export default {
 <style scoped>
 .navbar {
   transition: all 0.3s ease; /* Smooth transition for all changes */
-  height: 80px; /* Initial height when the page loads */
+  height: 120px; /* Initial height when the page loads */
   padding: 1rem 1.5rem; /* Padding when not scrolled */
 }
 
@@ -171,7 +168,7 @@ export default {
 }
 
 .navbar-small {
-  height: 50px; /* Height when scrolled down */
+  height: 70px; /* Height when scrolled down */
   padding: 0.5rem 1rem; /* Smaller padding when scrolled down */
   font-size: 0.9rem; /* Smaller font size when scrolled down */
 }

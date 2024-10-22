@@ -1,157 +1,6 @@
 <template>
     <template v-if="!this.firsttime">
-        <div class="container-fluid vh-100 d-flex flex-column">
-            <div class="row h-100 justify-content-center">
-                <div id="profilenav" class="col-12 col-md-3 col-lg-2 mt-3 ms-md-3 p-3">
-                    <div class="p-2 shadow">
-                        <div>
-                            <img v-if="this.photoURL"
-                                src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Default_pfp.svg/510px-Default_pfp.svg.png"
-                                class="rounded-circle mt-3 mb-3"
-                                style="width: 100px; height: 100px; object-fit: cover;">
-                        </div>
-
-                        <ul id="verticalnav" class="nav flex-column nav-pills mt-3" role="tablist">
-                            <li class="nav-item">
-                                <a class="nav-link active" id="main-tab" data-bs-toggle="pill" href="#main" role="tab"
-                                    aria-controls="main" aria-selected="true">
-                                    Profile
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" id="payment-tab" data-bs-toggle="pill" href="#payment" role="tab"
-                                    aria-controls="payment" aria-selected="false">
-                                    Payment Methods
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" id="security-tab" data-bs-toggle="pill" href="#security" role="tab"
-                                    aria-controls="security" aria-selected="false">
-                                    Security
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-                <div id="profile" class="col-12 col-md-8 col-lg-5 mt-3">
-                    <div class="tab-content">
-                        <div class="tab-pane fade show active" id="main" role="tabpanel" aria-labelledby="main-tab">
-                            <h5 class="text-start">User Details</h5>
-                            <div class="mt-4 shadow p-3 bg-body">
-                                <h5 class="text-start">Name</h5>
-
-                                <!-- If editing is true, show input field to change name -->
-                                <div v-if="isEditing">
-                                    <input type="text" v-model="editedName" class="form-control" />
-                                    <button class="btn btn-primary mt-2" @click="saveName">Save</button>
-                                    <button class="btn btn-secondary mt-2" @click="cancelEdit">Cancel</button>
-                                </div>
-
-                                <!-- If not editing, display the name and edit button -->
-                                <div v-else class="d-flex justify-content-between align-items-start">
-                                    <div class="">{{ displayName }}</div>
-                                    <div class=""><button class="btn" @click="editName"><strong>Edit</strong></button>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="mt-3 shadow p-3 bg-body">
-                                <h5 class="text-start">Email</h5>
-                                <p class="text-start">{{ email }}</p>
-                            </div>
-                            <div class="mt-3 shadow p-3 bg-body">
-                                <h5 class="text-start">Phone number</h5>
-                                <p class="text-start">{{ mobileNumber }}</p>
-                            </div>
-
-                            <h5 class="mt-5 text-start">Communications</h5>
-
-                            <div class="mt-3 shadow p-3 bg-body">
-                                <h5 class="text-start p-2">Newsletter</h5>
-                                <a-radio-group v-model:value="newsletter">
-                                    <div class="d-flex justify-content-around p-2 gap-5">
-                                        <a-radio :value="1">Daily</a-radio>
-                                        <a-radio :value="2">Twice a week</a-radio>
-                                        <a-radio :value="3">Weekly</a-radio>
-                                        <a-radio :value="4">Never</a-radio>
-                                    </div>
-                                </a-radio-group>
-                            </div>
-                            <div class="mt-3 shadow p-4 bg-body">
-                                <div class="d-flex justify-content-between align-items-start">
-                                    <div><b>I would like to receive booking reminders</b></div>
-                                    <div><a-switch v-model:checked="reminders" /></div>
-                                </div>
-                            </div>
-                            <div class="mt-3 shadow p-4 bg-body">
-                                <div class="d-flex justify-content-between align-items-start">
-                                    <div><b>I would like to receive emails about promotions</b></div>
-                                    <div><a-switch v-model:checked="promotions" /></div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="tab-pane fade" id="payment" role="tabpanel" aria-labelledby="payment-tab">
-                            <div class="card">
-                                <h5 class="card-header text-start">Payment Methods</h5>
-                                <div class="card-body">
-                                    <div v-if="!isFormVisible">
-                                        <p class="card-text">Add, remove, or manage your payment methods here.</p>
-                                        <button @click="togglePaymentForm" class="btn btn-primary">Add Payment
-                                            Method</button>
-                                    </div>
-
-                                    <div v-if="isFormVisible" class="mt-3">
-                                        <form @submit.prevent="submitPaymentMethod" class="text-start">
-                                            <div class="mb-3">
-                                                <label for="cardNumber" class="form-label">Card Number</label>
-                                                <input type="text" class="form-control" v-model="cardNumber"
-                                                    placeholder="Enter card number" required />
-                                            </div>
-                                            <div class="mb-3">
-                                                <label for="cardHolder" class="form-label">Card Holder Name</label>
-                                                <input type="text" class="form-control" v-model="cardHolder"
-                                                    placeholder="Enter card holder name" required />
-                                            </div>
-                                            <div class="container-fluid ml-0 p-0">
-                                                <div class="row">
-                                                    <div class="mb-3 col-4">
-                                                        <label for="expiryDate" class="form-label">Expiry Date</label>
-                                                        <input type="text" class="form-control" v-model="expiryDate"
-                                                            placeholder="MM/YY" required />
-                                                    </div>
-                                                    <div class="mb-3 col-4">
-                                                        <label for="cvv" class="form-label">CVV</label>
-                                                        <input type="text" class="form-control" v-model="cvv"
-                                                            placeholder="Enter CVV" required />
-                                                    </div>
-                                                    <div class="col-4"></div>
-                                                </div>
-                                            </div>
-                                            <button type="submit" class="btn btn-success">Save Payment Method</button>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="tab-pane fade" id="security" role="tabpanel" aria-labelledby="security-tab">
-                            <h5 class="text-start">Security</h5>
-                            <div class="mt-4 shadow p-3 bg-body">
-                                    <p class="card-text">Manage your account security settings here.</p>
-                                    <div v-if="showPasswordChange">
-                                        <a href="#" class="btn btn-primary mt-2">Change Password</a>
-                                    </div>
-                                    <div v-else>
-                                        <p class="text-muted">Password change is not available for Google Auth users.
-                                        </p>
-                                        <p><img width="150px" height="auto" src="../assets/googleAuth.png"></p>
-                                    </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <profilePage />
     </template>
     <template v-else>
         <profileSignUp />
@@ -160,6 +9,7 @@
 
 <script>
 import profileSignUp from "@/components/profileSignUp.vue";
+import profilePage from "@/components/profilePage.vue"
 import { getAuth } from "firebase/auth";
 import { getDatabase, ref, get, update } from "firebase/database";
 import { ref as vueRef } from 'vue';
@@ -189,6 +39,7 @@ export default {
     },
     components: {
         profileSignUp,
+        profilePage,
     },
     methods: {
         editName() {
@@ -238,7 +89,7 @@ export default {
         }
     },
     mounted() {
-        const auth = getAuth();
+        const auth =  getAuth();
         const user = auth.currentUser; // Get the current user
         if (user) {
             this.name = user.displayName || "No name available";

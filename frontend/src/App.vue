@@ -11,7 +11,7 @@
         <!-- Collapsible Navigation Bar -->
         <collapsible-navibar />
 
-        <div style="height: 80px;"></div> <!-- Sticky Navbar Buffer -->
+        <div style="height: 120px;"></div> <!-- Sticky Navbar Buffer -->
 
         <!-- Router View for Dynamic Content -->
         <router-view />
