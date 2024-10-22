@@ -11,16 +11,23 @@
         <button 
           class="navbar-toggler me-2" 
           type="button" 
+          :class="{'navbar-icon-small': isSmall}"
+          style="z-index: 1050;"
           data-bs-toggle="collapse" 
           data-bs-target="#navbarNav" 
           aria-controls="navbarNav" 
           aria-label="Toggle navigation">
-          <span class="navbar-toggler-icon"></span>
+          <span class="navbar-toggler-icon" :class="{'navbar-button-small': isSmall}"
+          ></span>
         </button>
         <a class="navbar-brand" href="/">Tabi-log</a>
       </div>
 
-      <div class="collapse navbar-collapse" id="navbarNav">
+      <div 
+        class="collapse navbar-collapse" 
+        :class="{ hiddencollapse: isHidden }" 
+        id="navbarNav" 
+        style="background-color: #f7f5f5">
         <ul class="navbar-nav mx-auto"> <!-- Center the nav items -->
           <li class="nav-item">
             <a class="nav-link active" aria-current="page" href="/">Events</a>
@@ -61,7 +68,7 @@
                 height="30" 
                 class="rounded-circle" /> <!-- User icon -->
             </a>
-            <ul class="dropdown-menu dropdown-menu-end" :class="{hidden: isHidden}" aria-labelledby="navbarDropdown">
+            <ul class="dropdown-menu dropdown-menu-end" :class="{ hidden: isHidden }" aria-labelledby="navbarDropdown">
               <li>
                 <a class="dropdown-item" href="/ProfilePage">Profile</a> <!-- Link to profile -->
               </li>
@@ -85,12 +92,12 @@ export default {
   data() {
     return {
       isAuthenticated: false, // Track authentication state
-      isSticky: false,        // Track if the navbar should be sticky
-      isSmall: false,         // Track if the navbar is small
-      isHidden: false,        // Track if the navbar should be hidden
-      lastScrollY: 0,        // Store the last scroll position
-      stickyTop: 0,          // Store the offset top of the navbar
-      scrollThreshold: 550,   // Threshold for hiding the navbar
+      isSticky: true,        // Track if the navbar should be sticky
+      isSmall: false,        // Track if the navbar is small
+      isHidden: false,       // Track if the navbar should be hidden
+      lastScrollY: 0,       // Store the last scroll position
+      stickyTop: 0,         // Store the offset top of the navbar
+      scrollThreshold: 200,  // Threshold for hiding the navbar
     };
   },
   created() {
@@ -169,8 +176,26 @@ export default {
   font-size: 0.9rem; /* Smaller font size when scrolled down */
 }
 
+.navbar-icon-small {
+  padding: 5px;
+  transition: all 0.3s ease; /* Add smooth transition to all properties */
+
+}
+
+.navbar-button-small {
+  height: 22px;
+  width: 22px;
+  transition: all 0.3s ease; /* Add smooth transition to all properties */
+}
+
 .hidden {
   transform: translateY(-100%); /* Slide up to hide */
+  transition: transform 0.3s ease; /* Smooth transition for the hidden state */
+}
+
+.hiddencollapse {
+  transform: translateY(-100%); /* Slide up to hide */
+  transition: transform 0.9s ease; /* Smooth transition for the hidden state */
 }
 
 .navbar-small .navbar-brand {
