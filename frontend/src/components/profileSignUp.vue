@@ -1,6 +1,6 @@
 <template>
     <div class="container rounded bg-white mt-5 mb-5">
-        <div class="row">
+        <div class="row justify-content-center">
             <div class="col-md-3 border-right">
                 <div class="d-flex flex-column align-items-center text-center p-3 py-5">
                     <img class="rounded-circle mt-5" width="150px"
@@ -26,10 +26,10 @@
                             <label class="labels">Email ID <span class="required">*</span></label>
                             <input type="text" class="form-control" placeholder="" v-model="email" disabled>
                         </div>
-                        <div>
+                        <div class="col-md-12">
                             <label for="dob">Date of Birth: <span class="required">*</span></label>
-                            <a-date-picker class="form-control" id="dob" placeholder="" :format="'DD/MM/YYYY'"
-                                v-model="dateOfBirth" />
+                            <a-date-picker class="form-control" v-model:value="dob" />
+
                         </div>
                         <div class="col-md-12">
                             <label class="labels">Address Line 1 <span class="required">*</span></label>
@@ -48,24 +48,8 @@
                             <country-select class="form-control" v-model="country" :country="country" topCountry="SG" />
                         </div>
                     </div>
-                    <!-- <div class="row mt-3">
-                        <div class="col-md-6">
-                            <label class="labels">Country</label>
-                            <select class="form-control" v-model="country">
-                                <option value="" disabled>Select a country</option>
-                                <option v-for="country in countries" :key="country.code" :value="country.name">
-                                    {{ country.name }}
-                                </option>
-                            </select>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="labels">State/Region</label>
-                            <input type="text" class="form-control" placeholder="" v-model="region">
-                        </div>
-                    </div> -->
                     <div class="mt-5 text-center">
-                        <button class="btn btn-primary profile-button" type="button" @click="saveProfile">Save
-                            Profile</button>
+                        <button class="btn btn-primary profile-button" type="button" @click="saveProfile">Save Profile</button>
                     </div>
                 </div>
             </div>
@@ -82,18 +66,59 @@ export default {
         return {
             displayName: '',
             mobileNumber: '',
-            dateOfBirth: '',
+            dob: null,
             address1: '',
             address2: '',
             postcode: '',
             email: '',
             country: '',
-            countries: [], // Initialize the countries array
-            user: null, // Add user to data
+            user: null,
         };
     },
     methods: {
+        validateProfile() {
+            const mobilePattern = /^[89]\d{7}$/;
+
+            if (!this.displayName) {
+                alert("Name is required");
+                return false;
+            }
+
+            if (!mobilePattern.test(this.mobileNumber)) {
+                alert("Mobile number must start with 8 or 9 and be followed by 7 digits.");
+                return false;
+            }
+
+            // Check if dob is selected and has a value
+            if (!this.dob) {
+                alert("Date of Birth is required");
+                return false;
+            }
+
+            if (!this.address1) {
+                alert("Address Line 1 is required");
+                return false;
+            }
+
+            if (!this.postcode) {
+                alert("Postal code is required");
+                return false;
+            }
+
+            if (!this.country) {
+                alert("Country is required");
+                return false;
+            }
+
+            return true; // All validations passed
+        },
         saveProfile() {
+            // Debugging: Check the date of birth
+
+            if (!this.validateProfile()) {
+                return; // Exit if validation fails
+            }
+
             // Ensure user is defined before trying to save
             if (!this.user) {
                 alert('No user is currently logged in.');
@@ -115,11 +140,12 @@ export default {
                 postcode: this.postcode,
                 email: this.email,
                 country: this.country,
-                dateOfBirth: this.dateOfBirth,
+                dateOfBirth: this.dob.toDate(),
+                userType: 'customer'
             })
                 .then(() => {
                     alert('Profile saved successfully!');
-                    location.reload()
+                    location.reload();
                 })
                 .catch((error) => {
                     console.error('Error saving profile:', error);
@@ -131,14 +157,8 @@ export default {
         const auth = getAuth();
         onAuthStateChanged(auth, (user) => {
             if (user) {
-                this.user = user; // Save user to the component state
-                this.email = user.email; // Set email from user object
-
-                const isGoogleAuth = user.providerData.some(
-                    (provider) => provider.providerId === 'google.com'
-                );
-
-                this.showPasswordChange = !isGoogleAuth;
+                this.user = user; 
+                this.email = user.email; 
             } else {
                 console.log("No user is currently logged in.");
             }
@@ -147,10 +167,8 @@ export default {
 };
 </script>
 
-
 <style lang="scss" scoped>
-/* Your existing styles */
-.required{
+.required {
     color: red;
 }
 </style>
