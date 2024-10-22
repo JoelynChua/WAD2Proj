@@ -1,6 +1,6 @@
 <template>
-    <div class="container rounded bg-white mt-5 mb-5">
-        <div class="row justify-content-center">
+    <div class="container rounded bg-white mt-5 mb-5" style="max-width: 1100px;">
+        <div class="row justify-content-center shadow" >
             <div class="col-md-3 border-right">
                 <div class="d-flex flex-column align-items-center text-center p-3 py-5">
                     <img class="rounded-circle mt-5" width="150px"
@@ -8,8 +8,8 @@
                     <span class="text-black-50 mt-4">{{ email }}</span>
                 </div>
             </div>
-            <div class="col-md-8 col-lg-5 border-right">
-                <div class="p-3 py-5">
+            <div class="col-md-8 col-lg-7 border-right p-0">
+                <div class="p-4">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <h4 class="text-right">Profile Setup</h4>
                     </div>
@@ -28,7 +28,7 @@
                         </div>
                         <div class="col-md-12">
                             <label for="dob">Date of Birth: <span class="required">*</span></label>
-                            <a-date-picker class="form-control" v-model:value="dob" />
+                            <a-date-picker class="form-control" v-model:value="dob" width="100%" />
 
                         </div>
                         <div class="col-md-12">
@@ -140,7 +140,7 @@ export default {
                 postcode: this.postcode,
                 email: this.email,
                 country: this.country,
-                dateOfBirth: this.dob.toDate(),
+                dateOfBirth: this.dob.toDate().toString(),
                 userType: 'customer'
             })
                 .then(() => {

@@ -2,7 +2,7 @@
     <div
         class="d-flex justify-content-center align-items-center vh-100 bg-pink"
     >
-        <div class="login-container p-4">
+        <div class="login-container p-4 shadow">
             <!-- <img src="../assets/apple.png" alt="Logo" width="150"> -->
             <h5 class="text-center">Log in to your account</h5>
             <form @submit.prevent="login">
@@ -92,15 +92,12 @@ import GoogleLogin from '../components/GoogleLogin.vue';
 
 <style scoped>
 .bg-pink {
-    background-color: black;
+    background-color: white;
 }
 
 .login-container {
     width: 400px;
     background-color: white;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
 #app {
