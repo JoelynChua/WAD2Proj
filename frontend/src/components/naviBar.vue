@@ -28,6 +28,7 @@
         :class="{ hiddencollapse: isHidden }" 
         id="navbarNav" 
         style="background-color: #f7f5f5">
+
         <ul class="navbar-nav mx-auto gap-3"> <!-- Center the nav items -->
           <li class="nav-item">
             <RouterLink class="nav-link active" aria-current="page" to="/">Events</RouterLink>

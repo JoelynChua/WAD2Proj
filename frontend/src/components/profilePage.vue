@@ -23,6 +23,12 @@
                             </a>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link" id="payment-tab" data-bs-toggle="pill" href="#wallet" role="tab"
+                                aria-controls="payment" aria-selected="false">
+                                TabiWallet
+                            </a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link" id="security-tab" data-bs-toggle="pill" href="#security" role="tab"
                                 aria-controls="security" aria-selected="false">
                                 Security
@@ -36,14 +42,17 @@
                 <div class="tab-content">
                     <div class="tab-pane fade show active" id="main" role="tabpanel" aria-labelledby="main-tab">
                         <h5 class="text-start">User Details</h5>
-                        <div class="mt-4 shadow p-3 bg-body">
+                        <div class="mt-4 shadow p-3 bg-body"
+                            :style="{ height: isEditing ? '150px' : '100px', transition: 'height 0.3s ease', backgroundColor: isEditing ? 'grey' : '' }">
+
                             <h5 class="text-start">Name</h5>
 
                             <!-- If editing is true, show input field to change name -->
-                            <div v-if="isEditing">
+                            <div v-if="isEditing && showEditingControls" class="edit-controls"
+                                style="opacity: 1; transition: opacity 0.1s ease;">
                                 <input type="text" v-model="editedName" class="form-control" />
+                                <button class="btn btn-secondary mt-2 me-1" @click="cancelEdit">Cancel</button>
                                 <button class="btn btn-primary mt-2" @click="saveName">Save</button>
-                                <button class="btn btn-secondary mt-2" @click="cancelEdit">Cancel</button>
                             </div>
 
                             <!-- If not editing, display the name and edit button -->
@@ -90,13 +99,57 @@
                     </div>
 
                     <div class="tab-pane fade" id="payment" role="tabpanel" aria-labelledby="payment-tab">
-                        <div class="card">
-                            <h5 class="card-header text-start">Payment Methods</h5>
-                            <div class="card-body">
+                        <div class="">
+                            <h5 class="text-start">Payment Methods</h5>
+                            <div class="shadow p-3 mt-4">
                                 <div v-if="!isFormVisible">
-                                    <p class="card-text">Add, remove, or manage your payment methods here.</p>
-                                    <button @click="togglePaymentForm" class="btn btn-primary">Add Payment
+                                    <p class="mt-4">Add, remove, or manage your payment methods here.</p>
+                                    <button @click="togglePaymentForm" class="btn btn-primary d-none">Add Payment
                                         Method</button>
+                                    <img src="../assets/visa-mastercard-amex_0.png" width="300px">
+                                </div>
+
+                                <div v-if="isFormVisible" class="mt-3">
+                                    <form @submit.prevent="submitPaymentMethod" class="text-start">
+                                        <div class="mb-3">
+                                            <label for="cardNumber" class="form-label">Card Number</label>
+                                            <input type="text" class="form-control" v-model="cardNumber"
+                                                placeholder="Enter card number" required />
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="cardHolder" class="form-label">Card Holder Name</label>
+                                            <input type="text" class="form-control" v-model="cardHolder"
+                                                placeholder="Enter card holder name" required />
+                                        </div>
+                                        <div class="container-fluid ml-0 p-0">
+                                            <div class="row">
+                                                <div class="mb-3 col-4">
+                                                    <label for="expiryDate" class="form-label">Expiry Date</label>
+                                                    <input type="text" class="form-control" v-model="expiryDate"
+                                                        placeholder="MM/YY" required />
+                                                </div>
+                                                <div class="mb-3 col-4">
+                                                    <label for="cvv" class="form-label">CVV</label>
+                                                    <input type="text" class="form-control" v-model="cvv"
+                                                        placeholder="Enter CVV" required />
+                                                </div>
+                                                <div class="col-4"></div>
+                                            </div>
+                                        </div>
+                                        <button type="submit" class="btn btn-success">Save Payment Method</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tab-pane fade" id="wallet" role="tabpanel" aria-labelledby="payment-tab">
+                        <div class="">
+                            <h5 class="text-start">TabiWallet</h5>
+                            <div class="shadow p-3 mt-4">
+                                <div v-if="!isFormVisible">
+                                    <p class="mt-4 text-start"><b>Balance</b></p>
+                                    <p class="fs-1 text-start">$50.00</p>
                                 </div>
 
                                 <div v-if="isFormVisible" class="mt-3">
@@ -178,12 +231,17 @@ export default {
             reminders: "",
             promotions: "",
             mobileNumber: undefined,
+            showEditingControls: false,
+            balance: 0,
         }
     },
     methods: {
         editName() {
             this.editedName = this.displayName;  // set the initial value to the current name
             this.isEditing = true;  // toggle editing mode
+            setTimeout(() => {
+                this.showEditingControls = true;  // Show editing controls after 0.3 seconds
+            }, 100); // 300 ms delay
         },
         saveName() {
 
@@ -206,6 +264,7 @@ export default {
         },
         cancelEdit() {
             this.isEditing = false;  // cancel editing, revert to previous name
+            this.showEditingControls = false;  // Hide editing controls
         },
         togglePaymentForm() {
             this.isFormVisible = !this.isFormVisible;
@@ -253,6 +312,7 @@ export default {
                     this.email = data.email || 'No email available';
                     this.photoURL = data.photoURL || this.photoURL;
                     this.mobileNumber = data.mobileNumber
+                    this.balance = data.balance
                 } else {
                     // No profile data available
                     console.log("No profile data found for user.");
