@@ -16,17 +16,23 @@
         <!-- Router View for Dynamic Content -->
         <router-view />
         <!-- <GoogleLogin :callback="callback" prompt /> -->
+
+        <!-- Footer Component -->
+        <AppFooter />
     </div>
 </template>
 
 <script>
 // Import collapsibleNavibar component
 import collapsibleNavibar from './components/naviBar.vue'; // Adjust the path if necessary
+import AppFooter from './components/AppFooter.vue'; // Import the Footer component
+
 
 export default {
     name: 'App',
     components: {
         collapsibleNavibar, // Register the NavigationBar component
+        AppFooter, // Register the Footer component
     },
 };
 </script>
