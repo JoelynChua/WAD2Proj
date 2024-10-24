@@ -27,6 +27,7 @@ async function goToEventDetails(eventId) {
     }
 }
 
+
 export default {
     displayEvents,
     goToEventDetails
