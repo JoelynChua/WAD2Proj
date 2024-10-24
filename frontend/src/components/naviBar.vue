@@ -1,50 +1,40 @@
 <template>
-  <nav 
-    class="navbar navbar-expand-lg navbar-light" 
-    :class="{ 
-      sticky: isSticky, 
-      'navbar-small': isSmall, 
-      hidden: isHidden 
-    }" style="background-color: #f7f5f5;">
+  <nav class="navbar navbar-expand-lg navbar-light" :class="{
+    sticky: isSticky,
+    'navbar-small': isSmall,
+    hidden: isHidden
+  }" style="background-color: #c8e0ea;">
     <div class="container-fluid">
       <div class="d-flex align-items-center">
-        <button 
-          class="navbar-toggler me-2" 
-          type="button" 
-          :class="{'navbar-icon-small': isSmall}"
-          style="z-index: 1050;"
-          data-bs-toggle="collapse" 
-          data-bs-target="#navbarNav" 
-          aria-controls="navbarNav" 
+        <button class="navbar-toggler me-2" type="button" :class="{ 'navbar-icon-small': isSmall }" style="z-index: 1050;"
+          data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav"
           aria-label="Toggle navigation">
-          <span class="navbar-toggler-icon" :class="{'navbar-button-small': isSmall}"
-          ></span>
+          <span class="navbar-toggler-icon" :class="{ 'navbar-button-small': isSmall }"></span>
         </button>
         <RouterLink class="navbar-brand" to="/">Tabi-log</RouterLink>
       </div>
 
-      <div 
-        class="collapse navbar-collapse" 
-        :class="{ hiddencollapse: isHidden }" 
-        id="navbarNav" 
-        style="background-color: #f7f5f5">
-
-        <ul class="navbar-nav mx-auto gap-3"> <!-- Center the nav items -->
+      <div class="collapse navbar-collapse" :class="{ hiddencollapse: isHidden }" id="navbarNav"
+        style="background-color: #c8e0ea">
+        <ul class="navbar-nav mx-auto"> <!-- Center the nav items -->
           <li class="nav-item">
-            <RouterLink class="nav-link active" aria-current="page" to="/">Events</RouterLink>
+            <a class="nav-link" :class="{ active: $route.path === '/' }" aria-current="page" href="/">Events</a>
           </li>
           <li class="nav-item">
-            <RouterLink class="nav-link" to="/attractionsList">Attractions</RouterLink>
+            <a class="nav-link" :class="{ active: $route.path === '/attractionsList' }"
+              href="/attractionsList">Attractions</a>
           </li>
           <li class="nav-item">
-            <RouterLink class="nav-link" to="/itineraryList">Itinerary</RouterLink>
+            <a class="nav-link" :class="{ active: $route.path === '/itineraryList' }"
+              href="/itineraryList">Itinerary</a>
           </li>
           <li class="nav-item">
-            <RouterLink class="nav-link" to="/ExpensePage">Expense</RouterLink>
+            <a class="nav-link" :class="{ active: $route.path === '/ExpensePage' }" href="/ExpensePage">Expense</a>
           </li>
           <li class="nav-item" v-if="isAuthenticated">
-            <RouterLink class="nav-link" to="/calendar">Calendar</RouterLink>
+            <a class="nav-link" :class="{ active: $route.path === '/calendar' }" href="/calendar">Calendar</a>
           </li>
+
         </ul>
 
         <ul class="navbar-nav"> <!-- Separate nav for Profile and Log In / Sign Up -->
@@ -52,19 +42,10 @@
             <a class="nav-link" href="/Loginpage">Log In / Sign Up</a>
           </li>
           <li class="nav-item dropdown" v-else>
-            <a 
-              class="nav-link dropdown-toggle" 
-              href="#" 
-              id="navbarDropdown" 
-              role="button" 
-              data-bs-toggle="dropdown" 
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown"
               aria-expanded="false">
-              <img 
-                src="../assets/user-icon.png" 
-                alt="User Icon" 
-                width="30" 
-                height="30" 
-                class="rounded-circle" /> <!-- User icon -->
+              <img src="../assets/user-icon.png" alt="User Icon" width="30" height="30" class="rounded-circle" />
+              <!-- User icon -->
             </a>
             <ul class="dropdown-menu dropdown-menu-end" :class="{ hidden: isHidden }" aria-labelledby="navbarDropdown">
               <li>
@@ -149,23 +130,40 @@ export default {
         console.error('Error signing out:', error.message);
       }
     },
+
+    updateNavbarBasedOnRoute(path) {
+      // Add logic to update the navbar based on the current path
+      if (path === '/') {
+        console.log('Navigated to ExpensePage');
+        // Add specific logic if needed
+      }
+    },
+
   }
 };
 </script>
 
 <style scoped>
 .navbar {
-  transition: all 0.3s ease; /* Smooth transition for all changes */
-  height: 120px; /* Initial height when the page loads */
-  padding: 1rem 1.5rem; /* Padding when not scrolled */
+  transition: all 0.3s ease;
+  /* Smooth transition for all changes */
+  height: 120px;
+  /* Initial height when the page loads */
+  padding: 1rem 1.5rem;
+  /* Padding when not scrolled */
 }
 
 .sticky {
-  position: fixed; /* Fix the navbar when sticky */
-  top: 0; /* Position it at the top */
-  left: 0; /* Align left */
-  right: 0; /* Align right */
-  z-index: 1000; /* Ensure it stays on top of other content */
+  position: fixed;
+  /* Fix the navbar when sticky */
+  top: 0;
+  /* Position it at the top */
+  left: 0;
+  /* Align left */
+  right: 0;
+  /* Align right */
+  z-index: 1000;
+  /* Ensure it stays on top of other content */
 }
 
 .navbar-small {
@@ -176,31 +174,47 @@ export default {
 
 .navbar-icon-small {
   padding: 5px;
-  transition: all 0.3s ease; /* Add smooth transition to all properties */
+  transition: all 0.3s ease;
+  /* Add smooth transition to all properties */
 
 }
 
 .navbar-button-small {
   height: 22px;
   width: 22px;
-  transition: all 0.3s ease; /* Add smooth transition to all properties */
+  transition: all 0.3s ease;
+  /* Add smooth transition to all properties */
 }
 
 .hidden {
-  transform: translateY(-100%); /* Slide up to hide */
-  transition: transform 0.3s ease; /* Smooth transition for the hidden state */
+  transform: translateY(-100%);
+  /* Slide up to hide */
+  transition: transform 0.3s ease;
+  /* Smooth transition for the hidden state */
 }
 
 .hiddencollapse {
-  transform: translateY(-100%); /* Slide up to hide */
-  transition: transform 0.9s ease; /* Smooth transition for the hidden state */
+  transform: translateY(-100%);
+  /* Slide up to hide */
+  transition: transform 0.9s ease;
+  /* Smooth transition for the hidden state */
 }
 
 .navbar-small .navbar-brand {
-  font-size: 1.25rem; /* Smaller brand text */
+  font-size: 1.25rem;
+  /* Smaller brand text */
 }
 
 .navbar-small .nav-link {
-  padding: 0.5rem 1rem; /* Smaller padding for nav links */
+  padding: 0.5rem 1rem;
+  /* Smaller padding for nav links */
+}
+
+.nav-link.active {
+  /* Example: Change the color of the active link */
+  font-weight: bold;
+  color: #0056b3 !important;
+  font-size: large;
+  
 }
 </style>

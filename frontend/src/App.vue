@@ -2,12 +2,9 @@
     <div id="app">
         <!-- Logo centered on the page -->
         <a href="/">
-        <img
-            style="display: none; margin: 0 auto; width: 30%; height: auto"
-            alt="logo"
-            src="./assets/tabiLog_logo.png"
-        />
-    </a>
+            <img style="display: none; margin: 0 auto; width: 30%; height: auto" alt="logo"
+                src="./assets/tabiLog_logo_noBackground.png" />
+        </a>
         <!-- Collapsible Navigation Bar -->
         <collapsible-navibar />
 

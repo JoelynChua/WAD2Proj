@@ -3,7 +3,7 @@ class Itinerary {
         id,
         title,
         date,
-        budget,
+        budget = null,
         totalCost = null,    // Default to null if not provided
         collaborators = [], // Default to an empty array if not provided
         events = []         // Default to an empty array if not provided

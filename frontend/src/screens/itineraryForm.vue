@@ -19,8 +19,11 @@
 
             <div class="mb-3">
                 <label for="collaborators" class="form-label">Collaborators</label>
-                <input type="text" class="form-control" id="collaborators" v-model="displayedEmail"
-                    placeholder="Comma-separated names" />
+                <!-- Display user email as a placeholder, bind input to formData.email -->
+                <input type="text" class="form-control" id="collaborators" v-model="formData.collaborators"
+                    placeholder="Comma-separated collaborator names" />
+                <!-- <input type="text" class="form-control" id="collaborators" v-model="formData.collaborators"
+                    placeholder="Comma-separated names" /> -->
             </div>
 
             <h3>Timetable</h3>
@@ -63,8 +66,9 @@ export default {
                 date: '',
                 collaborators: '',  // Will be populated from sessionStorage
                 events: {}, // Initialize as an empty object
-                displayedEmail: "", //create a displayedEmail variable
+                // displayedEmail: "", //create a displayedEmail variable
             },
+            userEmail: '',  // Displayed user email (read-only)
             hours: [],  // Initialize empty and populate in created hook
             isLoading: true
         };
@@ -79,8 +83,8 @@ export default {
         if (user) {
             const uid = sessionStorage.getItem('uid');
             this.formData.collaborators = uid || ''; // Check if uid exists
-            this.formData.email = user.email || ''; // Default to empty string if email is not available
-            this.displayedEmail = user.email|| '';
+            this.userEmail = user.email || '';  // Store the user's email for display as a placeholder
+            this.formData.email = this.userEmail;  // Prepopulate formData.email with the user email if needed
             console.log('User email:', this.formData.email);
         } else {
             console.log('No user is signed in');
@@ -101,10 +105,13 @@ export default {
 
     methods: {
         async handleSubmit() {
-            console.log(this.formData);
+            console.log(this.formData, "FORMDATA");
 
             // Split the collaborators string into an array
-            const collaboratorsArray = this.formData.collaborators.split(',').map(name => name.trim());
+            const collaboratorsArray = this.formData.collaborators
+                .split(',')
+                .map(collaborator => collaborator.trim()); // Ensure you trim any excess spaces
+            console.log(collaboratorsArray, "Collaborators Array");
 
             // Transform events object into an array of objects with "time" and "eventID"
             const eventsArray = Object.keys(this.formData.events).map(hour => ({
@@ -119,14 +126,15 @@ export default {
                 events: eventsArray, // Replace events object with eventsArray
             };
             console.log(dataToSubmit);
+
             try {
                 const response = await ItineraryService.postItinerary(dataToSubmit);
                 console.log('Itinerary successfully added:', response);
 
-                // Redirect to the itinerary details page using the ID from the response
-                this.$router.push(`/ItineraryDetails/${response.id}`); // Use the appropriate key for ID in the response
+                // // Redirect to the itinerary details page using the ID from the response
+                // this.$router.push(`/ItineraryDetails/${response.id}`); // Use the appropriate key for ID in the response
 
-                this.resetForm();
+                // this.resetForm();
             } catch (error) {
                 console.error('Error adding itinerary:', error);
             }
