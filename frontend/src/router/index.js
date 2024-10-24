@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import { auth } from '../firebase/firebaseClientConfig'; // Adjust the path to your Firebase config
-import HomePage from '../screens/homePage.vue';
+// import HomePage from '../screens/homePage.vue';
 import EventDetails from '../screens/eventDetails.vue';
 import AttractionsList from '../screens/attractionsList.vue';
 import AttractionDetails from '../screens/attractionDetails.vue';
@@ -12,12 +12,13 @@ import ItineraryDetails from '../screens/itineraryDetails.vue';
 import ItineraryForm from '../screens/itineraryForm.vue';
 import ProfilePage from '../screens/ProfilePage.vue';
 import CalendarPage from '../screens/CalendarPage.vue';
+import TempHome from '../screens/tempHome.vue';
 
 const routes = [
   {
     path: '/',
     name: 'Home',
-    component: HomePage,
+    component: TempHome,
   },
   {
     path: '/eventDetails/:id',
@@ -56,7 +57,7 @@ const routes = [
     meta: { redirectIfAuthenticated: true }, // Redirect if authenticated
   },
   {
-    path: '/loginpage',
+    path: '/login',
     name: 'LoginPage',
     component: LoginPage,
     meta: { redirectIfAuthenticated: true }, // Redirect if authenticated
@@ -94,9 +95,9 @@ router.beforeEach((to, from, next) => {
   console.log('Is Authenticated:', isAuthenticated); // Debugging line
 
   if (requiresAuth && !isAuthenticated) {
-    next('/loginpage'); // Redirect to login page if not authenticated
+    next('/login'); // Redirect to login page if not authenticated
   } else if (redirectIfAuthenticated && isAuthenticated) {
-    next('/ProfilePage'); // Redirect to Profile Page if already authenticated
+    next('/dashboard'); // Redirect to Profile Page if already authenticated
   } else {
     next(); // Proceed to the route
   }

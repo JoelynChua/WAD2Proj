@@ -15,31 +15,28 @@
       </div>
 
       <div class="collapse navbar-collapse" :class="{ hiddencollapse: isHidden }" id="navbarNav"
-        style="background-color: #c8e0ea">
+        style="background-color: #c8e0ea;">
         <ul class="navbar-nav mx-auto"> <!-- Center the nav items -->
           <li class="nav-item">
-            <a class="nav-link" :class="{ active: $route.path === '/' }" aria-current="page" href="/">Events</a>
+            <RouterLink class="nav-link" :class="{ active: $route.path === '/' }" aria-current="page" to="/">Events</RouterLink>
           </li>
           <li class="nav-item">
-            <a class="nav-link" :class="{ active: $route.path === '/attractionsList' }"
-              href="/attractionsList">Attractions</a>
+            <RouterLink class="nav-link" :class="{ active: $route.path === '/attractionsList' }" to="/attractionsList">Attractions</RouterLink>
           </li>
           <li class="nav-item">
-            <a class="nav-link" :class="{ active: $route.path === '/itineraryList' }"
-              href="/itineraryList">Itinerary</a>
+            <RouterLink class="nav-link" :class="{ active: $route.path === '/itineraryList' }" to="/itineraryList">Itinerary</RouterLink>
           </li>
           <li class="nav-item">
-            <a class="nav-link" :class="{ active: $route.path === '/ExpensePage' }" href="/ExpensePage">Expense</a>
+            <RouterLink class="nav-link" :class="{ active: $route.path === '/ExpensePage' }" to="/ExpensePage">Expense</RouterLink>
           </li>
           <li class="nav-item" v-if="isAuthenticated">
-            <a class="nav-link" :class="{ active: $route.path === '/calendar' }" href="/calendar">Calendar</a>
+            <RouterLink class="nav-link" :class="{ active: $route.path === '/calendar' }" to="/calendar">Calendar</RouterLink>
           </li>
-
         </ul>
 
         <ul class="navbar-nav"> <!-- Separate nav for Profile and Log In / Sign Up -->
           <li class="nav-item" v-if="!isAuthenticated">
-            <a class="nav-link" href="/Loginpage">Log In / Sign Up</a>
+            <RouterLink class="nav-link" to="/login">Log In / Sign Up</RouterLink>
           </li>
           <li class="nav-item dropdown" v-else>
             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown"
@@ -61,6 +58,7 @@
     </div>
   </nav>
 </template>
+
 
 <script>
 import { auth } from '../firebase/firebaseClientConfig'; // Adjust the path to your Firebase config
