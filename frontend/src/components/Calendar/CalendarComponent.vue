@@ -1,8 +1,5 @@
 <template>
   <div class="calendar-container">
-    <div v-if="isLoading" class="loading-overlay">
-      Loading events...
-    </div>
     
     <FullCalendar
       ref="fullCalendar"
@@ -58,11 +55,11 @@ export default {
     const showEventEditor = ref(false)
     const newEvent = ref(null)
     const editingEvent = ref(null)
+    const defaultColor = '#fb00bc'
     // const calendarRef = ref(null)
 
     const {
       events,
-      isLoading,
       error,
       fetchEvents,
       createEvent,
@@ -72,30 +69,63 @@ export default {
 
     // Calendar event handlers
     const handleDateSelect = (selectInfo) => {
-      newEvent.value = {
-        title: '',
-        description: '',
-        start: selectInfo.startStr,
-        end: selectInfo.endStr,
-        allDay: selectInfo.allDay,
-        colour: '#fb00bc',
-        organiserId: props.organiserId
-      }
+      const startStr = selectInfo.startStr.split('T')[0]  // Get just the date part
+      const endStr = selectInfo.endStr.split('T')[0]  // Get just the date part
+      
+      // For multi-day selections, FullCalendar gives us the day after as end date
+      // So we need to subtract one day from the end date
+      const isMultiDay = startStr !== endStr
+      let endDate = startStr
+  
+        if (isMultiDay) {
+          const date = new Date(endStr)
+          date.setDate(date.getDate() - 1)  // Subtract one day
+          endDate = date.toISOString().split('T')[0]
+        }
+
+        newEvent.value = {
+          title: '',
+          description: '',
+          start: startStr,
+          end: endDate,
+          startTime: selectInfo.startStr.split('T')[1]?.slice(0, 5) || '',
+          endTime: selectInfo.endStr.split('T')[1]?.slice(0, 5) || '',
+          allDay: selectInfo.allDay,
+          colour: defaultColor,
+          organiserId: props.organiserId
+        }
       showEventPopup.value = true
     }
+    function handleEventClick(info) {
+      const event = info.event
+      const startDate = event.start
+      const endDate = event.end || event.start
 
-    const handleEventClick = (clickInfo) => {
       editingEvent.value = {
-        id: clickInfo.event.id,
-        title: clickInfo.event.title,
-        description: clickInfo.event.extendedProps?.description || '',
-        start: clickInfo.event.startStr,
-        end: clickInfo.event.endStr,
-        allDay: clickInfo.event.allDay,
-        colour: clickInfo.event.backgroundColor,
-        organiserId: props.organiserId
+        id: event.id,
+        title: event.title,
+        description: event.extendedProps.description || '',
+        start: formatDate(startDate),
+        end: formatDate(endDate),
+        startTime: formatTime(startDate),
+        endTime: event.end ? formatTime(endDate) : '',
+        allDay: event.allDay,
+        color: event.backgroundColor
       }
       showEventEditor.value = true
+    }
+
+    function formatDate(date) {
+      const year = date.getFullYear()
+      const month = String(date.getMonth() + 1).padStart(2, '0')
+      const day = String(date.getDate()).padStart(2, '0')
+      return `${year}-${month}-${day}`
+    }
+
+    function formatTime(date) {
+      const hours = String(date.getHours()).padStart(2, '0')
+      const minutes = String(date.getMinutes()).padStart(2, '0')
+      return `${hours}:${minutes}`
     }
 
     const handleEventDrop = async (dropInfo) => {
@@ -128,6 +158,7 @@ export default {
       editable: true,
       selectable: true,
       selectMirror: true,
+      eventColor: defaultColor,
       dayMaxEvents: true,
       weekends: true,
       events: events.value, // Use the reactive events value
@@ -188,16 +219,26 @@ export default {
 
     const handleUpdateEvent = async (eventData) => {
       try {
-        await updateEvent(eventData.id, eventData)
+        console.log('EventData being sent to update:', {
+          eventId: editingEvent.value.id,
+          eventData: eventData
+        });
+        await updateEvent(editingEvent.value.id, eventData)
         closeEventEditor()
       } catch (err) {
         console.error('Error updating event:', err)
       }
     }
 
-    const handleDeleteEvent = async (eventId) => {
+    const handleDeleteEvent = async () => {
+      if (!editingEvent.value?.id) {
+        console.error('No event ID available for deletion')
+        return
+      }
+      
       try {
-        await deleteEvent(eventId)
+        console.log('Deleting event:' + editingEvent.value.id)
+        await deleteEvent(editingEvent.value.id)
         closeEventEditor()
       } catch (err) {
         console.error('Error deleting event:', err)
@@ -231,7 +272,6 @@ export default {
       newEvent,
       editingEvent,
       events,
-      isLoading,
       error,
       handleCreateEvent,
       handleUpdateEvent,

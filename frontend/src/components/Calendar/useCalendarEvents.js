@@ -28,20 +28,64 @@ export const useCalendarEvents = (organiserId) => {
     }
   
     const formatEventForBackend = (eventData) => {
-      if (!eventData) {
-        throw new Error('Event data is required')
-      }
-  
-      return {
-        title: eventData.title || '',
-        description: eventData.description || '',
-        organiserId: organiserId,
-        start: new Date(eventData.start).toISOString(),
-        end: new Date(eventData.end).toISOString(),
-        allDay: eventData.allDay || false,
-        colour: eventData.colour || '#fb00bc'
-      }
-    }
+        if (!eventData) {
+          throw new Error('Event data is required');
+        }
+      
+        try {
+          let startDate, endDate;
+      
+          // Handle non-allDay events
+          if (!eventData.allDay) {
+
+            startDate = new Date(eventData.start);
+            const startDateOnly = eventData.start.split('T')[0]; // Get just the date part
+            
+            if (!eventData.endTime) {
+              endDate = new Date(startDate);
+              endDate.setHours(endDate.getHours() + 1);
+            } else {
+              // Combine date with endTime
+              endDate = new Date(`${startDateOnly}T${eventData.endTime}`);
+            }
+          } else {
+            // For all-day events
+            startDate = new Date(eventData.start.split('T')[0]);
+            const nextDay = new Date(startDate);
+            nextDay.setDate(nextDay.getDate() + 1);
+            endDate = nextDay;
+          }
+      
+          // Validate the dates
+          if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+            throw new Error('Invalid date format');
+          }
+      
+          // Ensure end is after start
+          if (endDate <= startDate) {
+            endDate = new Date(startDate);
+            endDate.setHours(endDate.getHours() + 1);
+          }
+      
+          // Debug logging
+          console.log('Processed start date:', startDate);
+          console.log('Processed end date:', endDate);
+      
+          return {
+            title: eventData.title || '',
+            description: eventData.description || '',
+            organiserId: organiserId,
+            start: startDate.toISOString(),
+            end: endDate.toISOString(),
+            allDay: Boolean(eventData.allDay),
+            colour: eventData.colour || '#fb00bc'
+          };
+        } catch (error) {
+          console.error('Date processing error:', error);
+          console.error('Original event data:', eventData);
+          throw new Error(`Error formatting event: ${error.message}`);
+        }
+      };
   
     const fetchEvents = async () => {
       if (!organiserId) {
@@ -79,7 +123,7 @@ export const useCalendarEvents = (organiserId) => {
       }
     }
   
-    // Rest of your CRUD operations...
+
     const createEvent = async (eventData) => {
       isLoading.value = true
       error.value = null
