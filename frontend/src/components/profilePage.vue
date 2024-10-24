@@ -187,18 +187,7 @@
                     </div>
 
                     <div class="tab-pane fade" id="security" role="tabpanel" aria-labelledby="security-tab">
-                        <h5 class="text-start">Security</h5>
-                        <div class="mt-4 shadow p-3 bg-body">
-                            <p class="card-text">Manage your account security settings here.</p>
-                            <div v-if="showPasswordChange">
-                                <a href="#" class="btn btn-primary mt-2">Change Password</a>
-                            </div>
-                            <div v-else>
-                                <p class="text-muted">Password change is not available for Google Auth users.
-                                </p>
-                                <p><img width="150px" height="auto" src="../assets/googleAuth.png"></p>
-                            </div>
-                        </div>
+                        <passwordChange />
                     </div>
                 </div>
             </div>
@@ -210,6 +199,7 @@
 import { getAuth } from "firebase/auth";
 import { getDatabase, ref, get, update } from "firebase/database";
 import { ref as vueRef } from 'vue';
+import passwordChange from "@/components/profilePassword.vue";
 
 
 export default {
@@ -234,6 +224,9 @@ export default {
             showEditingControls: false,
             balance: 0,
         }
+    },
+    components: {
+        passwordChange
     },
     methods: {
         editName() {

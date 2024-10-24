@@ -1,13 +1,7 @@
 <template>
   <div class="video-background-container">
     <!-- Background Video -->
-    <video
-      autoplay
-      muted
-      loop
-      id="background-video"
-      @loadeddata="onVideoLoaded"
-    >
+    <video autoplay muted loop id="background-video" @loadeddata="onVideoLoaded">
       <source src="../assets/loginvid.mp4" type="video/mp4" />
       Your browser does not support the video tag.
     </video>
@@ -25,6 +19,7 @@
           <form @submit.prevent="signUp">
             <div class="mb-3">
               <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
+              <div v-if="this.emailinuse" class="text-danger" style="font-size: 12px;">Email is already registered to an account!</div>
               <input type="email" class="form-control" id="email" v-model="email" placeholder="moklay@smu.edu.sg"
                 required>
               <small v-if="emailError" class="text-danger">{{ emailError }}</small>
@@ -45,7 +40,8 @@
             <GoogleLogin />
           </form>
           <div class="text-center mt-3">
-            <p>Already have an account? <RouterLink to="/login">Log In</RouterLink></p>
+            <p>Already have an account? <RouterLink to="/login">Log In</RouterLink>
+            </p>
           </div>
         </div>
       </div>
@@ -68,6 +64,7 @@ export default {
       emailError: '',
       passwordError: '',
       isVideoLoaded: false, // Track video loading state
+      emailinuse: false,
     };
   },
   components: {
@@ -105,10 +102,17 @@ export default {
         const user = userCredential.user;
         sessionStorage.setItem('uid', user.uid);
         console.log('User signed up:', user);
-        this.$router.push('/ProfilePage');
+        this.$router.push('/dashboard');
       } catch (error) {
-        console.error('Error signing up:', error.message);
-        alert(error.message);
+
+        if (error.message == "Firebase: Error (auth/email-already-in-use).") {
+          this.emailinuse = true;
+
+        } else {
+          console.error('Error signing up:', error.message);
+          alert(error.message);
+
+        }
       } finally {
         this.isLoading = false;
       }
@@ -148,13 +152,20 @@ export default {
 }
 
 .back-button {
-    position: absolute; /* Positioning the button */
-    top: 30px; /* Adjust the position as needed */
-    left: 30px; /* Adjust the position as needed */
-    z-index: 10; /* Ensure it appears above the video */
-    color: rgb(201, 201, 201); /* Change to desired text color */
-    text-decoration: none; /* Remove underline */
-    font-size: 24px; /* Adjust the font size as needed */
-    font-family: 'Roboto', sans-serif;
+  position: absolute;
+  /* Positioning the button */
+  top: 30px;
+  /* Adjust the position as needed */
+  left: 30px;
+  /* Adjust the position as needed */
+  z-index: 10;
+  /* Ensure it appears above the video */
+  color: rgb(201, 201, 201);
+  /* Change to desired text color */
+  text-decoration: none;
+  /* Remove underline */
+  font-size: 24px;
+  /* Adjust the font size as needed */
+  font-family: 'Roboto', sans-serif;
 }
 </style>

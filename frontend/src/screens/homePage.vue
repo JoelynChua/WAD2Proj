@@ -2,12 +2,12 @@
     <div id="app">
       <main>
         <section class="hero zoom-in">
-          <h2 class="slide-right">Find Your Next Adventure</h2>
-          <p class="slide-left">Discover and book exciting activities in your area.</p>
+          <h2 class="slide-right">Home Screen</h2>
+          <p class="slide-left mb-5">Temporary only duh.</p>
           <button @click="findActivities" class="pulse">Find Activities</button>
         </section>
         <section class="featured-activities">
-          <h2 class="fade-in">Featured Activities</h2>
+          <h2 class="fade-in mb-5">Featured Activities</h2>
           <ul>
             <li v-for="activity in activities" :key="activity.id" class="card">
               <h3>{{ activity.name }}</h3>
@@ -16,13 +16,12 @@
           </ul>
         </section>
       </main>
-      <footer>
-        <p class="fade-in">&copy; 2024 Activity Finder</p>
-      </footer>
     </div>
   </template>
   
   <script>
+import router from '@/router';
+
   export default {
     data() {
       return {
@@ -36,7 +35,7 @@
     methods: {
       findActivities() {
         // Add logic to find activities
-        alert('Finding activities...');
+        router.push("/events")
       }
     }
   };
@@ -97,7 +96,7 @@
   }
   
   .hero {
-    background: linear-gradient(90deg, #667eea, #764ba2);
+    background: white;
     color: white;
     padding: 3rem 1.5rem;
     border-radius: 8px;
@@ -115,8 +114,8 @@
   
   .hero button {
     animation: pulse 2s infinite;
-    background: #fff;
-    color: #667eea;
+    background: linear-gradient(90deg, #667eea, #764ba2);
+    color:white;
     border: none;
     padding: 1rem 2rem;
     cursor: pointer;
@@ -126,6 +125,7 @@
   
   .featured-activities {
     margin-top: 2rem;
+    
   }
   
   .featured-activities h2 {
@@ -141,7 +141,7 @@
   }
   
   .featured-activities ul li {
-    background: white;
+    background: linear-gradient(90deg, #667eea, #764ba2);
     margin: 0.5rem;
     padding: 1.5rem;
     animation: bounce 2s ease-in-out;
