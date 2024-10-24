@@ -41,7 +41,10 @@ app.use('/api/expenses', expenseRoutes);
 
 // Define a route to get the Google client ID
 app.get('/api/google-client-id', (req, res) => {
-    res.json({ clientId: process.env.GOOGLE_CLIENT_ID });
+    res.json({
+        clientId: process.env.GOOGLE_CLIENT_ID,
+        clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    });
 });
 
 const PORT = process.env.PORT || 8000;

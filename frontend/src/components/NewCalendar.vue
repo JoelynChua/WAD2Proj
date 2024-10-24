@@ -13,22 +13,27 @@
 
 <script>
 import { gapi } from 'gapi-script';
+import { getGoogleClientId } from '../services/getGoogleClientId';
+
 export default {
     data() {
         return {
-            CLIENT_ID:
-                '281323249244-aiubdghlhqq6f39t97oo4qcnjucjl62b.apps.googleusercontent.com', // Replace with your Google Client ID
-            API_KEY: 'AIzaSyBysn-kn_LrjVV-AGqC4UjIpugVPnhez3k', // Replace with your Google API Key
+            CLIENT_ID: '', // Replace with your Google Client ID
+            API_KEY: '', // Replace with your Google API Key
             DISCOVERY_DOCS: [
                 'https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest',
             ],
-            SCOPES: 'https://www.googleapis.com/auth/calendar.readonly',
+            SCOPES: 'https://www.googleapis.com/auth/calendar',
             events: [],
         };
     },
-    mounted() {
+    async mounted() {
         // This is used to send a HTTP request to retrieve data that will be rendered by the component
         // Load Google API libraries
+        const gapiData = await getGoogleClientId();
+        this.CLIENT_ID = gapiData.clientId;
+        this.API_KEY = gapiData.clientSecret;
+
         this.loadScript(
             'https://apis.google.com/js/api.js',
             this.handleClientLoad
@@ -47,6 +52,8 @@ export default {
             gapi.load('client:auth2', this.initClient);
         },
         initClient() {
+            console.log(this.API_KEY);
+            console.log(this.CLIENT_ID);
             gapi.client
                 .init({
                     apiKey: this.API_KEY,
