@@ -1,21 +1,26 @@
 <template>
   <div class="video-background-container">
     <!-- Background Video -->
-    <video autoplay muted loop id="background-video">
+    <video
+      autoplay
+      muted
+      loop
+      id="background-video"
+      @loadeddata="onVideoLoaded"
+    >
       <source src="../assets/loginvid.mp4" type="video/mp4" />
       Your browser does not support the video tag.
     </video>
 
     <!-- Back Button -->
-    <RouterLink to="/" class="back-button">
+    <RouterLink v-if="isVideoLoaded" to="/" class="back-button">
       &lt; Back
     </RouterLink>
 
     <!-- Overlay for the signup form -->
     <div class="container vh-100">
       <div class="row justify-content-end align-items-center vh-100">
-
-        <div class="login-container p-4 shadow col-4">
+        <div v-if="isVideoLoaded" class="login-container p-4 shadow col-4">
           <h5 class="text-center">Sign up for a new account</h5>
           <form @submit.prevent="signUp">
             <div class="mb-3">
@@ -40,8 +45,7 @@
             <GoogleLogin />
           </form>
           <div class="text-center mt-3">
-            <p>Already have an account? <RouterLink to="/login">Log In</RouterLink>
-            </p>
+            <p>Already have an account? <RouterLink to="/login">Log In</RouterLink></p>
           </div>
         </div>
       </div>
@@ -62,13 +66,17 @@ export default {
       passwordFieldType: 'password',
       isLoading: false,
       emailError: '',
-      passwordError: ''
+      passwordError: '',
+      isVideoLoaded: false, // Track video loading state
     };
   },
   components: {
     GoogleLogin,
   },
   methods: {
+    onVideoLoaded() {
+      this.isVideoLoaded = true; // Set to true when video is loaded
+    },
     togglePasswordVisibility() {
       this.passwordFieldType = this.passwordFieldType === 'password' ? 'text' : 'password';
     },
@@ -149,5 +157,4 @@ export default {
     font-size: 24px; /* Adjust the font size as needed */
     font-family: 'Roboto', sans-serif;
 }
-
 </style>

@@ -12,13 +12,14 @@ import ItineraryDetails from '../screens/itineraryDetails.vue';
 import ItineraryForm from '../screens/itineraryForm.vue';
 import ProfilePage from '../screens/ProfilePage.vue';
 import CalendarPage from '../screens/CalendarPage.vue';
-import TempHome from '../screens/tempHome.vue';
+import HomePage from '../screens/HomePage.vue';
+import EventsPage from '../screens/eventsPage.vue';
 
 const routes = [
   {
     path: '/',
     name: 'Home',
-    component: TempHome,
+    component: HomePage,
   },
   {
     path: '/eventDetails/:id',
@@ -76,6 +77,10 @@ const routes = [
   { path: '/calendar',
     name: 'calendar',
     component: CalendarPage,
+  },
+  { path: '/events',
+    name: 'events',
+    component: EventsPage,
   }
   // You can add more routes here
 ];

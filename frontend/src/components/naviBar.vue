@@ -18,7 +18,7 @@
         style="background-color: #c8e0ea;">
         <ul class="navbar-nav mx-auto"> <!-- Center the nav items -->
           <li class="nav-item">
-            <RouterLink class="nav-link" :class="{ active: $route.path === '/' }" aria-current="page" to="/">Events</RouterLink>
+            <RouterLink class="nav-link" :class="{ active: $route.path === '/events' }" aria-current="page" to="/events">Events</RouterLink>
           </li>
           <li class="nav-item">
             <RouterLink class="nav-link" :class="{ active: $route.path === '/attractionsList' }" to="/attractionsList">Attractions</RouterLink>
