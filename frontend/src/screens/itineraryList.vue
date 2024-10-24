@@ -1,33 +1,50 @@
 <template>
   <div style="margin-top: 30px;" class="itinerary-list">
     <h1>My Itineraries</h1>
-    <!-- Add itinerary -->
-    <button style="margin-bottom: 20px; display: block;" @click="toItineraryForm()" class="btn btn-primary">
-      <span class="plus-sign">+</span>
-    </button>
 
-    <div v-if="itineraries.length">
-      <div class="carousel-client">
-        <div class="slide" v-for="(itinerary, index) in itineraries" :key="index">
-          <div class="itinerary-item" @click="getItineraryByID(itinerary.id)">
-            <div class="itinerary-title">
-              {{ itinerary.title }}
-              <br />
-              <span class="itinerary-date">{{ itinerary.date }}</span>
+    <div style="margin: 60px;" >
+      <!-- Add itinerary -->
+      <button style="margin-bottom: 20px; display: block; background-color:#c8e0ea" @click="toItineraryForm()" class="btn btn">
+        <span class="plus-sign">New Itinerary +</span>
+      </button>
+
+      <div v-if="itineraries.length">
+        <div class="carousel-client">
+          <div class="slide" v-for="(itinerary, index) in itineraries" :key="index">
+
+            <div class="itinerary-item" @click="getItineraryByID(itinerary.id)">
+              <!-- Delete Icon -->
+              <font-awesome-icon :icon="['fas', 'trash']" class="delete-icon"
+                @click.stop="deleteItinerary(itinerary.id)" title="Delete Itinerary" />
+              <div class="itinerary-title">
+                {{ itinerary.title }}
+                <br />
+                <span class="itinerary-date">{{ itinerary.date }}</span>
+              </div>
             </div>
           </div>
         </div>
       </div>
+
+      <div v-else>Loading itineraries...</div>
     </div>
-    <div v-else>Loading itineraries...</div>
   </div>
 </template>
 
 <script>
 import itineraryService from '../services/itineraryService'; // Adjust the path as needed
+import { library } from '@fortawesome/fontawesome-svg-core';
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
+import { faTrash } from '@fortawesome/free-solid-svg-icons'; // Import the trash icon
+
+// Add the icon to the library
+library.add(faTrash);
 
 export default {
   name: 'itineraryList',
+  components: {
+    FontAwesomeIcon, // Register the component
+  },
   //Data Function: The data function returns an object where itineraries is initialized as an empty array to store the itineraries fetched from the server.
   //Defining
   data() {
@@ -61,7 +78,19 @@ export default {
     },
     toItineraryForm() {
       this.$router.push({ name: 'ItineraryForm' });
-    }
+    },
+
+    async deleteItinerary(itineraryID) {
+      try {
+        await itineraryService.deleteItinerary(itineraryID);
+        this.itineraries = this.itineraries.filter(itinerary => itinerary.id !== itineraryID);
+        // Optionally, you can show a success message or toast notification
+      } catch (error) {
+        console.error("Error deleting itinerary:", error);
+        // Optionally, show an error message
+      }
+    },
+
   },
 };
 </script>
@@ -103,14 +132,17 @@ body {
 .slide {
   min-width: 200px;
   transition: transform 0.5s ease;
+  padding: 10px;
 }
 
 .itinerary-item {
-  background-color: #8c8;
+  background-color: #cad8dc;
   opacity: 0.8;
   border-radius: 10px;
   text-align: center;
   padding: 20px;
+  padding-left: 10px;
+  padding-right: 10px;
   cursor: pointer;
 }
 
@@ -120,13 +152,22 @@ body {
 
 .itinerary-title {
   font-size: 18px;
-  color: #fff;
+  color: black;
+  font-weight: bold;
 }
 
 .itinerary-date {
   display: block;
   font-size: 16px;
-  color: #ddd;
+  color: navy;
   margin-top: 10px;
+}
+
+.delete-icon {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  cursor: pointer;
+  color: red;
 }
 </style>

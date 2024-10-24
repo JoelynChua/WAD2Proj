@@ -67,8 +67,8 @@ const routes = [
         component: ExpensePage,
     },
     {
-        path: '/ProfilePage',
-        name: 'ProfilePage',
+        path: '/dashboard',
+        name: 'UserDashboard',
         component: ProfilePage,
         meta: { requiresAuth: true }, // Requires authentication
     },

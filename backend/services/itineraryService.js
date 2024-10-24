@@ -60,7 +60,7 @@ exports.getItineraryByUserID = async (userID) => {
             key,  // Itinerary ID
             itineraries[key].title,
             itineraries[key].date,
-            itineraries[key].budget, // Include budget from DB
+            itineraries[key].budget || null, // Include budget from DB
             itineraries[key].totalCost || null, // Allow totalCost to be null
             itineraries[key].collaborators || [], // Default to empty array if not provided
             itineraries[key].events || []           // Default to empty array if not provided
@@ -80,7 +80,7 @@ exports.addItinerary = async (newItinerary) => {
     const itineraryData = {
         title: newItinerary.title, // Title from the incoming data
         date: newItinerary.date,
-        budget: newItinerary.budget, // Include budget from incoming data
+        budget: null, // Include budget from incoming data
         totalCost: null, // Initialize totalCost to null
         collaborators: newItinerary.collaborators || [], // Default to empty array if not provided
         events: newItinerary.events || [], // Default to empty array if not provided
@@ -112,7 +112,7 @@ exports.updateItinerary = async (id, updatedData) => {
     const updatedItinerary = {
         title: updatedData.title,
         date: updatedData.date,
-        budget: updatedData.budget,
+        budget: updatedData.budget || [],
         collaborators: updatedData.collaborators || [], // Default to empty array if not provided
         events: updatedData.events || [] // Default to empty array if not provided
         // Do not include totalCost as it's not editable

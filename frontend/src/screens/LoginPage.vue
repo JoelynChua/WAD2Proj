@@ -1,8 +1,7 @@
 <template>
     <div
-        class="d-flex justify-content-center align-items-center vh-100 bg-pink"
-    >
-        <div class="login-container p-4 shadow">
+        class="d-flex justify-content-center align-items-center vh-100 bg-pink">
+        <div class="login-container p-5 shadow">
             <!-- <img src="../assets/apple.png" alt="Logo" width="150"> -->
             <h5 class="text-center">Log in to your account</h5>
             <form @submit.prevent="login">
@@ -39,7 +38,7 @@
             <GoogleLogin />
 
             <div class="text-center mt-3">
-                <p>Don't have an account? <a href="/signup">Sign Up</a></p>
+                <p>Don't have an account? <RouterLink to="/signup">Sign Up</RouterLink></p>
             </div>
         </div>
     </div>
@@ -91,6 +90,10 @@ import GoogleLogin from '../components/GoogleLogin.vue';
 </script>
 
 <style scoped>
+#navbuffer {
+    display: none !important;
+}
+
 .bg-pink {
     background-color: white;
 }

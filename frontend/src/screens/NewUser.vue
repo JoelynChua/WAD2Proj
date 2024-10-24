@@ -1,6 +1,6 @@
 <template>
   <div class="d-flex justify-content-center align-items-center vh-100 bg-pink">
-    <div class="login-container p-4">
+    <div class="login-container p-5 shadow">
       <!-- <img src="" alt="Logo" width="150" class="mb-3 d-block mx-auto"> -->
       <h5 class="text-center">Sign up for a new account</h5>
       <form @submit.prevent="signUp">
@@ -18,9 +18,13 @@
         <button type="submit" class="btn btn-primary w-100" :disabled="isLoading">
           {{ isLoading ? 'Signing Up...' : 'Sign up' }}
         </button>
+        <br>
+        <br>
+            <p>or access quickly</p>
+            <GoogleLogin />
       </form>
       <div class="text-center mt-3">
-        <p>Already have an account? <a href="/loginpage">Log In</a></p>
+        <p>Already have an account? <RouterLink to="/loginpage">Log In</RouterLink></p>
       </div>
     </div>
   </div>
@@ -29,6 +33,8 @@
 <script>
 import { auth } from "../firebase/firebaseClientConfig"; // Update with the correct path
 import { createUserWithEmailAndPassword } from "firebase/auth";
+import GoogleLogin from '../components/GoogleLogin.vue';
+
 
 export default {
   data() {
@@ -40,6 +46,9 @@ export default {
       emailError: '',
       passwordError: ''
     };
+  },
+  components: {
+    GoogleLogin,
   },
   methods: {
     togglePasswordVisibility() {
@@ -84,14 +93,11 @@ export default {
 
 <style scoped>
 .bg-pink {
-  background-color: black;
+  background-color: white;
 }
 .login-container {
   width: 400px;
   background-color: white;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 #app {
     margin: 0;

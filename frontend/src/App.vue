@@ -2,31 +2,34 @@
     <div id="app">
         <!-- Logo centered on the page -->
         <a href="/">
-        <img
-            style="display: none; margin: 0 auto; width: 30%; height: auto"
-            alt="logo"
-            src="./assets/tabiLog_logo.png"
-        />
-    </a>
+            <img style="display: none; margin: 0 auto; width: 30%; height: auto" alt="logo"
+                src="./assets/tabiLog_logo_noBackground.png" />
+        </a>
         <!-- Collapsible Navigation Bar -->
         <collapsible-navibar />
 
-        <div style="height: 80px;"></div> <!-- Sticky Navbar Buffer -->
+        <div id="navbuffer" style="height: 120px;"></div> <!-- Sticky Navbar Buffer -->
 
         <!-- Router View for Dynamic Content -->
         <router-view />
         <!-- <GoogleLogin :callback="callback" prompt /> -->
+
+        <!-- Footer Component -->
+        <AppFooter />
     </div>
 </template>
 
 <script>
 // Import collapsibleNavibar component
 import collapsibleNavibar from './components/naviBar.vue'; // Adjust the path if necessary
+import AppFooter from './components/AppFooter.vue'; // Import the Footer component
+
 
 export default {
     name: 'App',
     components: {
         collapsibleNavibar, // Register the NavigationBar component
+        AppFooter, // Register the Footer component
     },
 };
 </script>

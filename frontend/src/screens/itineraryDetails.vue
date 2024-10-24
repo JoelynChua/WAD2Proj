@@ -1,10 +1,17 @@
 <template>
-    <div class="container-fluid">
+    <div class="container-fluid" ref="trailContainer">
+        <!-- Image trail -->
+        <div id="trailimageid"
+            style="position: absolute; visibility: visible; left: 0px; top: 0px; width: 1px; height: 1px; pointer-events: none;">
+            <img :src="trailImage[0]" border="0" :width="trailImage[1] + 'px'" :height="trailImage[2] + 'px'" />
+        </div>
+
+
         <div class="row">
             <!-- Main Content Section -->
             <div class="col-md-9">
                 <div class="row">
-                    <div class="col-md-6 justify-content-center text-center">
+                    <div class="col-lg-12 justify-content-center text-center">
                         <!-- Message -->
                         <div style="margin-top: 10px; position: sticky; top: 0;">
                             <div v-if="updateMessage" class="alert alert-success">{{ updateMessage }}</div>
@@ -15,109 +22,124 @@
                     <!-- Itinerary Update Form -->
                     <div class="row text-center">
                         <form @submit.prevent="handleUpdate">
-                            <div class="row col-lg-12 d-flex justify-content-center" style="margin-top: 30px;">
-                                <div class="w-50">
-                                    <input type="text" class="form-control text-center titleInput" id="title"
-                                        v-model="itineraryDetails.title" required />
+                            <div class="row">
+                                <div class="col-lg-4"></div>
+                                <div class="col-lg-8 d-flex justify-content-center" style="margin-top: 30px;">
+                                    <div class="w-50">
+                                        <input type="text" class="form-control text-center titleInput" id="title"
+                                            v-model="itineraryDetails.title" required />
+                                    </div>
                                 </div>
                             </div>
 
                             <div class="row col-lg-12 mb-3 d-flex justify-content-center" style="margin: 20px;">
-                                <div class="w-50">
-                                    <label for="date" class="form-label">Date</label>
-                                    <input type="date" class="form-control text-center" style="border: 0;" id="date"
-                                        v-model="itineraryDetails.date" :min="today" required />
+                                <div class="col-6 d-flex align-items-center">
+                                    <label for="date" class="form-label mb-0 me-2">Date:</label>
+                                    <input type="date" class="form-control" style="width: auto; display: inline-block;"
+                                        id="date" v-model="itineraryDetails.date" :min="today" required />
                                 </div>
                             </div>
 
-                            <div class="budget-container d-flex flex-column align-items-center">
-                                <label for="budget" class="form-label">Planned Budget:</label>
-                                <div class="budget-box d-flex justify-content-center align-items-center">
-                                    <input type="text" class="form-control text-center" id="budget"
+                            <div class="row col-lg-12 mb-3 d-flex justify-content-center">
+                                <div class="col-6 d-flex align-items-center">
+                                    <label for="budget" class="form-label mb-0 me-2">Planned Budget:</label>
+                                    <input type="number" class="form-control"
+                                        style="width: auto; display: inline-block;" id="budget"
                                         v-model="itineraryDetails.budget" required />
                                 </div>
                             </div>
 
+
                             <!-- Table content -->
-                            <div class="row col-lg-8" v-if="itineraryDetails.events && itineraryDetails.events.length">
-                                <h3>Events</h3>
-                                <table class="table table-striped table-bordered">
-                                    <thead>
-                                        <tr>
-                                            <th>Timing</th>
-                                            <th>Event Name</th>
-                                        </tr>
-                                    </thead>
+                            <div class="row">
+                                <div class="col-lg-3"></div>
+                                <div class="col-lg-8" v-if="itineraryDetails.events && itineraryDetails.events.length">
+                                    <h3>Events</h3>
+                                    <table class="table table-striped table-bordered">
+                                        <thead>
+                                            <tr>
+                                                <th>Timing</th>
+                                                <th>Event Name</th>
+                                            </tr>
+                                        </thead>
 
-                                    <tbody @drop="onDrop($event, event)" @dragover="allowDrop">
-                                        <tr v-for="event in sortedEvents" :key="event.eventID" :draggable="true"
-                                            @dragstart="onDragStart($event, event)" :data-event-id="event.eventID">
+                                        <tbody @drop="onDrop($event, event)" @dragover="allowDrop">
+                                            <tr v-for="event in sortedEvents" :key="event.eventID" :draggable="true"
+                                                @dragstart="onDragStart($event, event)" :data-event-id="event.eventID"
+                                                class="draggable-item">
 
-                                            <td>{{ event.time }}</td>
+                                                <td>{{ event.time }}</td>
 
-                                            <template v-if="eventDetails[event.eventID]">
-                                                <td class="event-details-wrapper"
-                                                    style="border: 1px solid #ccc; border-radius: 10px; padding: 10px; margin: 10px;">
-                                                    <div>
-                                                        <strong>{{ eventDetails[event.eventID].name }}</strong><br>
-                                                        {{ eventDetails[event.eventID].type }}<br>
-                                                        Status: {{ eventDetails[event.eventID].dates.status.code ||
-                                                            'N/A' }}
+                                                <template v-if="eventDetails[event.eventID]">
+                                                    <td class="event-details-wrapper"
+                                                        style="border: 1px solid #ccc; border-radius: 10px; padding: 10px; margin: 10px;">
+                                                        <div>
+                                                            <strong>{{ eventDetails[event.eventID].name }}</strong><br>
+                                                            {{ eventDetails[event.eventID].type }}<br>
+                                                            Status: {{ eventDetails[event.eventID].dates.status.code ||
+                                                                'N/A' }}
 
-                                                        <!-- Remove Icon at top-right -->
-                                                        <font-awesome-icon :icon="['fas', 'minus']"
-                                                            @click="onRemoveEvent(event.eventID)" class="remove-icon" />
-                                                    </div>
-                                                </td>
-                                            </template>
+                                                            <!-- Remove Icon at top-right -->
+                                                            <font-awesome-icon :icon="['fas', 'minus']"
+                                                                @click="onRemoveEvent(event.eventID)"
+                                                                class="remove-icon" />
+                                                        </div>
+                                                    </td>
+                                                </template>
 
-                                            <template v-else-if="attractionDetails[event.eventID]">
-                                                <td class="attraction-details-wrapper"
-                                                    style="border: 1px solid #ccc; border-radius: 10px; padding: 10px; margin: 10px;">
-                                                    <div>
-                                                        <strong>{{ attractionDetails[event.eventID].name }}</strong><br>
-                                                        {{ attractionDetails[event.eventID].type }}<br>
-                                                        Genre: {{
-                                                            attractionDetails[event.eventID].classifications[0]?.genre.name
-                                                            || 'N/A' }}
+                                                <template v-else-if="attractionDetails[event.eventID]">
+                                                    <td class="attraction-details-wrapper"
+                                                        style="border: 1px solid #ccc; border-radius: 10px; padding: 10px; margin: 10px;">
+                                                        <div>
+                                                            <strong>{{ attractionDetails[event.eventID].name
+                                                                }}</strong><br>
+                                                            {{ attractionDetails[event.eventID].type }}<br>
+                                                            Genre: {{
+                                                                attractionDetails[event.eventID].classifications[0]?.genre.name
+                                                                || 'N/A' }}
 
-                                                        <!-- Remove Icon at top-right -->
-                                                        <font-awesome-icon :icon="['fas', 'minus']"
-                                                            @click="onRemoveEvent(event.eventID)" class="remove-icon" />
-                                                    </div>
+                                                            <!-- Remove Icon at top-right -->
+                                                            <font-awesome-icon :icon="['fas', 'minus']"
+                                                                @click="onRemoveEvent(event.eventID)"
+                                                                class="remove-icon" />
+                                                        </div>
 
 
-                                                </td>
-                                            </template>
+                                                    </td>
+                                                </template>
 
-                                            <template v-else>
-                                                <td
-                                                    style="border: 1px solid #ccc; border-radius: 10px; padding: 10px; margin: 10px;">
-                                                    <span style="color: #aaa; font-style: italic;">Drag and drop</span>
-                                                </td>
-                                            </template>
+                                                <template v-else>
+                                                    <td
+                                                        style="border: 1px solid #ccc; border-radius: 10px; padding: 10px; margin: 10px;">
+                                                        <span style="color: #aaa; font-style: italic;">Drag and
+                                                            drop</span>
+                                                    </td>
+                                                </template>
 
-                                        </tr>
-                                    </tbody>
+                                            </tr>
+                                        </tbody>
 
-                                </table>
+                                    </table>
+                                </div>
+                                <div v-else>
+                                    <p>No events scheduled.</p>
+                                </div>
                             </div>
-                            <div v-else>
-                                <p>No events scheduled.</p>
-                            </div>
+
                         </form>
                     </div>
                 </div>
+
             </div>
 
             <!-- Jumbotron (Wishlist) -->
             <div class="col-md-3">
-                <div class="bg-warning text-light p-3"
-                    style="position: absolute; top: 300px; right: 0; height: fit-content; width: 25%;">
-                    <h3>Wishlist</h3>
+                <div class="text-dark p-3"
+                    style="position: absolute; top: 300px; right: 0; height: auto; width: 25%; background-color: #edefec">
+                    <h3 style="text-decoration: underline;">Wishlist</h3>
                     <ul v-if="wishlists.length">
                         <li v-for="wishlist in wishlists" :key="wishlist.id" :draggable="true"
-                            @dragstart="onDragStart($event, wishlist)"
+                            @dragstart="onDragStart($event, wishlist)" class="draggable-item"
                             style="border: 1px solid; margin: 5px; border-radius: 5px; padding: 10px;">
                             <template v-if="eventDetails[wishlist.eventID]">
                                 {{ eventDetails[wishlist.eventID].name }}
@@ -166,8 +188,19 @@ export default {
             updateError: null,   // Initialize the error message
             wishlists: [], // Initialize wishlist as an empty array
             userID: null,
+            trailImage: [require('@/assets/pencil.png'), 50, 30], // image path, width, height
+            offsetFromMouse: [10, -20], // x, y offsets from cursor position
+            displayDuration: 0, // duration in seconds
+
         };
     },
+    mounted() {
+        this.initializeTrail();
+    },
+    // beforeUnmount() {
+    //     window.removeEventListener("mousemove", this.trackMouse);
+    // },
+
     computed: {
         sortedEvents() {
             // Sort events based on their timing
@@ -373,9 +406,13 @@ export default {
                     this.updateMessage = null;
                 }, 2000);
 
-            } catch (error) {
-                this.updateError = "Error updating itinerary: " + error.message; // Error message
-                console.error("Error updating itinerary:", error);
+            }
+            catch (error) {
+                // Only show the error if the wishlist is not empty
+                if (this.wishlists && this.wishlists.length > 0) {
+                    this.updateError = "Error updating itinerary: " + error.message; // Error message
+                    console.error("Error updating itinerary:", error);
+                }
                 this.firstLoad = false;
             }
         },
@@ -496,7 +533,84 @@ export default {
             }
         },
 
+
+
+
+        // trackMouse(event) {
+        //     const ghostElements = this.$refs.trailContainer.querySelectorAll(".ghost");
+        //     const offsetX = -80; // Adjust this value for horizontal offset
+        //     const offsetY = -100; // Adjust this value for vertical offset
+
+        //     ghostElements.forEach((ghost, index) => {
+        //         //const delay = index * 50; // Staggered delay for each ghost
+        //         ghost.style.transform = `translate(${event.pageX + offsetX}px, ${event.pageY + offsetY}px)`;
+        //         ghost.style.transition = `${0.1 + index / 20}s cubic-bezier(0.175, 0.885, 0.32, 1.275)`;
+
+        //     });
+        // },
+        initializeTrail() {
+            document.onmousemove = this.followMouse;
+
+            if (this.displayDuration > 0) {
+                setTimeout(this.hideTrail, this.displayDuration * 1000);
+            }
+        },
+        // getTrailObj() {
+        //     return document.getElementById("trailimageid").style;
+        // },
+        getTrailObj() {
+            const trailImageElement = document.getElementById("trailimageid");
+            if (!trailImageElement) {
+                console.error("Element with ID 'trailimageid' not found.");
+                return null; // Return null if the element is not found
+            }
+            return trailImageElement.style; // Return the style object if found
+        },
+
+
+        trueBody() {
+            return (!window.opera && document.compatMode && document.compatMode != "BackCompat")
+                ? document.documentElement : document.body;
+        },
+        hideTrail() {
+            this.getTrailObj().visibility = "hidden";
+            document.onmousemove = null;
+        },
+
+        followMouse(e) {
+            let xcoord = this.offsetFromMouse[0];
+            let ycoord = this.offsetFromMouse[1];
+
+            if (typeof e !== "undefined") {
+                xcoord += e.pageX;
+                ycoord += e.pageY;
+            } else if (typeof window.event !== "undefined") {
+                xcoord += this.trueBody().scrollLeft + event.clientX;
+                ycoord += this.trueBody().scrollTop + event.clientY;
+            }
+
+            const docwidth = document.all ? this.trueBody().scrollLeft + this.trueBody().clientWidth : pageXOffset + window.innerWidth - 15;
+            const docheight = document.all ? Math.max(this.trueBody().scrollHeight, this.trueBody().clientHeight) : Math.max(document.body.offsetHeight, window.innerHeight);
+
+            const trailObj = this.getTrailObj(); // Get the trail image style object
+
+            if (trailObj) { // Check if the object is not null
+                // Set display based on coordinates
+                if (xcoord + this.trailImage[1] + 3 > docwidth || ycoord + this.trailImage[2] > docheight) {
+                    trailObj.display = "none"; // Hide the element
+                } else {
+                    trailObj.display = ""; // Show the element
+                }
+
+                // Update position of the trail image
+                trailObj.left = xcoord + "px";
+                trailObj.top = ycoord + "px";
+            } else {
+                console.warn("Trail object is null, cannot set properties."); // Log a warning if trailObj is null
+            }
+        }
     },
+
 };
 </script>
 
@@ -556,5 +670,29 @@ export default {
     /* Change color as needed */
     font-size: 1.2em;
     /* Adjust size as needed */
+}
+
+.draggable-item {
+    cursor: grab;
+}
+
+
+
+/* CSS for Cursor Trail */
+.trail-container {
+    position: relative;
+    pointer-events: none;
+    /* Allows mouse events to pass through */
+}
+
+
+.ghost {
+    width: 80px;
+    height: 100px;
+    background-image: url('../assets/pencil_line.png');
+    background-size: cover;
+    position: absolute;
+    pointer-events: none;
+    transition: transform 0.1s ease;
 }
 </style>
