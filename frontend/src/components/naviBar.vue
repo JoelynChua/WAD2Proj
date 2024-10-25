@@ -3,7 +3,7 @@
     sticky: isSticky,
     'navbar-small': isSmall,
     hidden: isHidden
-  }" style="background-color: #c8e0ea;">
+  }" style="background-color: white;">
     <div class="container-fluid">
       <div class="d-flex align-items-center">
         <button class="navbar-toggler me-2" type="button" :class="{ 'navbar-icon-small': isSmall }" style="z-index: 1050;"
@@ -11,11 +11,11 @@
           aria-label="Toggle navigation">
           <span class="navbar-toggler-icon" :class="{ 'navbar-button-small': isSmall }"></span>
         </button>
-        <RouterLink class="navbar-brand" to="/">Tabi-log</RouterLink>
+        <RouterLink class="navbar-brand" to="/"><img  width="180px" src="../assets/activity.ai.png"></RouterLink>
       </div>
 
       <div class="collapse navbar-collapse" :class="{ hiddencollapse: isHidden }" id="navbarNav"
-        style="background-color: #c8e0ea;">
+        style="background-color: white;">
         <ul class="navbar-nav mx-auto"> <!-- Center the nav items -->
           <li class="nav-item">
             <RouterLink class="nav-link" :class="{ active: $route.path === '/events' }" aria-current="page" to="/events">Events</RouterLink>
@@ -142,13 +142,57 @@ export default {
 </script>
 
 <style scoped>
+/* Existing nav-link styles */
+.nav-link {
+  font-weight: 400;
+  font-style: normal;
+  position: relative;
+  display: inline-block;
+  overflow: hidden;
+  padding: 0.75rem 1.5rem; /* Adjusted padding for bigger space between items */
+  font-size: 1.1rem; /* Slightly larger font size for better visibility */
+}
+
+/* Add a pseudo-element that slides in from the left */
+.nav-link::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: -100%; /* Start off-screen (left) */
+  width: 100%;
+  height: 2px; /* Line thickness */
+  background-color: #0056b3; /* Highlight color */
+  transition: left 0.4s ease-in-out; /* Transition for smooth slide */
+}
+
+/* When hovering over the nav link, slide in the ::before element */
+.nav-link:hover::before {
+  left: 0; /* Slide it into view */
+}
+
+/* Active link styling */
+.nav-link.active {
+  font-weight: bold;
+  color: #0056b3 !important;
+  font-size: 1.2rem; /* Make the active link font size slightly larger */
+}
+
+/* When the active link is hovered, make sure the line also slides */
+.nav-link.active:hover::before {
+  left: 0;
+}
+
 .navbar {
   transition: all 0.3s ease;
-  /* Smooth transition for all changes */
-  height: 120px;
-  /* Initial height when the page loads */
-  padding: 1rem 1.5rem;
-  /* Padding when not scrolled */
+  height: 130px; /* Adjusted height */
+  padding: 1.25rem 2rem; /* Adjusted padding for a larger initial size */
+}
+
+.navbar-nav {
+  display: flex;
+  justify-content: center; /* Centers the nav items */
+  align-items: center; /* Aligns them vertically */
+  gap: 1.5rem; /* Adds spacing between nav items */
 }
 
 .sticky {
@@ -165,9 +209,9 @@ export default {
 }
 
 .navbar-small {
-  height: 70px; /* Height when scrolled down */
-  padding: 0.5rem 1rem; /* Smaller padding when scrolled down */
-  font-size: 0.9rem; /* Smaller font size when scrolled down */
+  height: 75px; /* Slightly larger height when scrolled down */
+  padding: 0.75rem 1.5rem; /* Adjusted padding for the smaller navbar */
+  font-size: 1rem; /* Slightly larger font size for nav links when scrolled */
 }
 
 .navbar-icon-small {
@@ -213,6 +257,73 @@ export default {
   font-weight: bold;
   color: #0056b3 !important;
   font-size: large;
-  
 }
+
+/* Slide-up animation */
+@keyframes slideUp {
+  0% {
+    opacity: 0;
+    transform: translateY(30px); /* Start slightly below the navbar */
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0); /* End at the final position */
+  }
+}
+
+/* Slide-up animation for navbar items */
+@keyframes slideUp {
+  0% {
+    opacity: 0;
+    transform: translateY(30px); /* Start slightly below the navbar */
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0); /* End at the final position */
+  }
+}
+
+/* Apply the animation to the navbar brand (logo) */
+.navbar-brand img {
+  opacity: 0; /* Initially hidden */
+  animation: slideUp 0.6s ease forwards;
+  animation-delay: 0.2s; /* Delay for the logo */
+}
+
+/* Apply animation to navbar items */
+.nav-item {
+  opacity: 0; /* Initially hidden */
+  animation: slideUp 0.6s ease forwards;
+}
+
+/* Create staggered effect for each nav item */
+.nav-item:nth-child(1) {
+  animation-delay: 0.3s; /* First item starts after the logo */
+}
+
+.nav-item:nth-child(2) {
+  animation-delay: 0.4s; /* Second item starts slightly later */
+}
+
+.nav-item:nth-child(3) {
+  animation-delay: 0.5s;
+}
+
+.nav-item:nth-child(4) {
+  animation-delay: 0.6s;
+}
+
+.nav-item:nth-child(5) {
+  animation-delay: 0.7s;
+}
+
+.nav-item:nth-child(6) {
+  animation-delay: 0.8s;
+}
+
+/* Ensure animation works in collapsed state (mobile view) */
+.collapse.show .nav-item {
+  animation-delay: 0s; /* No delay when showing items in the collapsed menu */
+}
+
 </style>
