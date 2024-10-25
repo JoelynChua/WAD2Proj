@@ -8,7 +8,7 @@
         <!-- Collapsible Navigation Bar -->
         <collapsible-navibar v-if="!fullPageRoutes.includes($route.path)" />
 
-        <div id="navbuffer" style="height: 120px;" v-if="!fullPageRoutes.includes($route.path)"></div> <!-- Sticky Navbar Buffer -->
+        <div id="navbuffer" style="height: 120px;" v-if="!fullPageRoutes.includes($route.path) && !noBuffer.includes($route.path)"></div> <!-- Sticky Navbar Buffer -->
 
         <!-- Router View for Dynamic Content -->
         <router-view />
@@ -28,7 +28,8 @@ import AppFooter from './components/AppFooter.vue'; // Import the Footer compone
 export default {
     data() {
         return {
-            fullPageRoutes: ["/login", "/signup"],
+            fullPageRoutes: ["/login", "/signup", ],
+            noBuffer: ["/"],
         };
     },
     name: 'App',
@@ -37,6 +38,7 @@ export default {
         AppFooter, // Register the Footer component
     },
 };
+
 </script>
 
 <!-- <script setup>
@@ -63,4 +65,11 @@ const callback = (response) => {
 }
 
 @import 'bootstrap/dist/css/bootstrap.min.css';
+
+@font-face {
+  font-family: 'graphie';
+  src: url('./assets/font/Graphie-Regular.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+}
 </style>

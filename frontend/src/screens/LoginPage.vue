@@ -13,7 +13,7 @@
 
     <!-- Overlay for the login form (shown when video is loaded) -->
     <div class="container vh-100" v-if="videoLoaded">
-      <div class="row justify-content-end align-items-center vh-100">
+      <div class="row justify-content-center align-items-center justify-content-md-end vh-100">
         <div class="login-container p-4 shadow col-4">
           <h5 class="text-center">Log in to your account</h5>
           <form @submit.prevent="login">

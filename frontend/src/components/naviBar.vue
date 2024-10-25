@@ -44,7 +44,7 @@
                             :class="{ active: $route.path === '/events' }"
                             aria-current="page"
                             to="/events"
-                            >Events</RouterLink
+                            >events</RouterLink
                         >
                     </li>
                     <li class="nav-item">
@@ -54,7 +54,7 @@
                                 active: $route.path === '/attractionsList',
                             }"
                             to="/attractionsList"
-                            >Attractions</RouterLink
+                            >attractions</RouterLink
                         >
                     </li>
                     <li class="nav-item">
@@ -64,7 +64,7 @@
                                 active: $route.path === '/itineraryList',
                             }"
                             to="/itineraryList"
-                            >Itinerary</RouterLink
+                            >itinerary</RouterLink
                         >
                     </li>
                     <li class="nav-item">
@@ -72,7 +72,7 @@
                             class="nav-link"
                             :class="{ active: $route.path === '/ExpensePage' }"
                             to="/ExpensePage"
-                            >Expense</RouterLink
+                            >expense</RouterLink
                         >
                     </li>
                     <li class="nav-item" v-if="isAuthenticated">
@@ -80,16 +80,16 @@
                             class="nav-link"
                             :class="{ active: $route.path === '/calendar' }"
                             to="/calendar"
-                            >Calendar</RouterLink
+                            >calendar</RouterLink
                         >
                     </li>
                 </ul>
 
                 <ul class="navbar-nav">
                     <!-- Separate nav for Profile and Log In / Sign Up -->
-                    <li class="nav-item" v-if="!isAuthenticated">
+                    <li id="last-item" class="nav-item" v-if="!isAuthenticated">
                         <RouterLink class="nav-link" to="/login"
-                            >Log In / Sign Up</RouterLink
+                            >login / sign up</RouterLink
                         >
                     </li>
                     <li class="nav-item dropdown" v-else>
@@ -228,13 +228,20 @@ export default {
 <style scoped>
 /* Existing nav-link styles */
 .nav-link {
-    font-weight: 400;
+    font-weight: 600;
+    font-family: graphie, sans-serif;
+    font-size: 1.1rem; /* Slightly larger font size for better visibility */
     font-style: normal;
     position: relative;
     display: inline-block;
     overflow: hidden;
-    padding: 0.75rem 1.5rem; /* Adjusted padding for bigger space between items */
-    font-size: 1.1rem; /* Slightly larger font size for better visibility */
+    padding: 0.75rem 0px !important; /* Adjusted padding for bigger space between items */
+    margin: 0px 1.5rem;
+    padding-bottom: 0px !important;
+
+#last-item {
+    margin-bottom: 30px;
+}
 }
 
 /* Add a pseudo-element that slides in from the left */
@@ -270,6 +277,7 @@ export default {
     transition: all 0.3s ease;
     height: 130px; /* Adjusted height */
     padding: 1.25rem 2rem; /* Adjusted padding for a larger initial size */
+    opacity: 0.9;
 }
 
 .navbar-nav {
@@ -293,7 +301,7 @@ export default {
 }
 
 .navbar-small {
-    height: 75px; /* Slightly larger height when scrolled down */
+    height: 90px; /* Slightly larger height when scrolled down */
     padding: 0.75rem 1.5rem; /* Adjusted padding for the smaller navbar */
     font-size: 1rem; /* Slightly larger font size for nav links when scrolled */
 }
