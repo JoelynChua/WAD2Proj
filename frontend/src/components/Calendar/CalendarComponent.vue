@@ -46,7 +46,7 @@ export default {
     organiserId: {
       type: String,
       required: true,
-      default: '123'
+      default: () => sessionStorage.getItem('uid')
     }
   },
 
@@ -69,134 +69,168 @@ export default {
 
     // Calendar event handlers
     const handleDateSelect = (selectInfo) => {
-      const startStr = selectInfo.startStr.split('T')[0]  // Get just the date part
-      const endStr = selectInfo.endStr.split('T')[0]  // Get just the date part
+      console.log('Select info:', selectInfo);
       
-      // For multi-day selections, FullCalendar gives us the day after as end date
-      // So we need to subtract one day from the end date
-      const isMultiDay = startStr !== endStr
-      let endDate = startStr
-  
-        if (isMultiDay) {
-          const date = new Date(endStr)
-          date.setDate(date.getDate() - 1)  // Subtract one day
-          endDate = date.toISOString().split('T')[0]
-        }
+      // For all-day events, we need to handle the end date differently
+      let startStr = selectInfo.startStr;
+      let endStr = selectInfo.endStr;
+      
+      if (selectInfo.allDay) {
+        // For all-day events, endStr will be exclusive, so we need to subtract one day
+        const endDate = new Date(endStr);
+        endDate.setDate(endDate.getDate() - 1);
+        endStr = endDate.toISOString().split('T')[0];
+      }
+      
+      console.log('Adjusted dates:', { startStr, endStr });
 
-        newEvent.value = {
-          title: '',
-          description: '',
-          start: startStr,
-          end: endDate,
-          startTime: selectInfo.startStr.split('T')[1]?.slice(0, 5) || '',
-          endTime: selectInfo.endStr.split('T')[1]?.slice(0, 5) || '',
-          allDay: selectInfo.allDay,
-          colour: defaultColor,
-          organiserId: props.organiserId
-        }
+      newEvent.value = {
+        title: '',
+        description: '',
+        start: startStr,
+        end: endStr,
+        startTime: selectInfo.allDay ? '' : selectInfo.startStr.split('T')[1]?.slice(0, 5) || '',
+        endTime: selectInfo.allDay ? '' : selectInfo.endStr.split('T')[1]?.slice(0, 5) || '',
+        allDay: selectInfo.allDay,
+        colour: defaultColor,
+        organiserId: props.organiserId
+      }
+      
+      console.log('New event data:', newEvent.value);
       showEventPopup.value = true
     }
     function handleEventClick(info) {
-      const event = info.event
-      const startDate = event.start
-      const endDate = event.end || event.start
+        const event = info.event
+        
 
-      editingEvent.value = {
-        id: event.id,
-        title: event.title,
-        description: event.extendedProps.description || '',
-        start: formatDate(startDate),
-        end: formatDate(endDate),
-        startTime: formatTime(startDate),
-        endTime: event.end ? formatTime(endDate) : '',
-        allDay: event.allDay,
-        color: event.backgroundColor
-      }
-      showEventEditor.value = true
+        // console.log('Raw event data:', {
+        //     id: event.id,
+        //     start: event.start,
+        //     end: event.end,
+        //     allDay: event.allDay,
+        //     startStr: event.startStr,
+        //     endStr: event.endStr
+        // });
+
+        const startDate = new Date(event.start)
+        const endDate = event.end ? new Date(event.end) : new Date(event.start)
+        
+
+        // console.log('Converted dates:', {
+        //     startDate,
+        //     endDate,
+        //     startLocalISO: startDate.toISOString(),
+        //     endLocalISO: endDate.toISOString(),
+        //     startTimezone: startDate.getTimezoneOffset(),
+        //     endTimezone: endDate.getTimezoneOffset()
+        // });
+
+        editingEvent.value = {
+            id: event.id,
+            title: event.title,
+            description: event.extendedProps.description || '',
+            start: formatDate(startDate),
+            end: formatDate(endDate),
+            startTime: event.allDay ? '' : formatTime(startDate),
+            endTime: event.allDay ? '' : (event.end ? formatTime(endDate) : formatTime(startDate)),
+            allDay: event.allDay,
+            color: event.backgroundColor
+        }
+
+
+        // console.log('Formatted event:', editingEvent.value);
+        
+        showEventEditor.value = true
     }
 
     function formatDate(date) {
-      const year = date.getFullYear()
-      const month = String(date.getMonth() + 1).padStart(2, '0')
-      const day = String(date.getDate()).padStart(2, '0')
-      return `${year}-${month}-${day}`
+
+        const d = new Date(date)
+
+        const year = d.getFullYear()
+        const month = String(d.getMonth() + 1).padStart(2, '0')
+        const day = String(d.getDate()).padStart(2, '0')
+        
+        const formatted = `${year}-${month}-${day}`
+        console.log('formatDate input:', date, 'output:', formatted);
+        return formatted
     }
 
     function formatTime(date) {
-      const hours = String(date.getHours()).padStart(2, '0')
-      const minutes = String(date.getMinutes()).padStart(2, '0')
-      return `${hours}:${minutes}`
+        const d = new Date(date)
+        
+        const hours = String(d.getHours()).padStart(2, '0')
+        const minutes = String(d.getMinutes()).padStart(2, '0')
+        
+        const formatted = `${hours}:${minutes}`
+        console.log('formatTime input:', date, 'output:', formatted);
+        return formatted
     }
 
     const handleEventDrop = async (dropInfo) => {
       try {
+        const event = dropInfo.event;
+        
         const updatedEvent = {
-          id: dropInfo.event.id,
-          title: dropInfo.event.title,
-          description: dropInfo.event.extendedProps?.description || '',
-          start: dropInfo.event.startStr,
-          end: dropInfo.event.endStr,
-          allDay: dropInfo.event.allDay,
-          colour: dropInfo.event.backgroundColor,
+          id: event.id,
+          title: event.title,
+          description: event.extendedProps?.description || '',
+          start: event.startStr, // Use startStr and endStr directly
+          end: event.endStr,
+          allDay: event.allDay,
+          colour: event.backgroundColor,
           organiserId: props.organiserId
         }
+
+        console.log('Drop event data:', updatedEvent);
         await updateEvent(updatedEvent.id, updatedEvent)
       } catch (err) {
         dropInfo.revert()
         console.error('Error updating event:', err)
       }
     }
-
     function formatTimeDisplay(date) {
       return new Date(date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     }
+    const handleEventResize = async (resizeInfo) => {
+      try {
+        const event = resizeInfo.event;
+        
+        const updatedEvent = {
+          id: event.id,
+          title: event.title,
+          description: event.extendedProps?.description || '',
+          start: event.startStr, // Use startStr and endStr directly
+          end: event.endStr,
+          allDay: event.allDay,
+          colour: event.backgroundColor,
+          organiserId: props.organiserId
+        }
 
+        console.log('Resize event data:', updatedEvent);
+        await updateEvent(updatedEvent.id, updatedEvent)
+      } catch (err) {
+        resizeInfo.revert()
+        console.error('Error updating event after resize:', err)
+      }
+    }
     // Make calendar options computed to ensure reactivity
     const calendarOptions = computed(() => ({
       plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
       initialView: 'dayGridMonth',
+      timeZone: 'local',
       editable: true,
+      eventResizableFromStart: true,
+      eventDurationEditable: true,
       selectable: true,
       selectMirror: true,
       eventColor: defaultColor,
+      eventResize: handleEventResize,
+      eventDisplay: 'block',
       dayMaxEvents: true,
       weekends: true,
       events: events.value, // Use the reactive events value
-      eventContent: (arg) => {
-        const eventElement = document.createElement('div')
-        eventElement.classList.add('fc-event-content')
-        eventElement.style.backgroundColor = arg.event.backgroundColor || arg.event.extendedProps.colour
-        eventElement.style.borderColor = arg.event.borderColor || arg.event.extendedProps.colour
-        eventElement.style.padding = '2px 4px'
-        eventElement.style.borderRadius = '4px'
-
-        if (!arg.event.allDay) {
-          const timeElement = document.createElement('div')
-          timeElement.classList.add('fc-event-time')
-          const startTime = arg.event.start ? formatTimeDisplay(arg.event.start) : ''
-          const endTime = arg.event.end ? formatTimeDisplay(arg.event.end) : ''
-          timeElement.textContent = endTime ? `${startTime} - ${endTime}` : startTime
-          timeElement.style.fontSize = '0.85em'
-          timeElement.style.opacity = '0.8'
-          eventElement.appendChild(timeElement)
-        }
-
-        const titleElement = document.createElement('strong')
-        titleElement.textContent = arg.event.title
-        titleElement.style.display = 'block'
-        eventElement.appendChild(titleElement)
-
-        if (arg.event.extendedProps?.description) {
-          const descriptionElement = document.createElement('div')
-          descriptionElement.classList.add('fc-event-description')
-          descriptionElement.textContent = arg.event.extendedProps.description
-          descriptionElement.style.fontSize = '0.85em'
-          descriptionElement.style.opacity = '0.9'
-          eventElement.appendChild(descriptionElement)
-        }
-
-        return { domNodes: [eventElement] }
-      },
+      displayEventTime: true,
       select: handleDateSelect,
       eventClick: handleEventClick,
       eventDrop: handleEventDrop,
@@ -204,9 +238,63 @@ export default {
         left: 'prev,next today',
         center: 'title',
         right: 'dayGridMonth,timeGridWeek,timeGridDay'
-      }
-    }))
+      },
+      eventTimeFormat: {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
+      },
+      eventContent: (arg) => {
+        const eventElement = document.createElement('div')
+        eventElement.classList.add('fc-event-content')
+        eventElement.style.backgroundColor = arg.event.backgroundColor || arg.event.extendedProps.colour
+        eventElement.style.borderColor = arg.event.borderColor || arg.event.extendedProps.colour
+        eventElement.style.padding = '2px 4px'
+        eventElement.style.borderRadius = '4px'
+        
+        // Calculate duration in minutes
+        const start = arg.event.start
+        const end = arg.event.end || arg.event.start
+        const durationInMinutes = (end - start) / (1000 * 60)
+        
+        // Consider an event "short" if it's less than 60 minutes (adjust as needed)
+        const isShortEvent = durationInMinutes < 90
 
+        // Add tooltip for short events
+        if (isShortEvent && arg.event.extendedProps?.description) {
+            eventElement.title = `${arg.event.title}\n${arg.event.extendedProps.description}`
+        }
+
+        if (!arg.event.allDay) {
+            const timeElement = document.createElement('div')
+            timeElement.classList.add('fc-event-time')
+            const startTime = arg.event.start ? formatTimeDisplay(arg.event.start) : ''
+            const endTime = arg.event.end ? formatTimeDisplay(arg.event.end) : ''
+            timeElement.textContent = endTime ? `${startTime} - ${endTime}` : startTime
+            timeElement.style.fontSize = '0.85em'
+            timeElement.style.opacity = '0.8'
+            eventElement.appendChild(timeElement)
+        }
+
+        const titleElement = document.createElement('strong')
+        titleElement.textContent = arg.event.title
+        titleElement.style.display = 'block'
+        eventElement.appendChild(titleElement)
+
+        if (arg.event.extendedProps?.description && !isShortEvent) {
+            const descriptionElement = document.createElement('div')
+            descriptionElement.classList.add('fc-event-description')
+            descriptionElement.textContent = arg.event.extendedProps.description
+            descriptionElement.style.fontSize = '0.85em'
+            descriptionElement.style.opacity = '0.9'
+            eventElement.appendChild(descriptionElement)
+        }
+
+        return { domNodes: [eventElement] }
+    },
+
+    }))
+    
     // CRUD operations
     const handleCreateEvent = async (eventData) => {
       try {
@@ -276,6 +364,7 @@ export default {
       handleCreateEvent,
       handleUpdateEvent,
       handleDeleteEvent,
+      handleEventResize,
       closePopup,
       closeEventEditor
     }

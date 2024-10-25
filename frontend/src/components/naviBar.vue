@@ -75,7 +75,7 @@
                             >expense</RouterLink
                         >
                     </li>
-                    <li class="nav-item" v-if="isAuthenticated">
+                    <li class="nav-item" v-if="isOrganiser">
                         <RouterLink
                             class="nav-link"
                             :class="{ active: $route.path === '/calendar' }"
@@ -144,12 +144,14 @@
 import { auth } from '../firebase/firebaseClientConfig'; // Adjust the path to your Firebase config
 import { onAuthStateChanged, signOut as firebaseSignOut } from 'firebase/auth'; // Import Firebase Auth methods
 import EventBus from '../utils/eventBus.js';
+import { computed } from 'vue';
 
 export default {
     name: 'navbarNav',
     data() {
         return {
             isAuthenticated: false, // Track authentication state
+            isOrganiser: computed(() => sessionStorage.getItem('userType') === 'organiser'),
             isSticky: true, // Track if the navbar should be sticky
             isSmall: false, // Track if the navbar is small
             isHidden: false, // Track if the navbar should be hidden

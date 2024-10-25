@@ -47,80 +47,65 @@
     </div>
   </template>
   
-  <script>
-  import { ref, onMounted } from 'vue'
+<script>
+import { ref } from 'vue'
+
+export default {
+  props: {
+    editingEvent: {
+      type: Object,
+      required: true
+    }
+  },
+  emits: ['update', 'delete', 'close'],
   
-  export default {
-    props: {
-      editingEvent: {
-        type: Object,
-        required: true
-      }
-    },
-    emits: ['update', 'delete', 'close', 'update:editingEvent'],
+  setup(props, { emit }) {
+    // Create a local copy of the event
+    const localEvent = ref({
+      id: props.editingEvent.id,
+      title: props.editingEvent.title,
+      description: props.editingEvent.description,
+      start: props.editingEvent.start,
+      end: props.editingEvent.end,
+      startTime: props.editingEvent.startTime,
+      endTime: props.editingEvent.endTime,
+      allDay: props.editingEvent.allDay,
+      color: props.editingEvent.color
+    })
+  const handleSubmit = () => {
+    console.log('Submitting with values:', localEvent.value);
     
-    setup(props, { emit }) {
-      const localEvent = ref({...props.editingEvent})
-  
-      onMounted(() => {
-        // Parse the dates when component mounts
-        if (props.editingEvent.start) {
-          const startDate = new Date(props.editingEvent.start)
-          localEvent.value.start = startDate.toISOString().split('T')[0]
-          if (!props.editingEvent.allDay) {
-            localEvent.value.startTime = startDate.toLocaleTimeString('en-US', {
-              hour12: false,
-              hour: '2-digit',
-              minute: '2-digit'
-            })
-          }
-        }
-  
-        if (props.editingEvent.end) {
-          const endDate = new Date(props.editingEvent.end)
-          localEvent.value.end = endDate.toISOString().split('T')[0]
-          if (!props.editingEvent.allDay) {
-            localEvent.value.endTime = endDate.toLocaleTimeString('en-US', {
-              hour12: false,
-              hour: '2-digit',
-              minute: '2-digit'
-            })
-          }
-        }
-      })
-  
-      const handleSubmit = () => {
-        // Combine date and time before emitting
-        const formattedEvent = {
-          title: localEvent.value.title,
-          description: localEvent.value.description,
-          allDay: localEvent.value.allDay,
-          colour: localEvent.value.color, // Note: fixing the color/colour discrepancy
-          organiserId: localEvent.value.organiserId
-        }
-  
-        if (localEvent.value.allDay) {
-          formattedEvent.start = `${localEvent.value.start}T00:00:00`
-          formattedEvent.end = localEvent.value.end 
-            ? `${localEvent.value.end}T23:59:59`
-            : `${localEvent.value.start}T23:59:59`
-        } else {
-          formattedEvent.start = `${localEvent.value.start}T${localEvent.value.startTime}`
-          formattedEvent.end = localEvent.value.end && localEvent.value.endTime
-            ? `${localEvent.value.end}T${localEvent.value.endTime}`
-            : `${localEvent.value.start}T${localEvent.value.startTime}`
-        }
-  
-        console.log('Formatted event for update:', formattedEvent)
-        emit('update', formattedEvent)
-      }
-  
-      return {
-        localEvent,
-        handleSubmit
-      }
+    const formattedEvent = {
+      id: localEvent.value.id,
+      title: localEvent.value.title,
+      description: localEvent.value.description,
+      allDay: localEvent.value.allDay,
+      color: localEvent.value.color
+    }
+
+    if (localEvent.value.allDay) {
+      formattedEvent.start = `${localEvent.value.start}T00:00:00+08:00`
+      formattedEvent.end = `${localEvent.value.end || localEvent.value.start}T23:59:59+08:00`
+    } else {
+      // Ensure we have valid times
+      const startTime = localEvent.value.startTime || '00:00'
+      const endTime = localEvent.value.endTime || startTime
+
+      // Add timezone information to the dates
+      formattedEvent.start = `${localEvent.value.start}T${startTime}:00+08:00`
+      formattedEvent.end = `${localEvent.value.end || localEvent.value.start}T${endTime}:00+08:00`
+    }
+
+    console.log('Formatted event for update:', formattedEvent);
+    emit('update', formattedEvent)
+  }
+
+    return {
+      localEvent,
+      handleSubmit
     }
   }
-  </script>
+}
+</script>
 <style scoped src="./CalendarStyles.css">
 </style>

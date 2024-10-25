@@ -51,8 +51,9 @@
 </template>
 
 <script>
-import { auth } from '../firebase/firebaseClientConfig';
+import { auth, database } from '../firebase/firebaseClientConfig';
 import { signInWithEmailAndPassword } from 'firebase/auth';
+import { ref, child, get } from 'firebase/database';
 
 export default {
   data() {
@@ -77,6 +78,13 @@ export default {
         const user = userCredential.user;
         console.log('User logged in:', user);
         sessionStorage.setItem('uid', user.uid);
+        const dbRef = ref(database);
+        const userSnapshot = await get(child(dbRef, `users/${user.uid}`));
+        if (userSnapshot.exists()) {
+          const userData = userSnapshot.val();
+          sessionStorage.setItem('userType', userData.userType); // Get userType from RTDB
+          console.log("usertype: " + sessionStorage.getItem('userType'));
+        }
         this.$router.push('/');
       } catch (error) {
         if (error.message == 'Firebase: Error (auth/invalid-credential).') {

@@ -1,5 +1,5 @@
 import { ref } from 'vue'
-import eventService from '../../services/organiserEventService'
+import organiserEventService from '../../services/organiserEventService'
 export const useCalendarEvents = (organiserId) => {
     const events = ref([])
     const isLoading = ref(false)
@@ -11,81 +11,65 @@ export const useCalendarEvents = (organiserId) => {
         console.warn('Invalid event data received:', event)
         return null
       }
-  
+    
+      // Keep the dates in the original timezone format
       return {
         id: event.id,
         title: event.title,
-        start: new Date(event.start).toISOString(), // Ensure proper date format
-        end: new Date(event.end).toISOString(),     // Ensure proper date format
+        start: event.start,     // Don't convert, keep original format
+        end: event.end,         // Don't convert, keep original format
         allDay: event.allDay || false,
         backgroundColor: event.colour || '#fb00bc',
         borderColor: event.colour || '#fb00bc',
-        description: event.description || '',        // Move description to top level
-        organiserId: event.organiserId,             // Move organiserId to top level
+        description: event.description || '',
+        organiserId: event.organiserId,
         editable: true,
         display: 'block'
       }
     }
-  
+    
     const formatEventForBackend = (eventData) => {
-        if (!eventData) {
-          throw new Error('Event data is required');
-        }
-      
-        try {
-          let startDate, endDate;
-      
-          // Handle non-allDay events
-          if (!eventData.allDay) {
-
-            startDate = new Date(eventData.start);
-            const startDateOnly = eventData.start.split('T')[0]; // Get just the date part
-            
-            if (!eventData.endTime) {
-              endDate = new Date(startDate);
-              endDate.setHours(endDate.getHours() + 1);
-            } else {
-              // Combine date with endTime
-              endDate = new Date(`${startDateOnly}T${eventData.endTime}`);
-            }
-          } else {
-            // For all-day events
-            startDate = new Date(eventData.start.split('T')[0]);
-            const nextDay = new Date(startDate);
-            nextDay.setDate(nextDay.getDate() + 1);
-            endDate = nextDay;
-          }
-      
-          // Validate the dates
-          if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
-            throw new Error('Invalid date format');
-          }
-      
-          // Ensure end is after start
-          if (endDate <= startDate) {
-            endDate = new Date(startDate);
-            endDate.setHours(endDate.getHours() + 1);
-          }
-      
-          // Debug logging
-          console.log('Processed start date:', startDate);
-          console.log('Processed end date:', endDate);
-      
+      if (!eventData) {
+        throw new Error('Event data is required');
+      }
+    
+      try {
+        console.log('Event data received:', eventData);
+    
+        if (eventData.allDay) {
+          // Extract just the date part from the ISO strings
+          const startDate = eventData.start.split('T')[0];
+          const endDate = eventData.end.split('T')[0];
+          
           return {
-            title: eventData.title || '',
+            title: eventData.title,
             description: eventData.description || '',
             organiserId: organiserId,
-            start: startDate.toISOString(),
-            end: endDate.toISOString(),
-            allDay: Boolean(eventData.allDay),
-            colour: eventData.colour || '#fb00bc'
+            // For all-day events, set consistent start and end times
+            start: `${startDate}T00:00:00+08:00`,
+            end: `${endDate}T23:59:59+08:00`,
+            allDay: true,
+            colour: eventData.color || eventData.colour || '#fb00bc'
           };
-        } catch (error) {
-          console.error('Date processing error:', error);
-          console.error('Original event data:', eventData);
-          throw new Error(`Error formatting event: ${error.message}`);
+        } else {
+          // For timed events
+          return {
+            title: eventData.title,
+            description: eventData.description || '',
+            organiserId: organiserId,
+            start: eventData.start.includes('+') ? eventData.start : `${eventData.start}+08:00`,
+            end: eventData.end.includes('+') ? eventData.end : `${eventData.end}+08:00`,
+            allDay: false,
+            colour: eventData.color || eventData.colour || '#fb00bc'
+          };
         }
-      };
+    
+      } catch (error) {
+        console.error('Date processing error:', error);
+        console.error('Original event data:', eventData);
+        throw new Error(`Error formatting event: ${error.message}`);
+      }
+    };
   
     const fetchEvents = async () => {
       if (!organiserId) {
@@ -99,7 +83,7 @@ export const useCalendarEvents = (organiserId) => {
       try {
         console.log('Fetching events for organiser:', organiserId)
   
-        const response = await eventService.getEventsByOrganiserId(organiserId)
+        const response = await organiserEventService.getEventsByOrganiserId(organiserId)
         console.log('Raw events from server:', response) // Debug log
   
         // Filter out any invalid events and format the valid ones
@@ -130,7 +114,7 @@ export const useCalendarEvents = (organiserId) => {
   
       try {
         const backendEvent = formatEventForBackend(eventData)
-        const response = await eventService.createEvent(backendEvent)
+        const response = await organiserEventService.createEvent(backendEvent)
         const newEvent = formatEventForCalendar(response)
   
         if (newEvent) {
@@ -149,18 +133,21 @@ export const useCalendarEvents = (organiserId) => {
     const updateEvent = async (eventId, eventData) => {
       isLoading.value = true
       error.value = null
-  
+    
       try {
+        console.log('Updating event with data:', eventData);
         const backendEvent = formatEventForBackend(eventData)
-        const response = await eventService.updateEvent(eventId, backendEvent)
+        console.log('Formatted for backend:', backendEvent);
+        
+        const response = await organiserEventService.updateEvent(eventId, backendEvent)
         const updatedEvent = formatEventForCalendar(response)
-  
+    
         if (updatedEvent) {
           events.value = events.value.map(event => 
             event.id === eventId ? updatedEvent : event
           )
         }
-  
+    
         return updatedEvent
       } catch (err) {
         error.value = 'Failed to update event: ' + err.message
@@ -175,7 +162,7 @@ export const useCalendarEvents = (organiserId) => {
       error.value = null
   
       try {
-        await eventService.deleteEvent(eventId)
+        await organiserEventService.deleteEvent(eventId)
         events.value = events.value.filter(event => event.id !== eventId)
         return true
       } catch (err) {

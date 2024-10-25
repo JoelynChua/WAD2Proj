@@ -85,26 +85,36 @@ export default {
       localEvent.value = { ...newVal }
     }, { deep: true })
 
-    const handleSubmit = () => {
-      const formattedEvent = {
-        title: localEvent.value.title,
-        description: localEvent.value.description,
-        colour: localEvent.value.colour,
-        allDay: localEvent.value.allDay,
-        organiserId: localEvent.value.organiserId
-      }
-
-      if (localEvent.value.allDay) {
-        formattedEvent.start = `${localEvent.value.start}T00:00:00.000Z`
-        formattedEvent.end = `${localEvent.value.start}T23:59:59.999Z`
-      } else {
-        formattedEvent.start = `${localEvent.value.start}T${localEvent.value.startTime}:00.000Z`
-        formattedEvent.end = `${localEvent.value.end || localEvent.value.start}T${localEvent.value.endTime}:00.000Z`
-      }
-
-      console.log('Submitting event:', formattedEvent)
-      emit('create', formattedEvent)
+// EventCreatePopup.vue
+  const handleSubmit = () => {
+    const formattedEvent = {
+      title: localEvent.value.title,
+      description: localEvent.value.description,
+      colour: localEvent.value.colour,
+      allDay: localEvent.value.allDay,
+      organiserId: localEvent.value.organiserId
     }
+
+    if (localEvent.value.allDay) {
+      // For all-day events, use start date and add one day to end date
+      formattedEvent.start = `${localEvent.value.start}T00:00:00+08:00`
+      // For multi-day events, we need the end date to be the end of the last day
+      const endDate = new Date(localEvent.value.end)
+      endDate.setHours(23, 59, 59)
+      formattedEvent.end = endDate.toISOString().replace('Z', '+08:00')
+    } else {
+      formattedEvent.start = `${localEvent.value.start}T${localEvent.value.startTime || '00:00'}:00+08:00`
+      // For multi-day events with times, use the actual end date and time
+      formattedEvent.end = `${localEvent.value.end}T${localEvent.value.endTime || '23:59'}:00+08:00`
+    }
+
+    console.log('Formatted event data:', formattedEvent);
+    emit('create', formattedEvent)
+  }
+
+// formatEventForBackend
+
+
 
     return {
       localEvent,
