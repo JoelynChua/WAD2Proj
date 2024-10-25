@@ -87,8 +87,8 @@ export default {
       newEvent.value = {
         title: '',
         description: '',
-        start: startStr,
-        end: endStr,
+        start: formatDate(startStr),
+        end: formatDate(endStr),
         startTime: selectInfo.allDay ? '' : selectInfo.startStr.split('T')[1]?.slice(0, 5) || '',
         endTime: selectInfo.allDay ? '' : selectInfo.endStr.split('T')[1]?.slice(0, 5) || '',
         allDay: selectInfo.allDay,
