@@ -3,6 +3,7 @@
         <button v-if="!loggedIn" @click="handleAuthClick">
             Authorize Google Calendar
         </button>
+        <button v-if="loggedIn" @click="addEvent">Add Event</button>
         <!-- <button v-else @click="listUpcomingEvents">List Upcoming Events</button> -->
         <ul v-if="events.length" style="list-style: none">
             <li v-for="event in events" :key="event.id">
@@ -119,6 +120,41 @@ export default {
             } else {
                 console.log('You have not logged into Google Calendar');
             }
+        },
+        addEvent() {
+            const event = {
+                summary: 'Test Event',
+                location: '800 Howard St., San Francisco, CA 94103',
+                description: 'A chance to meet and network with people.',
+                start: {
+                    dateTime: '2024-10-28T09:00:00-07:00',
+                    timeZone: 'Asia/Singapore',
+                },
+                end: {
+                    dateTime: '2024-10-28T17:00:00-07:00',
+                    timeZone: 'Asia/Singapore',
+                },
+                reminders: {
+                    useDefault: false,
+                    overrides: [
+                        { method: 'email', minutes: 24 * 60 },
+                        { method: 'popup', minutes: 10 },
+                    ],
+                },
+            };
+
+            gapi.client.calendar.events
+                .insert({
+                    calendarId: 'primary',
+                    resource: event,
+                })
+                .then((response) => {
+                    console.log('Event created: ', response.result);
+                    this.events.push(response.result);
+                })
+                .catch((error) => {
+                    console.error('Error creating event:', error);
+                });
         },
     },
     onUnmounted() {
