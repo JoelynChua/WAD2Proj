@@ -16,73 +16,67 @@ import HomePage from '../screens/HomePage.vue';
 import EventsPage from '../screens/eventsPage.vue';
 
 const routes = [
-  {
-    path: '/',
-    name: 'Home',
-    component: HomePage,
-  },
-  {
-    path: '/eventDetails/:id',
-    name: 'EventDetails',
-    component: EventDetails,
-  },
-  {
-    path: '/attractionsList',
-    name: 'AttractionsList',
-    component: AttractionsList,
-  },
-  {
-    path: '/attractionDetails/:id',
-    name: 'AttractionDetails',
-    component: AttractionDetails,
-  },
-  {
-    path: '/itineraryList',
-    name: 'itineraryList',
-    component: itineraryList,
-  },
-  {
-    path: '/ItineraryDetails/:id',
-    name: 'ItineraryDetails',
-    component: ItineraryDetails,
-  },
-  {
-    path: '/ItineraryForm',
-    name: 'ItineraryForm',
-    component: ItineraryForm,
-  },
-  {
-    path: '/signup',
-    name: 'NewUser',
-    component: Signup,
-    meta: { redirectIfAuthenticated: true }, // Redirect if authenticated
-  },
-  {
-    path: '/login',
-    name: 'LoginPage',
-    component: LoginPage,
-    meta: { redirectIfAuthenticated: true }, // Redirect if authenticated
-  },
-  {
-    path: '/ExpensePage',
-    name: 'ExpensePage',
-    component: ExpensePage,
-  },
-  {
-    path: '/dashboard',
-    name: 'UserDashboard',
-    component: ProfilePage,
-    meta: { requiresAuth: true }, // Requires authentication
-  },
-  { path: '/calendar',
-    name: 'calendar',
-    component: CalendarPage,
-  },
-  { path: '/events',
-    name: 'events',
-    component: EventsPage,
-  }
-  // You can add more routes here
+    {
+        path: '/',
+        name: 'Home',
+        component: HomePage,
+    },
+    {
+        path: '/eventDetails/:id',
+        name: 'EventDetails',
+        component: EventDetails,
+    },
+    {
+        path: '/attractionsList',
+        name: 'AttractionsList',
+        component: AttractionsList,
+    },
+    {
+        path: '/attractionDetails/:id',
+        name: 'AttractionDetails',
+        component: AttractionDetails,
+    },
+    {
+        path: '/itineraryList',
+        name: 'itineraryList',
+        component: itineraryList,
+    },
+    {
+        path: '/ItineraryDetails/:id',
+        name: 'ItineraryDetails',
+        component: ItineraryDetails,
+    },
+    {
+        path: '/ItineraryForm',
+        name: 'ItineraryForm',
+        component: ItineraryForm,
+    },
+    {
+        path: '/signup',
+        name: 'NewUser',
+        component: Signup,
+        meta: { redirectIfAuthenticated: true }, // Redirect if authenticated
+    },
+    {
+        path: '/login',
+        name: 'LoginPage',
+        component: LoginPage,
+        meta: { redirectIfAuthenticated: true }, // Redirect if authenticated
+    },
+    {
+        path: '/ExpensePage',
+        name: 'ExpensePage',
+        component: ExpensePage,
+    },
+    {
+        path: '/dashboard',
+        name: 'UserDashboard',
+        component: ProfilePage,
+        meta: { requiresAuth: true }, // Requires authentication
+    },
+    { path: '/calendar', name: 'calendar', component: CalendarPage },
+    { path: '/events', name: 'events', component: EventsPage },
+    // You can add more routes here
 ];
 
 const router = createRouter({
@@ -92,20 +86,22 @@ const router = createRouter({
 
 // Navigation guard to protect routes that require authentication and redirect authenticated users
 router.beforeEach((to, from, next) => {
-  const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
-  const redirectIfAuthenticated = to.matched.some(record => record.meta.redirectIfAuthenticated);
-  const isAuthenticated = !!auth.currentUser; // Check if the user is authenticated
+    const requiresAuth = to.matched.some((record) => record.meta.requiresAuth);
+    const redirectIfAuthenticated = to.matched.some(
+        (record) => record.meta.redirectIfAuthenticated
+    );
+    const isAuthenticated = !!auth.currentUser; // Check if the user is authenticated
 
-  console.log('Navigating to:', to.name); // Debugging line
-  console.log('Is Authenticated:', isAuthenticated); // Debugging line
+    console.log('Navigating to:', to.name); // Debugging line
+    console.log('Is Authenticated:', isAuthenticated); // Debugging line
 
-  if (requiresAuth && !isAuthenticated) {
-    next('/login'); // Redirect to login page if not authenticated
-  } else if (redirectIfAuthenticated && isAuthenticated) {
-    next('/dashboard'); // Redirect to Profile Page if already authenticated
-  } else {
-    next(); // Proceed to the route
-  }
+    if (requiresAuth && !isAuthenticated) {
+        next('/login'); // Redirect to login page if not authenticated
+    } else if (redirectIfAuthenticated && isAuthenticated) {
+        next('/dashboard'); // Redirect to Profile Page if already authenticated
+    } else {
+        next(); // Proceed to the route
+    }
 });
 
 export default router;
