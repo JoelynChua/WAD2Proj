@@ -181,7 +181,12 @@ export default {
     },
     data() {
         return {
-            itineraryDetails: {}, // Initialize as an empty object
+            itineraryDetails: {
+                title: '',
+                date: '',
+                budget: 0,  // Initialize budget to ensure reactivity
+                events: []
+            }, // Initialize as an empty object
             eventDetails: {}, // To hold event details keyed by eventID
             attractionDetails: {}, // To hold attraction details keyed by eventID
             updateMessage: null, // Initialize the success message
@@ -272,7 +277,7 @@ export default {
                 this.itineraryDetails = await itineraryService.getItineraryByID(id); // Fetch itinerary details
 
                 // Automatically fetch details for each event after itinerary details are loaded
-                console.log(this.itineraryDetails.events);
+                console.log(this.itineraryDetails.events, "DETAILS");
 
                 // Initialize a counter for tracking fetch calls
                 this.fetchDetailsCounter = 0;

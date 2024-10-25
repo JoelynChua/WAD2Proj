@@ -2,9 +2,10 @@
   <div style="margin-top: 30px;" class="itinerary-list">
     <h1>My Itineraries</h1>
 
-    <div style="margin: 60px;" >
+    <div style="margin: 60px;">
       <!-- Add itinerary -->
-      <button style="margin-bottom: 20px; display: block; background-color:#c8e0ea" @click="toItineraryForm()" class="btn btn">
+      <button style="margin-bottom: 20px; display: block; background-color:#c8e0ea" @click="toItineraryForm()"
+        class="btn btn">
         <span class="plus-sign">New Itinerary +</span>
       </button>
 
@@ -36,6 +37,8 @@ import itineraryService from '../services/itineraryService'; // Adjust the path 
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { faTrash } from '@fortawesome/free-solid-svg-icons'; // Import the trash icon
+import { auth } from '../firebase/firebaseClientConfig';
+import { onAuthStateChanged } from 'firebase/auth';
 
 // Add the icon to the library
 library.add(faTrash);
@@ -64,14 +67,34 @@ export default {
   Use it for tasks that require the component to be present in the DOM.
 */
   async mounted() {
-    try {
-      //the properties defined in data() are accessible via this, which refers to the component instance.
-      this.itineraries = await itineraryService.getItineraryByUserID(sessionStorage.getItem('uid')); // Fetch itineraries from the service
-      console.log(this.itineraries);
-    } catch (error) {
-      console.error("Failed to fetch itineraries:", error);
+    // Auth state listener to manage sessionStorage based on login status
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        // User is logged in, store the user ID in sessionStorage
+        sessionStorage.setItem('uid', user.uid);
+        console.log('User logged in:', user);
+      } else {
+        // User is logged out, clear sessionStorage
+        sessionStorage.removeItem('uid');
+        console.log('User logged out');
+      }
+    });
+
+    // Fetch itineraries if user is already logged in
+    const userId = sessionStorage.getItem('uid');
+    if (userId) {
+      try {
+        this.itineraries = await itineraryService.getItineraryByUserID(userId);
+        console.log(this.itineraries);
+      } catch (error) {
+        console.error("Failed to fetch itineraries:", error);
+      }
+    } else {
+      console.log("No user logged in. Redirecting to login page.");
+      this.$router.push('/login'); // Redirect to login if not logged in
     }
   },
+
   methods: {
     getItineraryByID(itineraryID) {
       this.$router.push({ name: 'ItineraryDetails', params: { id: itineraryID } }); // Ensure parameter name matches route
