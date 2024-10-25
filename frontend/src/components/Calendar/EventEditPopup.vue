@@ -2,7 +2,7 @@
     <div class="event-popup">
       <div class="event-popup-content">
         <h2>Edit Event</h2>
-        <form @submit.prevent="$emit('update')">
+        <form @submit.prevent="handleSubmit">
           <div class="form-group title-group">
             <div class="title-label">
               <label for="editTitle">Title</label>
@@ -48,7 +48,7 @@
   </template>
   
   <script>
-  import { computed } from 'vue'
+  import { ref, onMounted } from 'vue'
   
   export default {
     props: {
@@ -58,13 +58,67 @@
       }
     },
     emits: ['update', 'delete', 'close', 'update:editingEvent'],
+    
     setup(props, { emit }) {
-      const localEvent = computed({
-        get: () => props.editingEvent,
-        set: (value) => emit('update:editingEvent', value)
+      const localEvent = ref({...props.editingEvent})
+  
+      onMounted(() => {
+        // Parse the dates when component mounts
+        if (props.editingEvent.start) {
+          const startDate = new Date(props.editingEvent.start)
+          localEvent.value.start = startDate.toISOString().split('T')[0]
+          if (!props.editingEvent.allDay) {
+            localEvent.value.startTime = startDate.toLocaleTimeString('en-US', {
+              hour12: false,
+              hour: '2-digit',
+              minute: '2-digit'
+            })
+          }
+        }
+  
+        if (props.editingEvent.end) {
+          const endDate = new Date(props.editingEvent.end)
+          localEvent.value.end = endDate.toISOString().split('T')[0]
+          if (!props.editingEvent.allDay) {
+            localEvent.value.endTime = endDate.toLocaleTimeString('en-US', {
+              hour12: false,
+              hour: '2-digit',
+              minute: '2-digit'
+            })
+          }
+        }
       })
   
-      return { localEvent }
+      const handleSubmit = () => {
+        // Combine date and time before emitting
+        const formattedEvent = {
+          title: localEvent.value.title,
+          description: localEvent.value.description,
+          allDay: localEvent.value.allDay,
+          colour: localEvent.value.color, // Note: fixing the color/colour discrepancy
+          organiserId: localEvent.value.organiserId
+        }
+  
+        if (localEvent.value.allDay) {
+          formattedEvent.start = `${localEvent.value.start}T00:00:00`
+          formattedEvent.end = localEvent.value.end 
+            ? `${localEvent.value.end}T23:59:59`
+            : `${localEvent.value.start}T23:59:59`
+        } else {
+          formattedEvent.start = `${localEvent.value.start}T${localEvent.value.startTime}`
+          formattedEvent.end = localEvent.value.end && localEvent.value.endTime
+            ? `${localEvent.value.end}T${localEvent.value.endTime}`
+            : `${localEvent.value.start}T${localEvent.value.startTime}`
+        }
+  
+        console.log('Formatted event for update:', formattedEvent)
+        emit('update', formattedEvent)
+      }
+  
+      return {
+        localEvent,
+        handleSubmit
+      }
     }
   }
   </script>

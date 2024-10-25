@@ -80,7 +80,7 @@ exports.addItinerary = async (newItinerary) => {
     const itineraryData = {
         title: newItinerary.title, // Title from the incoming data
         date: newItinerary.date,
-        budget: null, // Include budget from incoming data
+        budget: newItinerary.budget || 0, // Include budget from incoming data
         totalCost: null, // Initialize totalCost to null
         collaborators: newItinerary.collaborators || [], // Default to empty array if not provided
         events: newItinerary.events || [], // Default to empty array if not provided

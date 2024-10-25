@@ -9,7 +9,7 @@ const {
 } = require('../src/api/ticketMasterApi'); // Assign the imported module immediately
 const routes = require('../routes/route');
 const expenseRoutes = require('../routes/expenseroute'); // Import expense routes
-
+const eventRoutes = require('../routes/eventRoutes');
 const app = express();
 
 // Enable CORS for all routes
@@ -38,6 +38,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // From firebase
 app.use('/api', routes);
 app.use('/api/expenses', expenseRoutes);
+app.use('/api/eventRoutes', eventRoutes);
 
 // Define a route to get the Google client ID
 app.get('/api/google-client-id', (req, res) => {

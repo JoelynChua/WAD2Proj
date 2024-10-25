@@ -61,7 +61,7 @@ export default {
         return {
             formData: {
                 title: '',
-                budget: null,
+                budget: 0,
                 totalCost: null,
                 date: '',
                 collaborators: '',  // Will be populated from sessionStorage
@@ -122,6 +122,7 @@ export default {
             // Update formData to include the collaborators array and events array
             const dataToSubmit = {
                 ...this.formData,
+                budget: Number(this.formData.budget),
                 collaborators: collaboratorsArray, // Replace the string with an array
                 events: eventsArray, // Replace events object with eventsArray
             };
@@ -132,7 +133,7 @@ export default {
                 console.log('Itinerary successfully added:', response);
 
                 // // Redirect to the itinerary details page using the ID from the response
-                // this.$router.push(`/ItineraryDetails/${response.id}`); // Use the appropriate key for ID in the response
+                this.$router.push(`/ItineraryDetails/${response.id}`); // Use the appropriate key for ID in the response
 
                 // this.resetForm();
             } catch (error) {

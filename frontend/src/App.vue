@@ -6,16 +6,16 @@
                 src="./assets/tabiLog_logo_noBackground.png" />
         </a>
         <!-- Collapsible Navigation Bar -->
-        <collapsible-navibar />
+        <collapsible-navibar v-if="!fullPageRoutes.includes($route.path)" />
 
-        <div id="navbuffer" style="height: 120px;"></div> <!-- Sticky Navbar Buffer -->
+        <div id="navbuffer" style="height: 120px;" v-if="!fullPageRoutes.includes($route.path)"></div> <!-- Sticky Navbar Buffer -->
 
         <!-- Router View for Dynamic Content -->
         <router-view />
         <!-- <GoogleLogin :callback="callback" prompt /> -->
 
         <!-- Footer Component -->
-        <AppFooter />
+        <AppFooter v-if="!fullPageRoutes.includes($route.path)"/>
     </div>
 </template>
 
@@ -26,6 +26,11 @@ import AppFooter from './components/AppFooter.vue'; // Import the Footer compone
 
 
 export default {
+    data() {
+        return {
+            fullPageRoutes: ["/login", "/signup"],
+        };
+    },
     name: 'App',
     components: {
         collapsibleNavibar, // Register the NavigationBar component
@@ -49,7 +54,7 @@ const callback = (response) => {
 
 <style>
 #app {
-    font-family: Avenir, Helvetica, Arial, sans-serif;
+    font-family: 'TT Commons', 'HelveticaNeueLTStd-Roman', 'Helvetica', 'Arial', sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-align: center;

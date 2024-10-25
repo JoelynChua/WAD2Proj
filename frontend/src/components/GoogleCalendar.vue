@@ -1,7 +1,9 @@
 <template>
     <div>
-        <button @click="handleAuthClick">Authorize Google Calendar</button>
-        <button @click="listUpcomingEvents">List Upcoming Events</button>
+        <button v-if="!loggedIn" @click="handleAuthClick">
+            Authorize Google Calendar
+        </button>
+        <!-- <button v-else @click="listUpcomingEvents">List Upcoming Events</button> -->
         <ul v-if="events.length">
             <li v-for="event in events" :key="event.id">
                 {{ event.summary }} -
@@ -14,22 +16,22 @@
 <script>
 import { gapi } from 'gapi-script';
 import { getGoogleClientId } from '../services/getGoogleClientId';
+import EventBus from '../utils/eventBus.js';
 
 export default {
     data() {
         return {
-            CLIENT_ID: '', // Replace with your Google Client ID
-            API_KEY: '', // Replace with your Google API Key
+            CLIENT_ID: '',
+            API_KEY: '',
             DISCOVERY_DOCS: [
                 'https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest',
             ],
             SCOPES: 'https://www.googleapis.com/auth/calendar',
             events: [],
+            loggedIn: false,
         };
     },
     async mounted() {
-        // This is used to send a HTTP request to retrieve data that will be rendered by the component
-        // Load Google API libraries
         const gapiData = await getGoogleClientId();
         this.CLIENT_ID = gapiData.clientId;
         this.API_KEY = gapiData.clientSecret;
@@ -38,6 +40,7 @@ export default {
             'https://apis.google.com/js/api.js',
             this.handleClientLoad
         );
+        EventBus.on('google-oauth2-sign-out', this.handleSignOutClick);
     },
     methods: {
         loadScript(src, onload) {
@@ -52,8 +55,6 @@ export default {
             gapi.load('client:auth2', this.initClient);
         },
         initClient() {
-            console.log(this.API_KEY);
-            console.log(this.CLIENT_ID);
             gapi.client
                 .init({
                     apiKey: this.API_KEY,
@@ -71,33 +72,58 @@ export default {
                 });
         },
         updateSigninStatus(isSignedIn) {
+            this.loggedIn = isSignedIn;
             if (isSignedIn) {
+                console.log('authorised google calendar');
                 this.listUpcomingEvents();
             }
         },
         handleAuthClick() {
             gapi.auth2.getAuthInstance().signIn();
         },
-        listUpcomingEvents() {
-            gapi.client.calendar.events
-                .list({
-                    calendarId: 'primary',
-                    // timeMin: new Date().toISOString(),
-                    showDeleted: false,
-                    singleEvents: true,
-                    maxResults: 10,
-                    orderBy: 'startTime',
-                })
-                .then((response) => {
-                    const events = response.result.items;
-                    console.log(events);
-                    if (events.length > 0) {
-                        this.events = events;
-                    } else {
-                        console.log('No upcoming events found.');
-                    }
+        async handleSignOutClick() {
+            await gapi.auth2
+                .getAuthInstance()
+                .signOut()
+                .then(() => {
+                    this.events = [];
+                    this.loggedIn = false;
                 });
         },
+        listUpcomingEvents() {
+            if (this.loggedIn) {
+                gapi.client.calendar.events
+                    .list({
+                        calendarId: 'primary',
+                        // timeMin: new Date().toISOString(),
+                        showDeleted: false,
+                        singleEvents: true,
+                        maxResults: 10,
+                        orderBy: 'startTime',
+                    })
+                    .then((response) => {
+                        const events = response.result.items;
+                        if (events.length > 0) {
+                            this.events = events;
+                            for (
+                                let i = 0;
+                                i < Math.min(events.length, 3);
+                                i++
+                            ) {
+                                console.log(events[i]);
+                            }
+                        } else {
+                            console.log('No upcoming events found.');
+                        }
+                    });
+            } else {
+                console.log('You have not logged into Google Calendar');
+            }
+        },
+    },
+    onUnmounted() {
+        // Cleanup the event listener
+        EventBus.off('google-oauth2-sign-out', this.handleSignOutClick);
     },
 };
 </script>

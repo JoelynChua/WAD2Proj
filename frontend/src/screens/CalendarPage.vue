@@ -7,7 +7,7 @@
 
 <script>
 import CalendarComponent from '../components/Calendar/CalendarComponent.vue';
-import Cal from '../components/NewCalendar.vue';
+import Cal from '../components/GoogleCalendar.vue';
 
 export default {
     name: 'CalendarPage',
