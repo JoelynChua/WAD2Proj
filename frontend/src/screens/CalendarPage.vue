@@ -1,7 +1,7 @@
 <template>
     <div class="calendar-page">
-        <CalendarComponent />
         <Cal />
+        <CalendarComponent />
     </div>
 </template>
 

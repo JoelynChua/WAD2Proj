@@ -4,7 +4,7 @@
             Authorize Google Calendar
         </button>
         <!-- <button v-else @click="listUpcomingEvents">List Upcoming Events</button> -->
-        <ul v-if="events.length">
+        <ul v-if="events.length" style="list-style: none">
             <li v-for="event in events" :key="event.id">
                 {{ event.summary }} -
                 {{ event.start.dateTime || event.start.date }}
