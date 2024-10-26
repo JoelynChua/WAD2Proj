@@ -1,7 +1,7 @@
 import axiosInstance from '../utils/axiosInstance';
-// const localURL = "http://localhost:8000";
-const cloudURL = "https://wad-2-proj-backend.vercel.app/"
-const finalURL = cloudURL; // Change to cloud URL in production
+const localURL = "http://localhost:8000";
+// const cloudURL = "https://wad-2-proj-backend.vercel.app/"
+const finalURL = localURL; // Change to cloud URL in production
 
 // Function to create a new expense
 async function createExpense(expenseData) {

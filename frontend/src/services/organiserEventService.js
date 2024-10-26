@@ -1,7 +1,7 @@
 import axiosInstance from '../utils/axiosInstance'; // Import your axios instance, if you have one configured
-// const localURL = "http://localhost:8000";
-const cloudURL = "https://wad-2-proj-backend.vercel.app/"
-const finalURL = cloudURL;
+const localURL = "http://localhost:8000";
+// const cloudURL = "https://wad-2-proj-backend.vercel.app/"
+const finalURL = localURL;
 
 
 // Get all events
