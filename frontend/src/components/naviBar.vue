@@ -9,25 +9,31 @@
         style="background-color: white"
     >
         <div class="container-fluid">
-            <div class="d-flex align-items-center">
-                <button
-                    class="navbar-toggler me-2"
-                    type="button"
-                    :class="{ 'navbar-icon-small': isSmall }"
-                    style="z-index: 1050"
-                    data-bs-toggle="collapse"
-                    data-bs-target="#navbarNav"
-                    aria-controls="navbarNav"
-                    aria-label="Toggle navigation"
-                >
-                    <span
-                        class="navbar-toggler-icon"
-                        :class="{ 'navbar-button-small': isSmall }"
-                    ></span>
-                </button>
-                <RouterLink class="navbar-brand" to="/"
-                    ><img width="180px" src="../assets/activity.ai.png"
-                /></RouterLink>
+            <div
+                class="d-flex align-items-center w-100 w-lg-auto"
+                :class="{ 'custom-max-width': isLargeScreen }"
+            >
+                <RouterLink class="navbar-brand" to="/">
+                    <img width="180px" src="../assets/activity.ai.png" />
+                </RouterLink>
+
+                <div class="ms-auto">
+                    <button
+                        class="navbar-toggler me-2"
+                        type="button"
+                        :class="{ 'navbar-icon-small': isSmall }"
+                        style="z-index: 1050"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#navbarNav"
+                        aria-controls="navbarNav"
+                        aria-label="Toggle navigation"
+                    >
+                        <span
+                            class="navbar-toggler-icon"
+                            :class="{ 'navbar-button-small': isSmall }"
+                        ></span>
+                    </button>
+                </div>
             </div>
 
             <div
@@ -50,9 +56,7 @@
                     <li class="nav-item">
                         <RouterLink
                             class="nav-link"
-                            :class="{
-                                active: $route.path === '/attractionsList',
-                            }"
+                            :class="{ active: $route.path === '/attractionsList' }"
                             to="/attractionsList"
                             >attractions</RouterLink
                         >
@@ -60,9 +64,7 @@
                     <li class="nav-item">
                         <RouterLink
                             class="nav-link"
-                            :class="{
-                                active: $route.path === '/itineraryList',
-                            }"
+                            :class="{ active: $route.path === '/itineraryList' }"
                             to="/itineraryList"
                             >itinerary</RouterLink
                         >
@@ -88,13 +90,11 @@
                 <ul class="navbar-nav">
                     <!-- Separate nav for Profile and Log In / Sign Up -->
                     <li id="last-item" class="nav-item" v-if="!isAuthenticated">
-                        <RouterLink class="nav-link" to="/login"
-                            >login / sign up</RouterLink
-                        >
+                        <RouterLink class="nav-link mt-3 mb-3" to="/login">login / sign up</RouterLink>
                     </li>
                     <li class="nav-item dropdown" v-else>
                         <a
-                            class="nav-link dropdown-toggle"
+                            class="nav-link dropdown-toggle mt-3 mb-3"
                             href="#"
                             id="navbarDropdown"
                             role="button"
@@ -111,7 +111,7 @@
                             <!-- User icon -->
                         </a>
                         <ul
-                            class="dropdown-menu dropdown-menu-end"
+                            class="dropdown-menu dropdown-menu-end mb-3"
                             :class="{ hidden: isHidden }"
                             aria-labelledby="navbarDropdown"
                         >
@@ -144,7 +144,7 @@
 import { auth } from '../firebase/firebaseClientConfig'; // Adjust the path to your Firebase config
 import { onAuthStateChanged, signOut as firebaseSignOut } from 'firebase/auth'; // Import Firebase Auth methods
 import EventBus from '../utils/eventBus.js';
-import { computed } from 'vue';
+import { computed, ref, onMounted, onBeforeUnmount } from 'vue';
 
 export default {
     name: 'navbarNav',
@@ -158,6 +158,26 @@ export default {
             lastScrollY: 0, // Store the last scroll position
             stickyTop: 0, // Store the offset top of the navbar
             scrollThreshold: 750, // Threshold for hiding the navbar
+        };
+    },
+    setup() {
+        const isLargeScreen = ref(false);
+
+        const updateScreenSize = () => {
+            isLargeScreen.value = window.innerWidth >= 992; // 'lg' breakpoint in Bootstrap
+        };
+
+        onMounted(() => {
+            updateScreenSize();
+            window.addEventListener('resize', updateScreenSize);
+        });
+
+        onBeforeUnmount(() => {
+            window.removeEventListener('resize', updateScreenSize);
+        });
+
+        return {
+            isLargeScreen,
         };
     },
     created() {
@@ -273,6 +293,15 @@ export default {
 /* When the active link is hovered, make sure the line also slides */
 .nav-link.active:hover::before {
     left: 0;
+}
+
+.nav-item.dropdown .nav-link {
+    text-decoration: none; /* Ensure no underline */
+}
+
+/* Remove the underline effect for dropdown links */
+.nav-item.dropdown .nav-link::before {
+    display: none; /* Prevent the underline from appearing */
 }
 
 .navbar {
@@ -417,5 +446,9 @@ export default {
 /* Ensure animation works in collapsed state (mobile view) */
 .collapse.show .nav-item {
     animation-delay: 0s; /* No delay when showing items in the collapsed menu */
+}
+
+.custom-max-width {
+    max-width: fit-content; /* or specify a specific value like max-width: 300px; */
 }
 </style>
