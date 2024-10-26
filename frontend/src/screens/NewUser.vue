@@ -1,10 +1,10 @@
 <template>
   <div class="video-background-container">
     <!-- Background Video -->
-    <video autoplay muted loop id="background-video" @loadeddata="onVideoLoaded">
+    <!-- <video autoplay muted loop id="background-video" @loadeddata="onVideoLoaded">
       <source src="../assets/loginvid.mp4" type="video/mp4" />
       Your browser does not support the video tag.
-    </video>
+    </video> -->
 
     <!-- Back Button -->
     <RouterLink v-if="isVideoLoaded" to="/" class="back-button">
@@ -14,12 +14,14 @@
     <!-- Overlay for the signup form -->
     <div class="container vh-100">
       <div class="row justify-content-end align-items-center vh-100">
-        <div v-if="isVideoLoaded" class="login-container p-4 shadow col-4">
+        <!-- <div v-if="isVideoLoaded" class="login-container p-4 shadow col-4"> -->
+        <div class="login-container p-4 shadow col-4">
           <h5 class="text-center">Sign up for a new account</h5>
           <form @submit.prevent="signUp">
             <div class="mb-3">
               <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
-              <div v-if="this.emailinuse" class="text-danger" style="font-size: 12px;">Email is already registered to an account!</div>
+              <div v-if="this.emailinuse" class="text-danger" style="font-size: 12px;">Email is already registered to an
+                account!</div>
               <input type="email" class="form-control" id="email" v-model="email" placeholder="moklay@smu.edu.sg"
                 required>
               <small v-if="emailError" class="text-danger">{{ emailError }}</small>

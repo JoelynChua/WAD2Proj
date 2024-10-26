@@ -1,10 +1,10 @@
 <template>
   <div class="video-background-container">
     <!-- Background Video -->
-    <video autoplay muted loop id="background-video" @loadeddata="onVideoLoaded">
-      <source src="@/assets/loginvid.mp4" type="video/mp4" />
+    <!-- <video autoplay muted loop id="background-video" @loadeddata="onVideoLoaded">
+      <source src="../assets/loginvid.mp4" type="video/mp4" />
       Your browser does not support the video tag.
-    </video>
+    </video> -->
 
     <!-- Back Button (shown when video is loaded) -->
     <RouterLink v-if="videoLoaded" to="/" class="back-button">
@@ -12,7 +12,8 @@
     </RouterLink>
 
     <!-- Overlay for the login form (shown when video is loaded) -->
-    <div class="container vh-100" v-if="videoLoaded">
+    <!-- <div class="container vh-100" v-if="videoLoaded"> -->
+      <div class="container vh-100"> 
       <div class="row justify-content-center align-items-center justify-content-md-end vh-100">
         <div class="login-container p-4 shadow col-4">
           <h5 class="text-center">Log in to your account</h5>
