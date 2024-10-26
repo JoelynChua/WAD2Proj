@@ -19,11 +19,8 @@
 
             <div class="mb-3">
                 <label for="collaborators" class="form-label">Collaborators</label>
-                <!-- Display user email as a placeholder, bind input to formData.email -->
                 <input type="text" class="form-control" id="collaborators" v-model="formData.collaborators"
                     placeholder="Comma-separated collaborator names" />
-                <!-- <input type="text" class="form-control" id="collaborators" v-model="formData.collaborators"
-                    placeholder="Comma-separated names" /> -->
             </div>
 
             <h3>Timetable</h3>
@@ -45,7 +42,7 @@
                 </tbody>
             </table>
 
-            <br>
+            <br />
             <button type="submit" class="btn btn-primary">Create</button>
         </form>
     </div>
@@ -55,7 +52,6 @@
 import ItineraryService from '../services/itineraryService';
 import { getAuth } from 'firebase/auth';
 
-
 export default {
     data() {
         return {
@@ -64,13 +60,12 @@ export default {
                 budget: 0,
                 totalCost: null,
                 date: '',
-                collaborators: '',  // Will be populated from sessionStorage
+                collaborators: '', // Will be populated with uid
                 events: {}, // Initialize as an empty object
-                // displayedEmail: "", //create a displayedEmail variable
             },
-            userEmail: '',  // Displayed user email (read-only)
-            hours: [],  // Initialize empty and populate in created hook
-            isLoading: true
+            userUid: '', // Store user UID for display
+            hours: [], // Initialize empty and populate in created hook
+            isLoading: true,
         };
     },
     created() {
@@ -81,11 +76,9 @@ export default {
         const user = auth.currentUser;
 
         if (user) {
-            const uid = sessionStorage.getItem('uid');
-            this.formData.collaborators = uid || ''; // Check if uid exists
-            this.userEmail = user.email || '';  // Store the user's email for display as a placeholder
-            this.formData.email = this.userEmail;  // Prepopulate formData.email with the user email if needed
-            console.log('User email:', this.formData.email);
+            this.formData.collaborators = user.uid; // Set collaborators to user's uid
+            this.userUid = user.uid; // Store the user's UID for reference
+            console.log('User UID:', this.userUid);
         } else {
             console.log('No user is signed in');
         }
@@ -107,7 +100,7 @@ export default {
         async handleSubmit() {
             console.log(this.formData, "FORMDATA");
 
-            // Split the collaborators string into an array
+            // Split the collaborators string into an array if needed
             const collaboratorsArray = this.formData.collaborators
                 .split(',')
                 .map(collaborator => collaborator.trim()); // Ensure you trim any excess spaces
@@ -132,7 +125,7 @@ export default {
                 const response = await ItineraryService.postItinerary(dataToSubmit);
                 console.log('Itinerary successfully added:', response);
 
-                // // Redirect to the itinerary details page using the ID from the response
+                // Redirect to the itinerary details page using the ID from the response
                 this.$router.push(`/ItineraryDetails/${response.id}`); // Use the appropriate key for ID in the response
 
                 // this.resetForm();
@@ -151,7 +144,7 @@ export default {
         },
         initializeTimetable() {
             return this.hours.reduce((acc, hour) => {
-                acc[hour] = '';  // Set default value for each hour
+                acc[hour] = ''; // Set default value for each hour
                 return acc;
             }, {});
         },
@@ -161,7 +154,7 @@ export default {
                 budget: null,
                 totalCost: null,
                 date: '',
-                collaborators: sessionStorage.getItem('uid') || '',  // Reset to sessionStorage value
+                collaborators: this.userUid || '', // Reset to the user's UID
                 events: this.initializeTimetable(),
             };
         }

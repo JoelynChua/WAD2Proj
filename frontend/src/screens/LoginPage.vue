@@ -86,7 +86,9 @@ export default {
           console.log("usertype: " + sessionStorage.getItem('userType'));
         }
         this.$router.push('/');
-      } catch (error) {
+      }
+
+      catch (error) {
         if (error.message == 'Firebase: Error (auth/invalid-credential).') {
           this.invalidCred = true;
         } else {
