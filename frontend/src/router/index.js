@@ -14,6 +14,9 @@ import ProfilePage from '../screens/ProfilePage.vue';
 import CalendarPage from '../screens/CalendarPage.vue';
 import HomePage from '../screens/HomePage.vue';
 import EventsPage from '../screens/eventsPage.vue';
+import AboutUs from '../screens/AboutUs.vue';
+import FAQ from '../screens/FAQ.vue';
+import PrivacyPolicy from '../screens/PrivacyPolicy.vue';
 
 const routes = [
     {
@@ -76,6 +79,10 @@ const routes = [
     },
     { path: '/calendar', name: 'calendar', component: CalendarPage },
     { path: '/events', name: 'events', component: EventsPage },
+    { path: '/', component: HomePage },
+    { path: '/about-us', component: AboutUs },
+    { path: '/faq', component: FAQ },
+    { path: '/privacy-policy', component: PrivacyPolicy },
     // You can add more routes here
 ];
 
