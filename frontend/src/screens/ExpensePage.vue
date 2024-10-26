@@ -12,22 +12,22 @@
         <ExpenseList />
       </section>
   
-      <section>
+      <!-- <section>
         <h2>Expense Chart</h2>
         <ExpenseChart />
-      </section>
+      </section> -->
     </div>
   </template>
   
   <script>
-  import ExpenseChart from '../components/ExpenseChart.vue';
+  // import ExpenseChart from '../components/ExpenseChart.vue';
   import ExpenseForm from '../components/ExpenseForm.vue';
   import ExpenseList from '../components/ExpenseList.vue';
   
   export default {
     name: 'ExpensePage',
     components: {
-      ExpenseChart,
+      // ExpenseChart,
       ExpenseForm,
       ExpenseList
     }
