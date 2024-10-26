@@ -170,6 +170,7 @@ import { debounce } from "lodash";
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { faMinus } from '@fortawesome/free-solid-svg-icons'; // Import the icon you want to use
+import { getAuth } from "firebase/auth";
 
 // Add the icon to the library
 library.add(faMinus);
@@ -201,10 +202,8 @@ export default {
     },
     mounted() {
         this.initializeTrail();
+        this.authListener();
     },
-    // beforeUnmount() {
-    //     window.removeEventListener("mousemove", this.trackMouse);
-    // },
 
     computed: {
         sortedEvents() {
@@ -224,7 +223,7 @@ export default {
     async created() {
         // Fetch itinerary details and wishlist when component is created
         this.fetchItineraryDetails();
-        this.fetchWishlist();
+        // this.fetchWishlist();
         this.handleUpdate = debounce(this.handleUpdate.bind(this), 500); // Debounce handleUpdate
     },
     watch: {
@@ -237,8 +236,41 @@ export default {
         },
     },
     methods: {
+        authListener() {
+            const auth = getAuth(); // Initialize Firebase auth here
+            // Listen to the authentication state
+            auth.onAuthStateChanged(async (user) => {
+                if (user) {
+                    // User is signed in
+                    this.userID = user.uid; // Get the user ID
+                    console.log(this.userID, "AUTHLISTERNER")
+                    try {
+                        // Fetch itineraries using the UID
+                        this.itineraries = await itineraryService.getItineraryByUserID(this.userID);
+                        console.log(this.itineraries);
+                        this.fetchWishlist();
+                        await this.reloadWishlists(); // Reload wishlists after fetching itineraries
+                    } catch (error) {
+                        console.error("Failed to fetch itineraries:", error);
+                    }
+                } else {
+                    // User is signed out
+                    console.log('User is signed out');
+                    // Optionally redirect to login page or handle sign-out logic here
+                    this.$router.push('/login');
+                }
+            });
+        },
         async fetchWishlist() {
-            this.userID = sessionStorage.getItem('uid');
+            console.log(this.userID, "FETCHWISHLIST")
+            // Directly use the uid from currentUser already set in authListener
+            if (!this.userID) {
+                console.error("User ID is not available. Make sure the user is authenticated.");
+                return; // Exit early if userID is not available
+            }
+
+            console.log(this.userID, "WISHLISTID");
+
             try {
                 this.wishlists = await itineraryService.getUserWishlist(this.userID); // Fetch the wishlist
                 console.log("Fetched wishlist:", this.wishlists);
@@ -253,15 +285,14 @@ export default {
                         } catch (error) {
                             console.error("Failed to fetch event details for wishlist:", error);
                         }
-                    }
-                    else {
+                    } else {
                         try {
                             const attractionDetails = await attractionService.goToAttractionDetails(wishlistItem.attractionID);
                             console.log("Wishlist Attraction Details:", attractionDetails);
                             this.attractionDetails[wishlistItem.attractionID] = attractionDetails; // Store attraction details
-                        } catch {
+                        } catch (error) {
                             // Skip logging the error for attraction details
-                            // Optionally, you can set a state or flag to indicate failure
+                            console.error("Failed to fetch attraction details:", error);
                             this.errorState = true; // Example of setting an error state
                         }
                     }
@@ -271,8 +302,11 @@ export default {
             }
         },
 
+
+
         async fetchItineraryDetails() {
             const id = this.$route.params.id; // Get the id from the route parameters
+            console.log(id, "ITINERARYid")
             try {
                 this.itineraryDetails = await itineraryService.getItineraryByID(id); // Fetch itinerary details
 
@@ -410,9 +444,7 @@ export default {
                 setTimeout(() => {
                     this.updateMessage = null;
                 }, 2000);
-
-            }
-            catch (error) {
+            } catch (error) {
                 // Only show the error if the wishlist is not empty
                 if (this.wishlists && this.wishlists.length > 0) {
                     this.updateError = "Error updating itinerary: " + error.message; // Error message
@@ -453,7 +485,6 @@ export default {
 
                 // Check the length of the dragged item data to determine the source
                 if (eventID) {
-
                     if (Object.keys(wishlistItem).length === 2) {
                         // If length is 2, treat it as coming from the table
                         console.log("Dragging within the table, updating event timing.");
@@ -463,8 +494,7 @@ export default {
                     } else {
                         // Otherwise, treat it as coming from the wishlist
                         console.log("Dragging from the wishlist, adding to event.");
-                        this.addToEvent(wishlistItem, { eventID, time }); //WORKS
-
+                        this.addToEvent(wishlistItem, { eventID, time });
                     }
                 } else {
                     console.error("Wishlist item does not have a valid eventID or attractionID.");
@@ -473,6 +503,7 @@ export default {
                 console.error("Dropped event does not have a valid row.");
             }
         },
+
 
 
         //Dragging events within the events table
@@ -487,8 +518,9 @@ export default {
         },
 
 
-        // Method to handle adding the item to the event
-        async addToEvent(wishlistItem, { eventID, time }) {
+
+         // Method to handle adding the item to the event
+         async addToEvent(wishlistItem, { eventID, time }) {
             // Use either eventID or attractionID
             const id = wishlistItem.eventID || wishlistItem.attractionID;
 
@@ -537,7 +569,6 @@ export default {
                 // Optionally handle the error (e.g., show an error message)
             }
         },
-
 
 
 

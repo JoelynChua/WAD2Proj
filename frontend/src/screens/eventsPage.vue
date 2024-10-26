@@ -18,7 +18,6 @@
   </div>
 </template>
 
-
 <script>
 import eventService from '../services/eventService'; // Import the event service
 import itineraryService from '../services/itineraryService';
@@ -26,6 +25,7 @@ import { library } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { faBookmark } from '@fortawesome/free-solid-svg-icons';
 import { faBookmark as farBookmark } from '@fortawesome/free-regular-svg-icons';
+import { getAuth} from 'firebase/auth';
 
 library.add(faBookmark, farBookmark); // Add the icons to the library
 
@@ -36,39 +36,29 @@ export default {
   },
   data() {
     return {
-      //events is initialized as an empty array. This ensures that events is reactive and can be updated later when data is fetched from the server.
       events: [], // Initialize events as an empty array
       wishlists: [],
       userID: null, // Store userID in data
     };
   },
 
-  /* mounted() hook is part of Vue's lifecycle methods. It is called when the component is fully 
-  mounted (i.e., inserted into the DOM). This is a good place to perform actions like fetching data from APIs.
-  runs when the component is fully loaded and shown to the user. It's often used to load data from a server or API.*/
   async mounted() {
     try {
-      // Fetch attractions first
+      // Fetch events first
       this.events = await eventService.displayEvents();
       console.log(this.events);
 
-      // Check if sessionStorage is available
-      if (typeof sessionStorage !== 'undefined') {
-        this.userID = sessionStorage.getItem('uid');
-        console.log(this.userID, "bookmarked");
-        this.wishlists = []; // Initialize wishlists as an empty array
+      this.authListener();
 
-        // Check if fetched wishlists has length greater than 0
-        if (this.userID) {
-          this.wishlists = await itineraryService.getUserWishlist(this.userID); // Assign wishlists only if userID exists
-          if (this.wishlists.length > 0) {
-            console.log(this.wishlists);
-          } else {
-            console.warn("No wishlists found for the user.");
-          }
+      if (this.userID) {
+        this.wishlists = await itineraryService.getUserWishlist(this.userID); // Assign wishlists if userID exists
+        if (this.wishlists.length > 0) {
+          console.log(this.wishlists);
+        } else {
+          console.warn("No wishlists found for the user.");
         }
       } else {
-        console.warn("User ID not found in session storage.");
+        console.warn("User ID not found in Vuex store.");
       }
     } catch (error) {
       console.error("Failed to fetch events or wishlists:", error);
@@ -81,10 +71,33 @@ export default {
       this.$router.push({ name: 'EventDetails', params: { id } });
     },
 
-    // wishlist
     isBookmarked(eventID) {
       // Check if the event is in the wishlists
       return this.wishlists.some(wishlist => wishlist.eventID === eventID);
+    },
+
+    authListener() {
+      const auth = getAuth(); // Initialize Firebase auth here
+      // Listen to the authentication state
+      auth.onAuthStateChanged(async (user) => {
+        if (user) {
+          // User is signed in
+          this.userID = user.uid; // Get the user ID
+          try {
+            // Fetch itineraries using the UID
+            this.itineraries = await itineraryService.getItineraryByUserID(this.userID);
+            console.log(this.itineraries);
+            await this.reloadWishlists(); // Reload wishlists after fetching itineraries
+          } catch (error) {
+            console.error("Failed to fetch itineraries:", error);
+          }
+        } else {
+          // User is signed out
+          console.log('User is signed out');
+          // Optionally redirect to login page or handle sign-out logic here
+          this.$router.push('/login');
+        }
+      });
     },
 
     async toggleWishlist(eventID) {
@@ -117,7 +130,17 @@ export default {
       } catch (error) {
         console.error("Failed to update wishlist:", error);
       }
-    }
+    },
+
+    async reloadWishlists() {
+      try {
+        if (this.userID) {
+          this.wishlists = await itineraryService.getUserWishlist(this.userID); // Fetch updated wishlists
+        }
+      } catch (error) {
+        console.error("Failed to reload wishlists:", error);
+      }
+    },
   },
 };
 </script>

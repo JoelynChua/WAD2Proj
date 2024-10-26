@@ -76,9 +76,15 @@ export default {
         const userCredential = await signInWithEmailAndPassword(auth, this.email, this.password);
         const user = userCredential.user;
         console.log('User logged in:', user);
-        sessionStorage.setItem('uid', user.uid);
+
+        // Commit the user ID to the Vuex store
+        this.$store.commit('setUser', user.uid);
+        console.log(this.$store.state.user.uid, "USERID FROM LOGIN")
+
         this.$router.push('/');
-      } catch (error) {
+      }
+
+      catch (error) {
         if (error.message == 'Firebase: Error (auth/invalid-credential).') {
           this.invalidCred = true;
         } else {

@@ -23,6 +23,8 @@ import { library } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { faBookmark } from '@fortawesome/free-solid-svg-icons';
 import { faBookmark as farBookmark } from '@fortawesome/free-regular-svg-icons';
+import { getAuth} from 'firebase/auth';
+
 
 library.add(faBookmark, farBookmark);
 
@@ -45,30 +47,15 @@ export default {
       this.attractions = await attractionService.displayAttractions();
       console.log(this.attractions);
 
-      // Check if sessionStorage is available
-      if (typeof sessionStorage !== 'undefined') {
-        this.userID = sessionStorage.getItem('uid');
-        console.log(this.userID, "bookmarked");
-        this.wishlists = []; // Initialize wishlists as an empty array
+      this.authListener();
+    }
 
-        // Check if fetched wishlists has length greater than 0
-        if (this.userID) {
-          this.wishlists = await itineraryService.getUserWishlist(this.userID); // Assign wishlists only if userID exists
-          if (this.wishlists.length > 0) {
-            console.log(this.wishlists);
-          } else {
-            console.warn("No wishlists found for the user.");
-          }
-        }
-      } else {
-        console.warn("User ID not found in session storage.");
-      }
-    } catch (error) {
+    catch (error) {
       console.error("Failed to fetch attractions or wishlists:", error);
     }
+
+
   },
-
-
 
   methods: {
     goToAttractionDetails(id) {
@@ -79,11 +66,35 @@ export default {
       return this.wishlists.some(wishlist => wishlist.attractionID === attractionID);
     },
 
+    authListener() {
+      const auth = getAuth(); // Initialize Firebase auth here
+      // Listen to the authentication state
+      auth.onAuthStateChanged(async (user) => {
+        if (user) {
+          // User is signed in
+          this.userID = user.uid; // Get the user ID
+          try {
+            // Fetch itineraries using the UID
+            this.itineraries = await itineraryService.getItineraryByUserID(this.userID);
+            console.log(this.itineraries);
+            await this.reloadWishlists(); // Reload wishlists after fetching itineraries
+          } catch (error) {
+            console.error("Failed to fetch itineraries:", error);
+          }
+        } else {
+          // User is signed out
+          console.log('User is signed out');
+          // Optionally redirect to login page or handle sign-out logic here
+          this.$router.push('/login');
+        }
+      });
+    },
+
+
     async reloadWishlists() {
       try {
         if (this.userID) {
           this.wishlists = await itineraryService.getUserWishlist(this.userID); // Fetch updated wishlists
-          //console.log("Wishlists reloaded:", this.wishlists);
         }
       } catch (error) {
         console.error("Failed to reload wishlists:", error);
@@ -119,14 +130,12 @@ export default {
 
         // Reload the wishlists after adding or deleting
         await this.reloadWishlists();
-        //console.log("Updated wishlists:", this.wishlists);
       } catch (error) {
         console.error("Failed to update wishlist:", error);
       }
-    },
+    }
   },
 }
-
 </script>
 
 <style>
