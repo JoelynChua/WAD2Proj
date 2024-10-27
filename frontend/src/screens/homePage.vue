@@ -8,18 +8,17 @@
           Your browser does not support the video tag.
         </video>
 
-        <h2 class="slide-right" style="margin-top: 250px;">Las Vegas Sphere now presenets: <br>Hamilton</h2>
+        <h2 class="slide-right" style="margin-top: 250px;">Las Vegas Sphere now presents: <br>Hamilton</h2>
         <p class="slide-left mt-5">Proudly casted by Lay Foo and Mok Ngee HeHe</p>
-        <button @click="findActivities" class="pulse mt-5">Find Activities</button>
+        <button @click="findActivities" class="pulse mt-5 p-3" style="border-radius: 50px; font-size: 16px; height: 40px">Find Activities</button>
+        <a href="#aboutUs"><button class="pulse p-3 ms-4" style="border-radius: 50px; font-size: 16px; height: 40px">About Us</button></a>
       </section>
-      <section class="featured-activities">
-        <h2 class="fade-in mb-5">Featured Activities</h2>
-        <ul>
-          <li v-for="activity in activities" :key="activity.id" class="card">
-            <h3>{{ activity.name }}</h3>
-            <p>{{ activity.description }}</p>
-          </li>
-        </ul>
+      <section id="aboutUs" class="featured-activities">
+        <aboutUs />
+      </section>
+
+      <section id="gosomewhere" class="featured-activities">
+        <gosomewhere />
       </section>
     </main>
   </div>
@@ -27,16 +26,17 @@
 
 <script>
 import router from '@/router';
+import gosomewhere from '../components/HomePage_gosomewhere.vue'
+import aboutUs from '../components/HomePage_aboutUs.vue'
 
 export default {
   data() {
     return {
-      activities: [
-        { id: 1, name: 'Hiking', description: 'Explore scenic trails and enjoy nature.' },
-        { id: 2, name: 'Cooking Class', description: 'Learn new recipes and culinary techniques.' },
-        { id: 3, name: 'Art Workshop', description: 'Get creative with various art projects.' }
-      ]
     };
+  },
+  components: {
+    gosomewhere,
+    aboutUs,
   },
   methods: {
     findActivities() {
@@ -98,7 +98,6 @@ export default {
   background: white;
   color: white;
   padding: 3rem 1.5rem;
-  border-radius: 8px;
   animation: zoom-in 1s ease-in-out;
   margin-bottom: 2rem;
   overflow: hidden;
@@ -127,6 +126,7 @@ export default {
   line-height: 67.6px;
   text-size-adjust: 100%;
   text-shadow: rgba(0, 0, 0, 0.4) 0px 1px 5px, rgba(0, 0, 0, 0.5) 0px 4px 60px;
+  white-space: nowrap;
 }
 
 .hero p {
@@ -136,7 +136,7 @@ export default {
   font-family: graphie, sans-serif;
   font-size: 20px;
   font-weight: 350;
-
+  white-space: nowrap;
 }
 
 .hero button {
@@ -148,6 +148,8 @@ export default {
   cursor: pointer;
   border-radius: 4px;
   font-size: 1.2rem;
+  display: inline-flex;
+  align-items: center;
 }
 
 .featured-activities {
@@ -174,6 +176,10 @@ export default {
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   border-radius: 8px;
   flex: 1 1 calc(33.333% - 1rem);
+}
+
+#aboutUs, #gosomewhere {
+  margin-top: 100px;
 }
 
 footer {

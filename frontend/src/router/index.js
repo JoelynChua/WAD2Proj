@@ -12,7 +12,7 @@ import ItineraryDetails from '../screens/itineraryDetails.vue';
 import ItineraryForm from '../screens/itineraryForm.vue';
 import ProfilePage from '../screens/ProfilePage.vue';
 import CalendarPage from '../screens/CalendarPage.vue';
-import HomePage from '../screens/homePage.vue';
+import HomePage from '../screens/HomePage.vue';
 import EventsPage from '../screens/eventsPage.vue';
 import AboutUs from '../screens/AboutUs.vue';
 import FAQ from '../screens/FAQ.vue';

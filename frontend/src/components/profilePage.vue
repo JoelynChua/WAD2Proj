@@ -320,6 +320,10 @@ export default {
 
 
 <style>
+.form-control{
+    border-radius: 0px;
+}
+
 #profilenav {
     background-color: #ffffff;
     border-radius: 10px;
