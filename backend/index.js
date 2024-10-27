@@ -6,10 +6,10 @@ const cors = require('cors'); // Import CORS middleware
 const {
     displayEvents,
     displayAttractions,
-} = require('../src/api/ticketMasterApi'); // Assign the imported module immediately
-const routes = require('../routes/route');
-const expenseRoutes = require('../routes/expenseroute'); // Import expense routes
-const eventRoutes = require('../routes/eventRoutes');
+} = require('./src/api/ticketMasterApi'); // Assign the imported module immediately
+const routes = require('./routes/route');
+const expenseRoutes = require('./routes/expenseroute'); // Import expense routes
+const eventRoutes = require('./routes/eventRoutes');
 const app = express();
 
 // Enable CORS for all routes
