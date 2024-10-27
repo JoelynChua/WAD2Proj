@@ -41,7 +41,6 @@
   <style scoped>
   #aboutUsfooter {
     text-align: end;
-    background-color: #f9f9f9;
   }
 
   #aboutUsfooter img {
@@ -50,14 +49,12 @@
   }
 
   .about-us-title {
-    background-color: #f9f9f9;
     padding-top: 100px;
     font-size: 32px;
     font-weight: bold;
   }
 
   .about-us-secondary {
-    background-color: #f9f9f9;
     padding-top: 30px;
     color: rgb(207, 89, 59)
   }

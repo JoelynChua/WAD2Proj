@@ -3,29 +3,29 @@
         <h2 class="go-somewhere__title">go somewhere</h2>
         <div class="go-somewhere__grid p-5 pb-0">
             <div class="go-somewhere__item" @click="this.$router.push('/events')">
-                <img src="../assets/gosomewhere/gosomewhere_find.png">
+                <i class="fi fi-rs-navigation"></i>
                 find activities
             </div>
             <div class="go-somewhere__item" @click="this.$router.push('/ExpensePage')">
-                <img src="../assets/gosomewhere/gosomewhere_shop.png">
+                <i class="fi fi-rr-shopping-bag"></i>
                 calculate expenses
             </div>
             <div class="go-somewhere__item">
-                <img src="../assets/gosomewhere/gosomewhere_build.png">
+                <i class="fi fi-rr-track"></i>
                 build an itinerary
             </div>
         </div>
         <div class="go-somewhere__grid p-5 pt-0">
             <div class="go-somewhere__item">
-                <img src="">
+                <i class="fi fi-rr-castle"></i>
                 find an attraction
             </div>
             <div class="go-somewhere__item">
-                <img src="../assets/gosomewhere/gosomewhere_tickets.png">
+                <i class="fi fi-rr-ticket"></i>
                 show tickets
             </div>
             <div class="go-somewhere__item">
-                <img src="">
+                <i class="fi fi-rs-user-pen"></i>
                 edit my profile
             </div>
         </div>
@@ -33,6 +33,8 @@
 </template>
 
 <script>
+import '../../node_modules/@flaticon/flaticon-uicons/css/regular/all.css';
+
 export default {
     data() {
         return {
@@ -47,7 +49,6 @@ export default {
     padding: 2rem;
     padding-top: 100px;
     color: #fff;
-    background: #121212;
 }
 
 .go-somewhere__title {
@@ -74,6 +75,11 @@ export default {
     flex-direction: column;
     align-items: center;
     transition: transform 0.3s ease;
+}
+
+.go-somewhere__item i {
+    font-size: 80px;
+    color: #bcf0f7;
 }
 
 .go-somewhere__item:hover {

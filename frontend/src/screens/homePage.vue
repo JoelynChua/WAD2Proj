@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <main>
-      <section class="hero zoom-in text-start">
+      <section class="hero text-start">
         <!-- Background Video -->
         <video autoplay muted loop playsinline id="background-video">
           <source src="https://media.graphassets.com/BpGAyEtdSaaJCOX23fSW" type="video/mp4" />
@@ -9,29 +9,37 @@
         </video>
 
         <h2 class="slide-right" style="margin-top: 250px;">Las Vegas Sphere now presents: <br>Hamilton</h2>
-        <p class="slide-left mt-5">Proudly casted by Lay Foo and Mok Ngee HeHe</p>
-        <button @click="findActivities" class="pulse mt-5 p-3" style="border-radius: 50px; font-size: 16px; height: 40px">Find Activities</button>
-        <a href="#aboutUs"><button class="pulse p-3 ms-4" style="border-radius: 50px; font-size: 16px; height: 40px">About Us</button></a>
-      </section>
-      <section id="aboutUs" class="featured-activities">
-        <aboutUs />
+        <p class="fade-in mt-5">Proudly casted by Lay Foo and Mok Ngee HeHe</p>
+        <button @click="findActivities" class="pulse mt-4 p-3"
+          style="border-radius: 50px; font-size: 16px; height: 40px">Find Activities</button>
+        <a href="#aboutUs"><button class="pulse p-3 ms-4"
+            style="border-radius: 50px; font-size: 16px; height: 40px">About Us</button></a>
       </section>
 
+      <div style="background-color: #f9f9f9;">
+        <section id="aboutUs" class="featured-activities" :class="{ 'slide-in': isAboutUsVisible }">
+          <aboutUs />
+        </section>
+      </div>
+
+      <div style="background-color: #121212;" class="shadow">
       <section id="gosomewhere" class="featured-activities">
         <gosomewhere />
       </section>
+    </div>
     </main>
   </div>
 </template>
 
 <script>
 import router from '@/router';
-import gosomewhere from '../components/HomePage_gosomewhere.vue'
-import aboutUs from '../components/HomePage_aboutUs.vue'
+import gosomewhere from '../components/HomePage_gosomewhere.vue';
+import aboutUs from '../components/HomePage_aboutUs.vue';
 
 export default {
   data() {
     return {
+      isAboutUsVisible: false, // Track visibility state
     };
   },
   components: {
@@ -40,44 +48,109 @@ export default {
   },
   methods: {
     findActivities() {
-      // Add logic to find activities
-      router.push("/events")
-    }
-  }
+      // Logic to find activities
+      router.push("/events");
+    },
+    observeAboutUs() {
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            this.isAboutUsVisible = true; // Set to true when in view
+            observer.unobserve(entry.target); // Stop observing after it comes into view
+          }
+        });
+      });
+
+      const aboutUsSection = document.getElementById('aboutUs');
+      if (aboutUsSection) {
+        observer.observe(aboutUsSection);
+      }
+    },
+  },
+  mounted() {
+    this.observeAboutUs(); // Start observing when component is mounted
+  },
 };
 </script>
 
 <style scoped>
+/* Your existing styles */
+
+@keyframes slide-in {
+  0% {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+
+  /* Start off-screen to the right */
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+
+  /* End at original position */
+}
+
+.slide-in {
+  animation: slide-in 1s forwards;
+  /* Apply slide-in animation */
+}
+
+#aboutUs {
+  margin-top: 100px;
+}
+
 @keyframes fade-in {
-  0% { opacity: 0; }
-  100% { opacity: 1; }
+  0% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 1;
+  }
 }
 
 @keyframes slide-right {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(0); }
-}
+  0% {
+    transform: translateX(-100%);
+  }
 
-@keyframes slide-left {
-  0% { transform: translateX(100%); }
-  100% { transform: translateX(0); }
-}
-
-@keyframes zoom-in {
-  0% { transform: scale(0.5); }
-  100% { transform: scale(1); }
+  100% {
+    transform: translateX(0);
+  }
 }
 
 @keyframes pulse {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.1); }
-  100% { transform: scale(1); }
+  0% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.1);
+  }
+
+  100% {
+    transform: scale(1);
+  }
 }
 
 @keyframes bounce {
-  0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
-  40% { transform: translateY(-30px); }
-  60% { transform: translateY(-15px); }
+
+  0%,
+  20%,
+  50%,
+  80%,
+  100% {
+    transform: translateY(0);
+  }
+
+  40% {
+    transform: translateY(-30px);
+  }
+
+  60% {
+    transform: translateY(-15px);
+  }
 }
 
 * {
@@ -89,7 +162,7 @@ export default {
 #app {
   font-family: graphie, sans-serif;
   text-align: center;
-  background: #f5f5f5;
+  background: #121212;
   color: #333;
 }
 
@@ -102,7 +175,8 @@ export default {
   margin-bottom: 2rem;
   overflow: hidden;
   height: 90vh;
-  z-index: 1; /* Ensure hero content appears above video */
+  z-index: 1;
+  /* Ensure hero content appears above video */
 
 }
 
@@ -114,7 +188,8 @@ export default {
   height: 100%;
   object-fit: cover;
   z-index: -1;
-  opacity: 0.7; /* Adjust opacity for readability */
+  opacity: 0.8;
+  /* Adjust opacity for readability */
 }
 
 .hero h2 {
@@ -178,7 +253,8 @@ export default {
   flex: 1 1 calc(33.333% - 1rem);
 }
 
-#aboutUs, #gosomewhere {
+#aboutUs,
+#gosomewhere {
   margin-top: 100px;
 }
 
