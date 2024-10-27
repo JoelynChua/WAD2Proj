@@ -1,5 +1,5 @@
 // const localURL = 'http://localhost:8000';
-const cloudURL = "https://wad-2-proj.vercel.app/"
+const cloudURL = "https://wad-2-proj.vercel.app"
 const finalURL = cloudURL;
 
 async function getGoogleClientId() {

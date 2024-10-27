@@ -1,6 +1,6 @@
 import axiosInstance from '../utils/axiosInstance'; // Import your axios instance, if you have one configured
 // const localURL = "http://localhost:8000";
-const cloudURL = "https://wad-2-proj.vercel.app/"
+const cloudURL = "https://wad-2-proj.vercel.app"
 const finalURL = cloudURL; // Use this for development; change it to `cloudURL` when in production
 
 
