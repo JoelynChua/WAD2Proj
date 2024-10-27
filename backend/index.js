@@ -11,13 +11,18 @@ const routes = require('./routes/route');
 const expenseRoutes = require('./routes/expenseroute'); // Import expense routes
 const eventRoutes = require('./routes/eventRoutes');
 const app = express();
+const vercel_frontend_url =  'https://wad-2-proj-frontend.vercel.app/'
 
 // Enable CORS for all routes
 app.use(
     cors({
-        origin: ['http://localhost:8080', 'http://localhost:8081', 'https://wad-2-proj-frontend.vercel.app/'], // Allow requests from this origin
+        origin: [
+            'http://localhost:8080',
+            'http://localhost:8081',
+            `${vercel_frontend_url}`], // Allow requests from this origin
         methods: ['GET', 'POST', 'PUT', 'DELETE'], // Specify allowed methods
         credentials: true,
+        default: `${vercel_frontend_url}`,
     })
 );
 
