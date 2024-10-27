@@ -20,7 +20,7 @@
           <form @submit.prevent="login">
             <div class="mb-3">
               <label for="email" class="form-label">Email</label>
-              <div v-if="this.invalidCred" class="text-danger" style="font-size: 12px;">Username or Password is
+              <div v-if="invalidCred" class="text-danger" style="font-size: 12px;">Username or Password is
                 incorrect, please try again.</div>
               <input type="email" class="form-control" id="email" v-model="email" placeholder="moklay@smu.edu.sg"
                 required />
