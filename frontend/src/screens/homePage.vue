@@ -162,7 +162,7 @@ export default {
 #app {
   font-family: graphie, sans-serif;
   text-align: center;
-  background: #121212;
+  background: #f1f1f1;
   color: #333;
 }
 
