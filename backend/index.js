@@ -11,7 +11,7 @@ const routes = require('./routes/route');
 const expenseRoutes = require('./routes/expenseroute'); // Import expense routes
 const eventRoutes = require('./routes/eventRoutes');
 const app = express();
-const vercel_frontend_url =  'https://wad-2-proj-frontend.vercel.app/'
+const vercel_frontend_url =  'https://wad-2-proj-frontend.vercel.app'
 
 // Enable CORS for all routes
 app.use(
