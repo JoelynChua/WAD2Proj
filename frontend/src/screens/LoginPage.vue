@@ -2,10 +2,10 @@
   <div class="video-background-container">
     <!-- Test1 -->
     <!-- Background Video -->
-    <!-- <video autoplay muted loop id="background-video" @loadeddata="onVideoLoaded">
-      <source src="../assets/loginvid.mp4" type="video/mp4" />
+    <video autoplay muted loop id="background-video" @loadeddata="onVideoLoaded">
+      <source src="https://investor.citadel.com/Templates/Citadel/media/chicago.mp4" type="video/mp4" />
       Your browser does not support the video tag.
-    </video> -->
+    </video>
 
     <!-- Back Button (shown when video is loaded) -->
     <RouterLink v-if="videoLoaded" to="/" class="back-button">
@@ -32,7 +32,9 @@
                 placeholder="Password" required />
               <input type="checkbox" @click="togglePasswordVisibility" /> Show Password
             </div>
-            <button type="submit" class="btn btn-primary w-100">
+            <button type="submit" class="btn btn-primary w-25" 
+            style="border-radius: 0%;"
+            >
               Log in
             </button>
           </form>
@@ -122,14 +124,14 @@ import GoogleLogin from '../components/GoogleLogin.vue';
   width: 100%;
   height: 100%;
   object-fit: cover;
+  opacity: 0.9;
   z-index: -1;
 }
 
 .login-container {
-  background-color: rgba(255, 255, 255, 0.85);
+  background-color: rgba(255, 255, 255);
   /* White background with 85% opacity */
   padding: 2rem;
-  border-radius: 10px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   min-width: 400px;
 }
