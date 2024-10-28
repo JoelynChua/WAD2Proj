@@ -25,7 +25,7 @@
                         <li class="nav-item">
                             <a class="nav-link" id="payment-tab" data-bs-toggle="pill" href="#wallet" role="tab"
                                 aria-controls="payment" aria-selected="false">
-                                TabiWallet
+                                Wallet
                             </a>
                         </li>
                         <li class="nav-item">
@@ -42,7 +42,7 @@
                 <div class="tab-content">
                     <div class="tab-pane fade show active" id="main" role="tabpanel" aria-labelledby="main-tab">
                         <h5 class="text-start">User Details</h5>
-                        <div class="mt-4 shadow p-3 bg-body"
+                        <div class="mt-4 shadow p-3 bg-body hover-effect"
                             :style="{ height: isEditing ? '150px' : '100px', transition: 'height 0.3s ease', backgroundColor: isEditing ? 'grey' : '' }">
 
                             <h5 class="text-start">Name</h5>
@@ -62,18 +62,18 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="mt-3 shadow p-3 bg-body">
+                        <div class="mt-3 shadow p-3 bg-body hover-effect">
                             <h5 class="text-start">Email</h5>
                             <p class="text-start">{{ email }}</p>
                         </div>
-                        <div class="mt-3 shadow p-3 bg-body">
+                        <div class="mt-3 shadow p-3 bg-body hover-effect">
                             <h5 class="text-start">Phone number</h5>
                             <p class="text-start">{{ mobileNumber }}</p>
                         </div>
 
                         <h5 class="mt-5 text-start">Communications</h5>
 
-                        <div class="mt-3 shadow p-3 bg-body">
+                        <div class="mt-3 shadow p-3 bg-body hover-effect">
                             <h5 class="text-start p-2">Newsletter</h5>
                             <a-radio-group v-model:value="newsletter">
                                 <div class="d-flex justify-content-around p-2 gap-5">
@@ -84,13 +84,13 @@
                                 </div>
                             </a-radio-group>
                         </div>
-                        <div class="mt-3 shadow p-4 bg-body">
+                        <div class="mt-3 shadow p-4 bg-body hover-effect">
                             <div class="d-flex justify-content-between align-items-start">
                                 <div><b>I would like to receive booking reminders</b></div>
                                 <div><a-switch v-model:checked="reminders" /></div>
                             </div>
                         </div>
-                        <div class="mt-3 shadow p-4 bg-body">
+                        <div class="mt-3 shadow p-4 bg-body hover-effect">
                             <div class="d-flex justify-content-between align-items-start">
                                 <div><b>I would like to receive emails about promotions</b></div>
                                 <div><a-switch v-model:checked="promotions" /></div>
@@ -145,42 +145,13 @@
 
                     <div class="tab-pane fade" id="wallet" role="tabpanel" aria-labelledby="payment-tab">
                         <div class="">
-                            <h5 class="text-start">TabiWallet</h5>
-                            <div class="shadow p-3 mt-4">
+                            <h5 class="text-start">Wallet</h5>
+                            <div class="shadow p-3 mt-4 hover-effect">
                                 <div v-if="!isFormVisible">
                                     <p class="mt-4 text-start"><b>Balance</b></p>
-                                    <p class="fs-1 text-start">$50.00</p>
-                                </div>
-
-                                <div v-if="isFormVisible" class="mt-3">
-                                    <form @submit.prevent="submitPaymentMethod" class="text-start">
-                                        <div class="mb-3">
-                                            <label for="cardNumber" class="form-label">Card Number</label>
-                                            <input type="text" class="form-control" v-model="cardNumber"
-                                                placeholder="Enter card number" required />
-                                        </div>
-                                        <div class="mb-3">
-                                            <label for="cardHolder" class="form-label">Card Holder Name</label>
-                                            <input type="text" class="form-control" v-model="cardHolder"
-                                                placeholder="Enter card holder name" required />
-                                        </div>
-                                        <div class="container-fluid ml-0 p-0">
-                                            <div class="row">
-                                                <div class="mb-3 col-4">
-                                                    <label for="expiryDate" class="form-label">Expiry Date</label>
-                                                    <input type="text" class="form-control" v-model="expiryDate"
-                                                        placeholder="MM/YY" required />
-                                                </div>
-                                                <div class="mb-3 col-4">
-                                                    <label for="cvv" class="form-label">CVV</label>
-                                                    <input type="text" class="form-control" v-model="cvv"
-                                                        placeholder="Enter CVV" required />
-                                                </div>
-                                                <div class="col-4"></div>
-                                            </div>
-                                        </div>
-                                        <button type="submit" class="btn btn-success">Save Payment Method</button>
-                                    </form>
+                                    <p class="fs-1 text-start">$ {{ balance }}</p>
+                                    <button class="btn btn-primary" @click="topup(1)">Top-up $1</button>
+                                    <button class="btn btn-primary ms-3" @click="topup(10)">Top-up $10</button>
                                 </div>
                             </div>
                         </div>
@@ -222,7 +193,7 @@ export default {
             promotions: "",
             mobileNumber: undefined,
             showEditingControls: false,
-            balance: 0,
+            balance: undefined,
         }
     },
     components: {
@@ -277,6 +248,18 @@ export default {
             this.expiryDate = '';
             this.cvv = '';
             this.isFormVisible = false; // Optionally close the form after submission
+        },
+        topup(amount) {
+            this.balance += amount;
+
+            const auth = getAuth();
+            const user = auth.currentUser;
+
+            const db = getDatabase();
+            const profileRef = ref(db, 'users/' + user.uid);
+
+            update(profileRef, { balance: this.balance })
+
         }
     },
     mounted() {
@@ -371,4 +354,13 @@ export default {
         /* Add margin between navbar and profile section */
     }
 }
+
+.hover-effect {
+    transition: color 0.3s ease, box-shadow 0.3s ease; /* Smooth transition */
+}
+
+.hover-effect:hover {
+    box-shadow: 0px 2px 4px 4px rgba(196, 196, 196, 0.7) !important; /* Increased values for a stronger shadow */
+}
+
 </style>

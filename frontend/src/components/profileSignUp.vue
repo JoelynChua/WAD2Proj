@@ -141,6 +141,7 @@ export default {
                 email: this.email,
                 country: this.country,
                 dateOfBirth: this.dob.toDate().toString(),
+                balance: 0,
                 userType: 'customer'
             })
                 .then(() => {

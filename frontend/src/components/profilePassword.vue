@@ -2,7 +2,7 @@
     <h5 class="text-start">Security</h5>
     <!-- Show Password Change Form if user is eligible -->
     <div v-if="showPasswordChange">
-        <div class="mt-4 shadow p-3 bg-body"
+        <div class="mt-4 shadow p-3 bg-body hover-effect"
             :style="{ height: isEditing ? '150px' : '100px', transition: 'height 0.3s ease', backgroundColor: isEditing ? 'grey' : '' }">
             <h5 class="text-start">Password</h5>
             <div>
@@ -21,7 +21,7 @@
                 </div>
             </div>
         </div>
-        <div class="mt-3 shadow p-3 bg-body">
+        <div class="mt-3 shadow p-3 bg-body hover-effect">
             <h5 class="text-start">Danger Zone</h5>
             <button class="btn btn-danger" @click="deleteAccount()">Delete Account</button>
         </div>
