@@ -1,40 +1,30 @@
 <template>
-    <div>
-      <h1>Expense Management</h1>
-      
-      <section>
-        <h2>Expense Form</h2>
-        <ExpenseForm />
-      </section>
-      
-      <section>
-        <h2>Expense List</h2>
-        <ExpenseList />
-      </section>
-  
-      <!-- <section>
-        <h2>Expense Chart</h2>
-        <ExpenseChart />
-      </section> -->
-    </div>
-  </template>
-  
-  <script>
-  // import ExpenseChart from '../components/ExpenseChart.vue';
-  import ExpenseForm from '../components/ExpenseForm.vue';
-  import ExpenseList from '../components/ExpenseList.vue';
-  
-  export default {
-    name: 'ExpensePage',
-    components: {
-      // ExpenseChart,
-      ExpenseForm,
-      ExpenseList
-    }
-  };
-  </script>
-  
-  <style>
-  /* Add any specific styles for your ExpensePage here */
-  </style>
-  
+  <div class="chart-container">
+    <chart />
+  </div>
+</template>
+
+<script>
+import chart from "@/components/ExpensePage_chart.vue";
+
+export default {
+  data() {
+    return {
+      id: undefined,
+    };
+  },
+  components: {
+    chart: chart,
+  },
+};
+</script>
+
+<style scoped>
+.chart-container {
+  display: flex;                /* Use flexbox for centering */
+  justify-content: center;      /* Center horizontally */
+  align-items: center;          /* Center vertically */
+}
+
+/* You can adjust the width and height as needed */
+</style>

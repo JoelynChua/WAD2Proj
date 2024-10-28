@@ -23,7 +23,7 @@
         </section>
       </div>
 
-      <div style="background-color: #121212;" class="shadow">
+      <div style="background-color: #121212;">
         <section id="gosomewhere" class="featured-activities">
           <gosomewhere />
         </section>
@@ -184,8 +184,9 @@ export default {
 #app {
   font-family: graphie, sans-serif;
   text-align: center;
-  background: #f9f9f9;
+  background-color: #f9f9f9;
   color: #333;
+  filter: brightness(95%);
 }
 
 .hero {
@@ -204,13 +205,13 @@ export default {
 
 #background-video {
   position: absolute;
+  filter: brightness(50%);
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
   z-index: -1;
-  opacity: 0.8;
   /* Adjust opacity for readability */
 }
 
