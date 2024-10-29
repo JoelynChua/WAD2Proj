@@ -490,7 +490,7 @@ export default {
                         console.log("Dragging within the table, updating event timing.");
                         this.updateEventTiming(wishlistItem.eventID, time);
                         // Reload the page after updating the event timing
-                        location.reload();
+                        // location.reload();
                     } else {
                         // Otherwise, treat it as coming from the wishlist
                         console.log("Dragging from the wishlist, adding to event.");
