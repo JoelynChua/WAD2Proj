@@ -339,7 +339,7 @@ export default {
     position: absolute;
     right: 15px; /* Position inside the dropdown box */
     top: 50%;
-    transform: translateY(-50%);
+    transform: translateY(-40%);
     font-size: 0.8em;
     color: #888;
     pointer-events: none; /* Make the icon unclickable */
