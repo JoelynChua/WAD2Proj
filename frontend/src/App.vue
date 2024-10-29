@@ -2,13 +2,24 @@
     <div id="app">
         <!-- Logo centered on the page -->
         <a href="/">
-            <img style="display: none; margin: 0 auto; width: 30%; height: auto" alt="logo"
-                src="./assets/tabiLog_logo_noBackground.png" />
+            <img
+                style="display: none; margin: 0 auto; width: 30%; height: auto"
+                alt="logo"
+                src="./assets/tabiLog_logo_noBackground.png"
+            />
         </a>
         <!-- Collapsible Navigation Bar -->
         <collapsible-navibar v-if="!fullPageRoutes.includes($route.path)" />
 
-        <div id="navbuffer" style="height: 120px;" v-if="!fullPageRoutes.includes($route.path) && !noBuffer.includes($route.path)"></div> <!-- Sticky Navbar Buffer -->
+        <div
+            id="navbuffer"
+            style="height: 120px"
+            v-if="
+                !fullPageRoutes.includes($route.path) &&
+                !noBuffer.includes($route.path)
+            "
+        ></div>
+        <!-- Sticky Navbar Buffer -->
 
         <!-- Router View for Dynamic Content -->
         <router-view />
@@ -16,7 +27,7 @@
          <div id="footerbuffer"></div>
 
         <!-- Footer Component -->
-        <AppFooter v-if="!fullPageRoutes.includes($route.path)"/>
+        <AppFooter v-if="!fullPageRoutes.includes($route.path)" />
     </div>
 </template>
 
@@ -25,12 +36,11 @@
 import collapsibleNavibar from './components/naviBar.vue'; // Adjust the path if necessary
 import AppFooter from './components/AppFooter.vue'; // Import the Footer component
 
-
 export default {
     data() {
         return {
-            fullPageRoutes: ["/login", "/signup", ],
-            noBuffer: ["/"],
+            fullPageRoutes: ['/login', '/signup'],
+            noBuffer: ['/'],
         };
     },
     name: 'App',
@@ -39,7 +49,6 @@ export default {
         AppFooter, // Register the Footer component
     },
 };
-
 </script>
 
 <!-- <script setup>
@@ -57,7 +66,8 @@ const callback = (response) => {
 
 <style>
 #app {
-    font-family: 'TT Commons', 'HelveticaNeueLTStd-Roman', 'Helvetica', 'Arial', sans-serif;
+    font-family: 'TT Commons', 'HelveticaNeueLTStd-Roman', 'Helvetica', 'Arial',
+        sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-align: center;
@@ -76,9 +86,9 @@ const callback = (response) => {
 
 
 @font-face {
-  font-family: 'graphie';
-  src: url('./assets/font/Graphie-Regular.otf') format('opentype');
-  font-weight: normal;
-  font-style: normal;
+    font-family: 'graphie';
+    src: url('./assets/font/Graphie-Regular.otf') format('opentype');
+    font-weight: normal;
+    font-style: normal;
 }
 </style>
