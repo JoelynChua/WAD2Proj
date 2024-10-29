@@ -1,4 +1,4 @@
-import { createApp } from 'vue';
+import { createApp} from 'vue';
 import App from './App.vue';
 import router from './router';
 import { auth } from './firebase/firebaseClientConfig'; // Adjust the path to your Firebase config
@@ -23,7 +23,6 @@ onAuthStateChanged(auth, (user) => {
     // This function runs whenever the authentication state changes
     if (!app) {
         app = createApp(App);
-
         app.use(Antd);
         app.use(vueCountryRegionSelect);
 

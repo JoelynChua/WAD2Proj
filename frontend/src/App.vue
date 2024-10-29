@@ -13,7 +13,7 @@
         <!-- Router View for Dynamic Content -->
         <router-view />
         <!-- <GoogleLogin :callback="callback" prompt /> -->
-         <div id="footerbuffer"></div>
+         <div id="footerbuffer" v-if="!fullPageRoutes.includes($route.path) && !noBuffer.includes($route.path)"></div>
 
         <!-- Footer Component -->
         <AppFooter v-if="!fullPageRoutes.includes($route.path)"/>

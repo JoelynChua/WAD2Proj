@@ -25,9 +25,8 @@
         <!-- Pause Button -->
         <button v-if="!this.paused" @click="toggleVideo" class="pause-button"><i class="fi fi-ts-pause-circle"></i></button>
         <button v-else @click="toggleVideo" class="pause-button"><i class="fi fi-ts-play-circle"></i></button>
-
       </section>
-
+    
       <div style="background-color: #f9f9f9;">
         <section id="aboutUs" class="featured-activities" :class="{ 'slide-in': isAboutUsVisible }">
           <aboutUs />
@@ -39,6 +38,7 @@
           <gosomewhere />
         </section>
       </div>
+
     </main>
   </div>
 </template>

@@ -85,6 +85,23 @@
                             >calendar</RouterLink
                         >
                     </li>
+                    <li class="nav-item">
+                        <RouterLink
+                            class="nav-link"
+                            v-if="!isAuthenticated"
+                            :class="{ active: $route.path === '/organizers'}"
+                            to="/organizers"
+                            >organizers</RouterLink
+                        >
+                    </li>
+                    <li class="nav-item">
+                        <RouterLink
+                            class="nav-link"
+                            :class="{ active: $route.path === '/marketplace'}"
+                            to="/marketplace"
+                            >marketplace</RouterLink
+                        >
+                    </li>
                 </ul>
 
                 <ul class="navbar-nav">
@@ -101,13 +118,7 @@
                             data-bs-toggle="dropdown"
                             aria-expanded="false"
                         >
-                            <img
-                                src="../assets/user-icon.png"
-                                alt="User Icon"
-                                width="30"
-                                height="30"
-                                class="rounded-circle"
-                            />
+                        <i class="fi fi-rs-user"></i>
                             <!-- User icon -->
                         </a>
                         <ul
@@ -313,9 +324,37 @@ export default {
     top: 0;
     left: 0;
     right: 0;
-    z-index: 1000;
-    
+    z-index: 1000;   
 }
+
+/* USER LOG IN / SIGN UP DROPDOWN */
+
+@keyframes slideDown {
+    0% {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.dropdown-menu {
+    opacity: 1;
+    transform: translateY(-20px);
+    animation: slideDown 0.3s ease forwards;
+    border-radius: 0px;
+    border: none;
+}
+
+.show .dropdown-menu {
+    animation: slideDown 0.3s ease forwards;
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* USER LOG IN / SIGN UP DROPDOWN */
 
 .navbar-small {
     height: 90px; 
@@ -326,13 +365,16 @@ export default {
 .navbar-icon-small {
     padding: 5px;
     transition: all 0.3s ease;
-    /* Add smooth transition to all properties */
 }
 
 .navbar-button-small {
     height: 22px;
     width: 22px;
     transition: all 0.3s ease;
+}
+
+.navbar-toggler {
+    transition: all 0.5s ease;
 }
 
 .hidden {

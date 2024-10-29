@@ -17,6 +17,8 @@ import EventsPage from '../screens/eventsPage.vue';
 import AboutUs from '../screens/AboutUs.vue';
 import FAQ from '../screens/FAQ.vue';
 import PrivacyPolicy from '../screens/PrivacyPolicy.vue';
+import EventsMarketplace from '../screens/EventsMarketplace.vue'
+import WhyUsOrganizers from '../screens/WhyUsOrganizers.vue'
 
 const routes = [
     {
@@ -53,6 +55,16 @@ const routes = [
         path: '/ItineraryForm',
         name: 'ItineraryForm',
         component: ItineraryForm,
+    },
+    {
+        path: '/marketplace',
+        name: 'EventsMarketplace',
+        component: EventsMarketplace,
+    },
+    {
+        path: '/organizers',
+        name: 'WhyUsOrganizers',
+        component: WhyUsOrganizers,
     },
     {
         path: '/signup',
