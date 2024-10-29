@@ -464,7 +464,7 @@ export default {
         },
 
 
-        onDrop(event) {
+        async onDrop(event) {
             event.preventDefault(); // Prevent default behavior
 
             // Get the dragged item data
@@ -488,13 +488,13 @@ export default {
                     if (Object.keys(wishlistItem).length === 2) {
                         // If length is 2, treat it as coming from the table
                         console.log("Dragging within the table, updating event timing.");
-                        this.updateEventTiming(wishlistItem.eventID, time);
-                        // Reload the page after updating the event timing
-                        location.reload(true);
+                        await this.updateEventTiming(wishlistItem.eventID, time); // Await here
+                        location.reload(); // Reload after timing update
                     } else {
                         // Otherwise, treat it as coming from the wishlist
                         console.log("Dragging from the wishlist, adding to event.");
-                        this.addToEvent(wishlistItem, { eventID, time });
+                        await this.addToEvent(wishlistItem, { eventID, time }); // Await here
+                        location.reload();
                     }
                 } else {
                     console.error("Wishlist item does not have a valid eventID or attractionID.");
@@ -503,6 +503,7 @@ export default {
                 console.error("Dropped event does not have a valid row.");
             }
         },
+
 
 
 
@@ -519,8 +520,8 @@ export default {
 
 
 
-         // Method to handle adding the item to the event
-         async addToEvent(wishlistItem, { eventID, time }) {
+        // Method to handle adding the item to the event
+        async addToEvent(wishlistItem, { eventID, time }) {
             // Use either eventID or attractionID
             const id = wishlistItem.eventID || wishlistItem.attractionID;
 
