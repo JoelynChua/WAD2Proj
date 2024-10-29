@@ -14,9 +14,6 @@ import { library } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { faCoffee } from '@fortawesome/free-solid-svg-icons'; // Example icon
 
-import PrimeVue from 'primevue/config';
-import 'primeicons/primeicons.css';
-
 // Add icons to the Font Awesome library
 library.add(faCoffee);
 
@@ -28,7 +25,6 @@ onAuthStateChanged(auth, (user) => {
         app = createApp(App);
 
         app.use(Antd);
-        app.use(PrimeVue);
         app.use(vueCountryRegionSelect);
 
         // Register Font Awesome component globally

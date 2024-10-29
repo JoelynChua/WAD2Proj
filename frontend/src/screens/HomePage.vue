@@ -8,13 +8,24 @@
           Your browser does not support the video tag.
         </video>
 
-        <h2 class="slide-right" style="margin-top: 250px;">Las Vegas Sphere now presents: <br>Hamilton</h2>
-        <p class="fade-in mt-5">Proudly casted by Lay Foo and Mok Ngee HeHe</p>
-        <button @click="findActivities" class="section1_buttons pulse mt-4 p-3" style="border-radius: 50px; font-size: 16px; height: 40px">Find Activities</button>
-        <a href="#aboutUs"><button class="section1_buttons pulse p-3 ms-4" style="border-radius: 50px; font-size: 16px; height: 40px">About Us</button></a>
+        <section id="largeHomeScreen">
+          <h2 class="slide-right" style="margin-top: 250px;">Las Vegas Sphere now presents: <br>Hamilton</h2>
+          <p class="fade-in mt-5">Proudly casted by Lay Foo and Mok Ngee HeHe</p>
+          <button @click="findActivities" class="section1_buttons pulse mt-4 p-3" style="border-radius: 50px; font-size: 16px; height: 40px">Find Activities</button>
+          <a href="#aboutUs"><button class="section1_buttons pulse p-3 ms-4" style="border-radius: 50px; font-size: 16px; height: 40px">About Us</button></a>
+        </section>
+
+        <section id="smallHomeScreen" class="text-center">
+          <h2 class="slide-right" style="margin-top: 250px;">Las Vegas Sphere now presents: <br>Hamilton</h2>
+          <p class="fade-in mt-5">Proudly casted by Lay Foo and Mok Ngee HeHe</p>
+          <button @click="findActivities" class="section1_buttons pulse mt-4 p-3" style="border-radius: 50px; font-size: 16px; height: 40px">Find Activities</button>
+          <a href="#aboutUs"><button class="section1_buttons pulse p-3 ms-4" style="border-radius: 50px; font-size: 16px; height: 40px">About Us</button></a>
+        </section>
 
         <!-- Pause Button -->
-        <button @click="toggleVideo" class="pause-button"><i class="fi fi-rs-pause-circle"></i></button>
+        <button v-if="!this.paused" @click="toggleVideo" class="pause-button"><i class="fi fi-ts-pause-circle"></i></button>
+        <button v-else @click="toggleVideo" class="pause-button"><i class="fi fi-ts-play-circle"></i></button>
+
       </section>
 
       <div style="background-color: #f9f9f9;">
@@ -42,6 +53,7 @@ export default {
   data() {
     return {
       isAboutUsVisible: false, // Track visibility state
+      paused: false,
     };
   },
   components: {
@@ -57,8 +69,10 @@ export default {
       const video = this.$refs.backgroundVideo;
       if (video.paused) {
         video.play();
+        this.paused = false;
       } else {
         video.pause();
+        this.paused = true;
       }
     },
     observeAboutUs() {
@@ -79,6 +93,7 @@ export default {
   },
   mounted() {
     this.observeAboutUs(); // Start observing when component is mounted
+  
   },
 };
 </script>
@@ -287,5 +302,28 @@ footer {
   padding: 1.5rem;
   animation: fade-in 2s ease-in-out;
   margin-top: 2rem;
+}
+
+@media (max-width: 768px) {
+  #largeHomeScreen {
+    display: none
+  }
+
+  #smallHomeScreen, .hero h2, .hero p {
+    display: block;
+    white-space: wrap !important;
+  }
+
+  .hero h2 {
+    margin-bottom: 140px;
+    margin-top: 110px;
+  }
+}
+
+@media (min-width: 769px) {
+
+  #smallHomeScreen {
+    display: none;
+  }
 }
 </style>

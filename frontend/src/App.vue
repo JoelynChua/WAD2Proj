@@ -71,6 +71,9 @@ const callback = (response) => {
 }
 
 @import 'bootstrap/dist/css/bootstrap.min.css';
+@import '../node_modules/@flaticon/flaticon-uicons/css/thin/straight.css';
+@import '../node_modules/@flaticon/flaticon-uicons/css/thin/straight.css';
+
 
 @font-face {
   font-family: 'graphie';
