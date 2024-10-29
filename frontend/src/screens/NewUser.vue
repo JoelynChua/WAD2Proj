@@ -1,10 +1,10 @@
 <template>
   <div class="video-background-container">
     <!-- Background Video -->
-    <!-- <video autoplay muted loop id="background-video" @loadeddata="onVideoLoaded">
-      <source src="../assets/loginvid.mp4" type="video/mp4" />
+    <video autoplay muted loop id="background-video" @loadeddata="onVideoLoaded">
+      <source src="https://investor.citadel.com/Templates/Citadel/media/chicago.mp4" type="video/mp4" />
       Your browser does not support the video tag.
-    </video> -->
+    </video>
 
     <!-- Back Button -->
     <RouterLink v-if="isVideoLoaded" to="/" class="back-button">
@@ -33,7 +33,9 @@
               <input type="checkbox" @click="togglePasswordVisibility"> Show Password
               <small v-if="passwordError" class="text-danger">{{ passwordError }}</small>
             </div>
-            <button type="submit" class="btn btn-primary w-100" :disabled="isLoading">
+            <button type="submit" class="btn btn-primary w-25"
+            style="border-radius: 0%;"
+            :disabled="isLoading">
               {{ isLoading ? 'Signing Up...' : 'Sign up' }}
             </button>
             <br>

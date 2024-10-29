@@ -248,7 +248,6 @@ export default {
 </script>
 
 <style scoped>
-/* Existing nav-link styles */
 .nav-link {
     font-weight: 600;
     font-family: graphie, sans-serif;
@@ -260,81 +259,68 @@ export default {
     padding: 0.75rem 0px !important; /* Adjusted padding for bigger space between items */
     margin: 0px 1.5rem;
     padding-bottom: 0px !important;
-
-#last-item {
-    margin-bottom: 30px;
-}
 }
 
-/* Add a pseudo-element that slides in from the left */
 .nav-link::before {
     content: '';
     position: absolute;
     bottom: 0;
-    left: -100%; /* Start off-screen (left) */
+    left: -100%; 
     width: 100%;
-    height: 2px; /* Line thickness */
-    background-color: #0056b3; /* Highlight color */
-    transition: left 0.4s ease-in-out; /* Transition for smooth slide */
+    height: 2px; 
+    background-color: #0056b3; 
+    transition: left 0.4s ease-in-out; 
 }
 
-/* When hovering over the nav link, slide in the ::before element */
 .nav-link:hover::before {
-    left: 0; /* Slide it into view */
+    left: 0; 
 }
 
-/* Active link styling */
 .nav-link.active {
     font-weight: bold;
     color: #0056b3 !important;
-    font-size: 1.2rem; /* Make the active link font size slightly larger */
+    font-size: 1.2rem; 
 }
 
-/* When the active link is hovered, make sure the line also slides */
 .nav-link.active:hover::before {
     left: 0;
 }
 
 .nav-item.dropdown .nav-link {
-    text-decoration: none; /* Ensure no underline */
+    text-decoration: none; 
 }
 
-/* Remove the underline effect for dropdown links */
 .nav-item.dropdown .nav-link::before {
-    display: none; /* Prevent the underline from appearing */
+    display: none; 
 }
 
 .navbar {
     transition: all 0.3s ease;
-    height: 130px; /* Adjusted height */
-    padding: 1.25rem 2rem; /* Adjusted padding for a larger initial size */
+    height: 100px; 
+    padding: 1.25rem 2rem; 
     opacity: 0.9;
 }
 
 .navbar-nav {
     display: flex;
-    justify-content: center; /* Centers the nav items */
-    align-items: center; /* Aligns them vertically */
-    gap: 1.5rem; /* Adds spacing between nav items */
+    justify-content: center; 
+    align-items: center; 
+    gap: 1.5rem; 
 }
 
 .sticky {
     position: fixed;
-    /* Fix the navbar when sticky */
     top: 0;
-    /* Position it at the top */
     left: 0;
-    /* Align left */
     right: 0;
-    /* Align right */
     z-index: 1000;
-    /* Ensure it stays on top of other content */
+    
 }
 
 .navbar-small {
-    height: 90px; /* Slightly larger height when scrolled down */
-    padding: 0.75rem 1.5rem; /* Adjusted padding for the smaller navbar */
-    font-size: 1rem; /* Slightly larger font size for nav links when scrolled */
+    height: 90px; 
+    padding: 0.75rem 1.5rem; 
+    font-size: 1rem; 
 }
 
 .navbar-icon-small {
@@ -347,84 +333,72 @@ export default {
     height: 22px;
     width: 22px;
     transition: all 0.3s ease;
-    /* Add smooth transition to all properties */
 }
 
 .hidden {
     transform: translateY(-100%);
-    /* Slide up to hide */
     transition: transform 0.3s ease;
-    /* Smooth transition for the hidden state */
 }
 
 .hiddencollapse {
     transform: translateY(-100%);
     /* Slide up to hide */
     transition: transform 0.9s ease;
-    /* Smooth transition for the hidden state */
 }
 
 .navbar-small .navbar-brand {
     font-size: 1.25rem;
-    /* Smaller brand text */
 }
 
 .navbar-small .nav-link {
     padding: 0.5rem 1rem;
-    /* Smaller padding for nav links */
 }
 
 .nav-link.active {
-    /* Example: Change the color of the active link */
     font-weight: bold;
     color: #0056b3 !important;
     font-size: large;
 }
 
-/* Slide-up animation */
 @keyframes slideUp {
     0% {
         opacity: 0;
-        transform: translateY(30px); /* Start slightly below the navbar */
+        transform: translateY(30px); 
     }
     100% {
         opacity: 1;
-        transform: translateY(0); /* End at the final position */
+        transform: translateY(0);
     }
 }
 
-/* Slide-up animation for navbar items */
 @keyframes slideUp {
     0% {
         opacity: 0;
-        transform: translateY(30px); /* Start slightly below the navbar */
+        transform: translateY(30px); 
     }
     100% {
         opacity: 1;
-        transform: translateY(0); /* End at the final position */
+        transform: translateY(0); 
     }
 }
 
-/* Apply the animation to the navbar brand (logo) */
 .navbar-brand img {
-    opacity: 0; /* Initially hidden */
+    opacity: 0; 
     animation: slideUp 0.6s ease forwards;
-    animation-delay: 0.2s; /* Delay for the logo */
+    animation-delay: 0.2s; 
 }
 
-/* Apply animation to navbar items */
 .nav-item {
-    opacity: 0; /* Initially hidden */
+    opacity: 0; 
     animation: slideUp 0.6s ease forwards;
 }
 
-/* Create staggered effect for each nav item */
 .nav-item:nth-child(1) {
-    animation-delay: 0.3s; /* First item starts after the logo */
+    animation-delay: 0.3s; 
 }
 
 .nav-item:nth-child(2) {
-    animation-delay: 0.4s; /* Second item starts slightly later */
+    animation-delay: 0.4s; 
 }
 
 .nav-item:nth-child(3) {

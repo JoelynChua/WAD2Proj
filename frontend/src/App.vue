@@ -24,6 +24,7 @@
         <!-- Router View for Dynamic Content -->
         <router-view />
         <!-- <GoogleLogin :callback="callback" prompt /> -->
+         <div id="footerbuffer"></div>
 
         <!-- Footer Component -->
         <AppFooter v-if="!fullPageRoutes.includes($route.path)" />
@@ -72,6 +73,11 @@ const callback = (response) => {
     text-align: center;
     color: #2c3e50;
     margin-top: 0;
+}
+
+#footerbuffer {
+    z-index: -50;
+    height: 100px
 }
 
 @import 'bootstrap/dist/css/bootstrap.min.css';

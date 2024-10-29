@@ -63,7 +63,6 @@
     display: flex;
     justify-content: center;
     padding: 4rem 2rem;
-    background-color: #f9f9f9; /* Light background */
   }
   
   .about-us__container {

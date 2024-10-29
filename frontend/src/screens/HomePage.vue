@@ -3,17 +3,18 @@
     <main>
       <section class="hero text-start">
         <!-- Background Video -->
-        <video autoplay muted loop playsinline id="background-video">
-          <source src="https://media.graphassets.com/BpGAyEtdSaaJCOX23fSW" type="video/mp4" />
+        <video ref="backgroundVideo" autoplay muted loop playsinline id="background-video">
+          <source src="https://media.graphassets.com/iX5mzzTaQAeFQrC4MvPZ" type="video/mp4" />
           Your browser does not support the video tag.
         </video>
 
         <h2 class="slide-right" style="margin-top: 250px;">Las Vegas Sphere now presents: <br>Hamilton</h2>
         <p class="fade-in mt-5">Proudly casted by Lay Foo and Mok Ngee HeHe</p>
-        <button @click="findActivities" class="pulse mt-4 p-3"
-          style="border-radius: 50px; font-size: 16px; height: 40px">Find Activities</button>
-        <a href="#aboutUs"><button class="pulse p-3 ms-4"
-            style="border-radius: 50px; font-size: 16px; height: 40px">About Us</button></a>
+        <button @click="findActivities" class="section1_buttons pulse mt-4 p-3" style="border-radius: 50px; font-size: 16px; height: 40px">Find Activities</button>
+        <a href="#aboutUs"><button class="section1_buttons pulse p-3 ms-4" style="border-radius: 50px; font-size: 16px; height: 40px">About Us</button></a>
+
+        <!-- Pause Button -->
+        <button @click="toggleVideo" class="pause-button"><i class="fi fi-rs-pause-circle"></i></button>
       </section>
 
       <div style="background-color: #f9f9f9;">
@@ -22,14 +23,15 @@
         </section>
       </div>
 
-      <div style="background-color: #121212;" class="shadow">
-      <section id="gosomewhere" class="featured-activities">
-        <gosomewhere />
-      </section>
-    </div>
+      <div style="background-color: #121212;">
+        <section id="gosomewhere" class="featured-activities">
+          <gosomewhere />
+        </section>
+      </div>
     </main>
   </div>
 </template>
+
 
 <script>
 import router from '@/router';
@@ -50,6 +52,14 @@ export default {
     findActivities() {
       // Logic to find activities
       router.push("/events");
+    },
+    toggleVideo() {
+      const video = this.$refs.backgroundVideo;
+      if (video.paused) {
+        video.play();
+      } else {
+        video.pause();
+      }
     },
     observeAboutUs() {
       const observer = new IntersectionObserver((entries) => {
@@ -73,8 +83,20 @@ export default {
 };
 </script>
 
+
 <style scoped>
-/* Your existing styles */
+.pause-button {
+  position: absolute;
+  background: transparent;
+  border: transparent;
+  color: #f9f9f9;
+  font-size: 50px;
+  bottom: 30px;
+  left: 50px;
+  cursor: pointer;
+  z-index: 10; /* Ensure button is above the video */
+}
+
 
 @keyframes slide-in {
   0% {
@@ -162,8 +184,9 @@ export default {
 #app {
   font-family: graphie, sans-serif;
   text-align: center;
-  background: #f1f1f1;
+  background-color: #f9f9f9;
   color: #333;
+  filter: brightness(95%);
 }
 
 .hero {
@@ -174,7 +197,7 @@ export default {
   animation: zoom-in 1s ease-in-out;
   margin-bottom: 2rem;
   overflow: hidden;
-  height: 90vh;
+  height: 100vh;
   z-index: 1;
   /* Ensure hero content appears above video */
 
@@ -182,13 +205,13 @@ export default {
 
 #background-video {
   position: absolute;
+  filter: brightness(50%);
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
   z-index: -1;
-  opacity: 0.8;
   /* Adjust opacity for readability */
 }
 
@@ -214,7 +237,7 @@ export default {
   white-space: nowrap;
 }
 
-.hero button {
+.section1_buttons {
   animation: pulse 2s infinite;
   background: linear-gradient(90deg, #667eea, #764ba2);
   color: white;
