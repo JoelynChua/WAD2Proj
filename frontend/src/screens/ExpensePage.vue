@@ -1,5 +1,5 @@
 <template>
-  <div class="chart-container">
+  <div class="chart-container" style="margin-top: 120px;">
     <chart />
   </div>
 </template>

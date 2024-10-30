@@ -5,8 +5,8 @@ import EventDetails from '../screens/eventDetails.vue';
 import AttractionsList from '../screens/attractionsList.vue';
 import AttractionDetails from '../screens/attractionDetails.vue';
 import itineraryList from '../screens/itineraryList.vue';
-import Signup from '../screens/NewUser.vue';
-import LoginPage from '../screens/LoginPage.vue';
+import Signup from '../components/SignUpForm.vue'; // Ensure the casing matches
+import LoginPage from '../components/LoginForm.vue';
 import ExpensePage from '../screens/ExpensePage.vue';
 import ItineraryDetails from '../screens/itineraryDetails.vue';
 import ItineraryForm from '../screens/itineraryForm.vue';
@@ -21,82 +21,26 @@ import EventsMarketplace from '../screens/EventsMarketplace.vue'
 import WhyUsOrganizers from '../screens/WhyUsOrganizers.vue'
 
 const routes = [
-    {
-        path: '/',
-        name: 'Home',
-        component: HomePage,
-    },
-    {
-        path: '/eventDetails/:id',
-        name: 'EventDetails',
-        component: EventDetails,
-    },
-    {
-        path: '/attractionsList',
-        name: 'AttractionsList',
-        component: AttractionsList,
-    },
-    {
-        path: '/attractionDetails/:id',
-        name: 'AttractionDetails',
-        component: AttractionDetails,
-    },
-    {
-        path: '/itineraryList',
-        name: 'itineraryList',
-        component: itineraryList,
-    },
-    {
-        path: '/ItineraryDetails/:id',
-        name: 'ItineraryDetails',
-        component: ItineraryDetails,
-    },
-    {
-        path: '/ItineraryForm',
-        name: 'ItineraryForm',
-        component: ItineraryForm,
-    },
-    {
-        path: '/marketplace',
-        name: 'EventsMarketplace',
-        component: EventsMarketplace,
-    },
-    {
-        path: '/organizers',
-        name: 'WhyUsOrganizers',
-        component: WhyUsOrganizers,
-    },
-    {
-        path: '/signup',
-        name: 'NewUser',
-        component: Signup,
-        meta: { redirectIfAuthenticated: true }, // Redirect if authenticated
-    },
-    {
-        path: '/login',
-        name: 'LoginPage',
-        component: LoginPage,
-        meta: { redirectIfAuthenticated: true }, // Redirect if authenticated
-    },
-    {
-        path: '/ExpensePage',
-        name: 'ExpensePage',
-        component: ExpensePage,
-    },
-    {
-        path: '/dashboard',
-        name: 'UserDashboard',
-        component: ProfilePage,
-        meta: { requiresAuth: true }, // Requires authentication
-    },
+    { path: '/', name: 'Home', component: HomePage },
+    { path: '/eventDetails/:id', name: 'EventDetails', component: EventDetails },
+    { path: '/attractionsList', name: 'AttractionsList', component: AttractionsList },
+    { path: '/attractionDetails/:id', name: 'AttractionDetails', component: AttractionDetails },
+    { path: '/itineraryList', name: 'itineraryList', component: itineraryList },
+    { path: '/ItineraryDetails/:id', name: 'ItineraryDetails', component: ItineraryDetails },
+    { path: '/ItineraryForm', name: 'ItineraryForm', component: ItineraryForm },
+    { path: '/marketplace', name: 'EventsMarketplace', component: EventsMarketplace },
+    { path: '/organizers', name: 'WhyUsOrganizers', component: WhyUsOrganizers },
+    { path: '/signup', name: 'NewUser', component: Signup, meta: { redirectIfAuthenticated: true } },
+    { path: '/login', name: 'LoginPage', component: LoginPage, meta: { redirectIfAuthenticated: true } },
+    { path: '/ExpensePage', name: 'ExpensePage', component: ExpensePage },
+    { path: '/dashboard', name: 'UserDashboard', component: ProfilePage, meta: { requiresAuth: true } },
     { path: '/calendar', name: 'calendar', component: CalendarPage },
     { path: '/events', name: 'events', component: EventsPage },
-    { path: '/', component: HomePage },
     { path: '/about-us', component: AboutUs },
     { path: '/faq', component: FAQ },
     { path: '/privacy-policy', component: PrivacyPolicy },
-    // You can add more routes here
 ];
+
 
 const router = createRouter({
     history: createWebHistory(process.env.BASE_URL),

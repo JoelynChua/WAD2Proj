@@ -1,22 +1,32 @@
 <template>
-  <div style="margin-top: 30px;" class="itinerary-list">
+  <div style="margin-top: 110px;" class="itinerary-list">
     <h1>My Itineraries</h1>
 
-    <div style="margin: 60px;">
+    <div v-if="!isAuthenticated" class="text-center">
+      <p>Please log in to view your itineraries.</p>
+      <button @click="$emit('toggle-modal')" class="btn btn-link">Log In</button>
+    </div>
+
+    <div v-else style="margin: 60px;">
       <!-- Add itinerary -->
-      <button style="margin-bottom: 20px; display: block; background-color:#c8e0ea" @click="toItineraryForm()"
-        class="btn btn">
+      <button
+        style="margin-bottom: 20px; display: block; background-color: #c8e0ea"
+        @click="toItineraryForm()"
+        class="btn btn"
+      >
         <span class="plus-sign">New Itinerary +</span>
       </button>
 
       <div v-if="itineraries.length">
         <div class="carousel-client">
           <div class="slide" v-for="(itinerary, index) in itineraries" :key="index">
-
             <div class="itinerary-item" @click="getItineraryByID(itinerary.id)">
-              <!-- Delete Icon -->
-              <font-awesome-icon :icon="['fas', 'trash']" class="delete-icon"
-                @click.stop="deleteItinerary(itinerary.id)" title="Delete Itinerary" />
+              <font-awesome-icon
+                :icon="['fas', 'trash']"
+                class="delete-icon"
+                @click.stop="deleteItinerary(itinerary.id)"
+                title="Delete Itinerary"
+              />
               <div class="itinerary-title">
                 {{ itinerary.title }}
                 <br />
@@ -39,7 +49,6 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { faTrash } from '@fortawesome/free-solid-svg-icons'; // Import the trash icon
 import { auth } from '../firebase/firebaseClientConfig';
 
-// Add the icon to the library
 library.add(faTrash);
 
 export default {
@@ -47,39 +56,18 @@ export default {
   components: {
     FontAwesomeIcon, // Register the component
   },
-  //Data Function: The data function returns an object where itineraries is initialized as an empty array to store the itineraries fetched from the server.
-  //Defining
   data() {
     return {
       itineraries: [], // Initialize itineraries as an empty array
       uid: null,
+      isAuthenticated: false, // Track authentication state
     };
   },
 
-  //Mounted Hook: This is a lifecycle method that runs when the component is first added to the DOM.
-  /*Mounted vs created
-  created hook: helps with the loading of data before it is displayed on the webpage
-  mounted hook: load data with UI
-  Created Hook: Focuses on data loading and initialization before the component is rendered. 
-  Use it for preparing data that should be available as soon as the component is shown.
-  
-  Mounted Hook: Focuses on operations related to the UI and DOM after the component is displayed. 
-  Use it for tasks that require the component to be present in the DOM.
-*/
   created() {
     // Set up an observer on the Auth object to get user state changes
     this.authListener();
   },
-
-  // async mounted() {
-  //   try {
-  //     //the properties defined in data() are accessible via this, which refers to the component instance.
-  //     this.itineraries = await itineraryService.getItineraryByUserID(sessionStorage.getItem('uid')); // Fetch itineraries from the service
-  //     console.log(this.itineraries);
-  //   } catch (error) {
-  //     console.error("Failed to fetch itineraries:", error);
-  //   }
-  // },
 
   methods: {
     getItineraryByID(itineraryID) {
@@ -93,10 +81,8 @@ export default {
       try {
         await itineraryService.deleteItinerary(itineraryID);
         this.itineraries = this.itineraries.filter(itinerary => itinerary.id !== itineraryID);
-        // Optionally, you can show a success message or toast notification
       } catch (error) {
         console.error("Error deleting itinerary:", error);
-        // Optionally, show an error message
       }
     },
 
@@ -104,7 +90,7 @@ export default {
       // Listen to the authentication state
       auth.onAuthStateChanged(async (user) => {
         if (user) {
-          // User is signed in
+          this.isAuthenticated = true; // User is signed in
           this.uid = user.uid; // Get the user ID
           try {
             // Fetch itineraries using the UID
@@ -121,7 +107,6 @@ export default {
         }
       });
     },
-
   },
 };
 </script>
