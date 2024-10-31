@@ -2,7 +2,7 @@
   <div class="video-background-container">
     <!-- Test1 -->
     <!-- Background Video -->
-    <video autoplay muted loop id="background-video" @loadeddata="onVideoLoaded">
+    <video autoplay muted loop playsinline id="background-video" @loadeddata="onVideoLoaded">
       <source src="https://investor.citadel.com/Templates/Citadel/media/chicago.mp4" type="video/mp4" />
       Your browser does not support the video tag.
     </video>
