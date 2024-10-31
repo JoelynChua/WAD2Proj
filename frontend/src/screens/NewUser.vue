@@ -33,7 +33,7 @@
               <input type="checkbox" @click="togglePasswordVisibility"> Show Password
               <small v-if="passwordError" class="text-danger">{{ passwordError }}</small>
             </div>
-            <button type="submit" class="btn btn-primary w-25"
+            <button type="submit" class="btn btn-primary"
             style="border-radius: 0%;"
             :disabled="isLoading">
               {{ isLoading ? 'Signing Up...' : 'Sign up' }}
@@ -135,6 +135,7 @@ export default {
 
 #background-video {
   position: absolute;
+  filter: brightness(85%);
   top: 0;
   left: 0;
   width: 100%;
@@ -145,31 +146,18 @@ export default {
 
 .login-container {
   background-color: rgba(255, 255, 255, 0.85);
-  /* White background with opacity */
   border-radius: 10px;
-  min-width: 400px;
-}
-
-.bg-pink {
-  background-color: transparent;
-  /* Ensuring transparency for the background */
+  min-width: 340px;
 }
 
 .back-button {
   position: absolute;
-  /* Positioning the button */
   top: 30px;
-  /* Adjust the position as needed */
   left: 30px;
-  /* Adjust the position as needed */
   z-index: 10;
-  /* Ensure it appears above the video */
-  color: rgb(201, 201, 201);
-  /* Change to desired text color */
+  color: rgb(0, 0, 0);
   text-decoration: none;
-  /* Remove underline */
   font-size: 24px;
-  /* Adjust the font size as needed */
   font-family: 'Roboto', sans-serif;
 }
 </style>

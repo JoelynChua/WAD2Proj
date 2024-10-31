@@ -119,38 +119,29 @@ import GoogleLogin from '../components/GoogleLogin.vue';
 
 #background-video {
   position: absolute;
+  filter: brightness(85%);
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
-  opacity: 0.9;
   z-index: -1;
 }
 
 .login-container {
   background-color: rgba(255, 255, 255);
-  /* White background with 85% opacity */
-  padding: 2rem;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  min-width: 400px;
+  /* border-radius: 10px; */
+  min-width: 340px;
 }
 
 .back-button {
   position: absolute;
-  /* Positioning the button */
   top: 30px;
-  /* Adjust the position as needed */
   left: 30px;
-  /* Adjust the position as needed */
   z-index: 10;
-  /* Ensure it appears above the video */
-  color: rgb(201, 201, 201);
-  /* Change to desired text color */
+  color: rgb(0, 0, 0);
   text-decoration: none;
-  /* Remove underline */
   font-size: 24px;
-  /* Adjust the font size as needed */
   font-family: 'Roboto', sans-serif;
 }
 </style>
