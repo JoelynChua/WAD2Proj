@@ -13,7 +13,7 @@
 
     <!-- Overlay for the signup form -->
     <div class="container vh-100">
-      <div class="row justify-content-end align-items-center vh-100">
+      <div class="row justify-content-center align-items-center justify-content-md-end vh-100">
         <!-- <div v-if="isVideoLoaded" class="login-container p-4 shadow col-4"> -->
         <div class="login-container p-4 shadow col-4">
           <h5 class="text-center">Sign up for a new account</h5>
