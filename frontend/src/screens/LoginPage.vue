@@ -1,54 +1,52 @@
 <template>
-  <div class="video-background-container">
+  <div v-if="!mobileBrowser" class="video-background-container">
     <!-- Test1 -->
     <!-- Background Video -->
     <video autoplay muted loop playsinline id="background-video" @loadeddata="onVideoLoaded">
-      <source src="https://investor.citadel.com/Templates/Citadel/media/chicago.mp4" type="video/mp4" />
+      <source src="https://assets.sands.com/MBS/Revamp/whats-on/whats-on-masthead-20240315-desktop.mp4"
+        type="video/mp4" />
       Your browser does not support the video tag.
     </video>
 
     <!-- Back Button (shown when video is loaded) -->
+    <!-- Overlay for the login form (shown when video is loaded) -->
+    <!-- <div class="container vh-100" v-if="videoLoaded"> -->
+  </div>
+
+  <div v-if="videoLoaded || mobileBrowser" class="login-container p-4 shadow col-4">
     <RouterLink v-if="videoLoaded" to="/" class="back-button">
       &lt; Back
     </RouterLink>
-
-    <!-- Overlay for the login form (shown when video is loaded) -->
-    <!-- <div class="container vh-100" v-if="videoLoaded"> -->
-      <div class="container vh-100"> 
-      <div class="row justify-content-center align-items-center justify-content-md-end vh-100">
-        <div class="login-container p-4 shadow col-4">
-          <h5 class="text-center">Log in to your account</h5>
-          <form @submit.prevent="login">
-            <div class="mb-3">
-              <label for="email" class="form-label">Email</label>
-              <div v-if="invalidCred" class="text-danger" style="font-size: 12px;">Username or Password is
-                incorrect, please try again.</div>
-              <input type="email" class="form-control" id="email" v-model="email" placeholder="moklay@smu.edu.sg"
-                required />
-            </div>
-            <div class="mb-3">
-              <label for="password" class="form-label">Password</label>
-              <input :type="passwordFieldType" class="form-control" id="password" v-model="password"
-                placeholder="Password" required />
-              <input type="checkbox" @click="togglePasswordVisibility" /> Show Password
-            </div>
-            <button type="submit" class="btn btn-primary w-25" 
-            style="border-radius: 0%;"
-            >
-              Log in
-            </button>
-          </form>
-          <br />
-          <p>or access quickly</p>
-          <GoogleLogin />
-
-          <div class="text-center mt-3">
-            <p>
-              Don't have an account?
-              <RouterLink to="/signup">Sign Up</RouterLink>
-            </p>
-          </div>
+    <div class="login-item">
+      <div class="mb-5"><img src="../assets/activity.ai.png" width="200px" height="auto"></div>
+      <h5 class="text-start">Log in</h5>
+      <form @submit.prevent="login">
+        <div class="mb-3">
+          <label for="email" class="form-label">Email</label>
+          <div v-if="invalidCred" class="text-danger" style="font-size: 12px;">Username or Password is
+            incorrect, please try again.</div>
+          <input type="email" class="form-control" id="email" v-model="email" placeholder="moklay@smu.edu.sg"
+            required />
         </div>
+        <div class="mb-3">
+          <label for="password" class="form-label">Password</label>
+          <input :type="passwordFieldType" class="form-control" id="password" v-model="password" placeholder="Password"
+            required />
+          <input type="checkbox" @click="togglePasswordVisibility" /> Show Password
+        </div>
+        <button type="submit" class="btn btn-primary w-100" style="border-radius: 0%;">
+          Log in
+        </button>
+      </form>
+      <br />
+      <p>or access quickly</p>
+      <GoogleLogin />
+
+      <div class="text-center mt-3">
+        <p>
+          Don't have an account?
+          <RouterLink to="/signup">Sign Up</RouterLink>
+        </p>
       </div>
     </div>
   </div>
@@ -67,6 +65,7 @@ export default {
       passwordFieldType: 'password',
       videoLoaded: false, // Initial loading state for the video
       invalidCred: false,
+      mobileBrowser: false,
     };
   },
   methods: {
@@ -111,14 +110,15 @@ import GoogleLogin from '../components/GoogleLogin.vue';
 
 <style scoped>
 .video-background-container {
+  margin-left: auto;
   position: relative;
-  width: 100%;
+  width: 50%;
   height: 100vh;
   overflow: hidden;
 }
 
 #background-video {
-  position: absolute;
+  position: relative;
   filter: brightness(85%);
   top: 0;
   left: 0;
@@ -129,19 +129,45 @@ import GoogleLogin from '../components/GoogleLogin.vue';
 }
 
 .login-container {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  top: 0px;
+  left: 0px;
   background-color: rgba(255, 255, 255);
-  /* border-radius: 10px; */
-  min-width: 340px;
+  width: 50%;
+  height: 100vh;
+}
+
+@media (max-width: 769px) {
+  .login-container {
+    width: 100%;
+  }
+}
+
+.login-item {
+  width: 40%;
+  min-width: 350px;
 }
 
 .back-button {
   position: absolute;
+  color: rgb(44, 62, 80);
   top: 30px;
   left: 30px;
   z-index: 10;
-  color: rgb(0, 0, 0);
   text-decoration: none;
   font-size: 24px;
   font-family: 'Roboto', sans-serif;
+}
+
+.form-control {
+  height: 40px;
+}
+
+h5 {
+  font-size: 38px;
+  font-weight: 900;
 }
 </style>

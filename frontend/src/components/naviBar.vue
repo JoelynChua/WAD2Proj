@@ -107,7 +107,7 @@
                 <ul class="navbar-nav">
                     <!-- Separate nav for Profile and Log In / Sign Up -->
                     <li id="last-item" class="nav-item" v-if="!isAuthenticated">
-                        <RouterLink class="nav-link mt-3 mb-3" to="/login">login / sign up</RouterLink>
+                        <RouterLink class="nav-link mt-3 mb-3 text-nowrap" to="/login">login / sign up</RouterLink>
                     </li>
                     <li class="nav-item dropdown" v-else>
                         <a

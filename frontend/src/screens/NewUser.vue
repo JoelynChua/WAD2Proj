@@ -2,7 +2,7 @@
   <div class="video-background-container">
     <!-- Background Video -->
     <video autoplay muted loop playsinline id="background-video" @loadeddata="onVideoLoaded">
-      <source src="https://investor.citadel.com/Templates/Citadel/media/chicago.mp4" type="video/mp4" />
+      <source src="https://player.vimeo.com/progressive_redirect/playback/974545879/rendition/1080p/file.mp4?loc=external&signature=38aeddf1078d80e57d269efbdd116b46079bff110e473e882397cf5119aa1d3b" type="video/mp4" />
       Your browser does not support the video tag.
     </video>
 
@@ -14,8 +14,7 @@
     <!-- Overlay for the signup form -->
     <div class="container vh-100">
       <div class="row justify-content-center align-items-center justify-content-md-end vh-100">
-        <!-- <div v-if="isVideoLoaded" class="login-container p-4 shadow col-4"> -->
-        <div class="login-container p-4 shadow col-4">
+        <div v-if="isVideoLoaded" class="login-container p-4 shadow col-4">
           <h5 class="text-center">Sign up for a new account</h5>
           <form @submit.prevent="signUp">
             <div class="mb-3">
