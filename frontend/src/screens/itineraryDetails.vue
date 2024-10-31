@@ -637,6 +637,7 @@ export default {
             // else {
             //     console.warn("Trail object is null, cannot set properties.");
             // }
+            // test
         }
 
     },

@@ -2,7 +2,7 @@
   <div class="video-background-container">
     <!-- Background Video -->
     <video autoplay muted loop playsinline id="background-video" @loadeddata="onVideoLoaded">
-      <source src="https://investor.citadel.com/Templates/Citadel/media/chicago.mp4" type="video/mp4" />
+      <source src="https://player.vimeo.com/progressive_redirect/playback/974545879/rendition/1080p/file.mp4?loc=external&signature=38aeddf1078d80e57d269efbdd116b46079bff110e473e882397cf5119aa1d3b" type="video/mp4" />
       Your browser does not support the video tag.
     </video>
 
@@ -13,9 +13,8 @@
 
     <!-- Overlay for the signup form -->
     <div class="container vh-100">
-      <div class="row justify-content-end align-items-center vh-100">
-        <!-- <div v-if="isVideoLoaded" class="login-container p-4 shadow col-4"> -->
-        <div class="login-container p-4 shadow col-4">
+      <div class="row justify-content-center align-items-center justify-content-md-end vh-100">
+        <div v-if="isVideoLoaded" class="login-container p-4 shadow col-4">
           <h5 class="text-center">Sign up for a new account</h5>
           <form @submit.prevent="signUp">
             <div class="mb-3">
@@ -33,7 +32,7 @@
               <input type="checkbox" @click="togglePasswordVisibility"> Show Password
               <small v-if="passwordError" class="text-danger">{{ passwordError }}</small>
             </div>
-            <button type="submit" class="btn btn-primary w-25"
+            <button type="submit" class="btn btn-primary"
             style="border-radius: 0%;"
             :disabled="isLoading">
               {{ isLoading ? 'Signing Up...' : 'Sign up' }}
@@ -135,6 +134,7 @@ export default {
 
 #background-video {
   position: absolute;
+  filter: brightness(85%);
   top: 0;
   left: 0;
   width: 100%;
@@ -145,31 +145,18 @@ export default {
 
 .login-container {
   background-color: rgba(255, 255, 255, 0.85);
-  /* White background with opacity */
   border-radius: 10px;
-  min-width: 400px;
-}
-
-.bg-pink {
-  background-color: transparent;
-  /* Ensuring transparency for the background */
+  min-width: 340px;
 }
 
 .back-button {
   position: absolute;
-  /* Positioning the button */
   top: 30px;
-  /* Adjust the position as needed */
   left: 30px;
-  /* Adjust the position as needed */
   z-index: 10;
-  /* Ensure it appears above the video */
-  color: rgb(201, 201, 201);
-  /* Change to desired text color */
+  color: rgb(0, 0, 0);
   text-decoration: none;
-  /* Remove underline */
   font-size: 24px;
-  /* Adjust the font size as needed */
   font-family: 'Roboto', sans-serif;
 }
 </style>
