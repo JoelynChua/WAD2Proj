@@ -89,17 +89,17 @@
 </template>
 
 <script>
-import { auth } from '../firebase/firebaseClientConfig'; 
+import { auth, database } from '../firebase/firebaseClientConfig'; 
 import { onAuthStateChanged, signOut as firebaseSignOut } from 'firebase/auth'; 
-import EventBus from '../utils/eventBus.js';
+import { ref as firebaseRef, get } from 'firebase/database'; // Rename `ref` from Firebase to `firebaseRef`
 import { ref, onMounted, onBeforeUnmount } from 'vue';
 
 export default {
     name: 'navbarNav',
     data() {
         return {
-            isAuthenticated: !!sessionStorage.getItem('uid'), 
-            userType: sessionStorage.getItem('userType'), 
+            isAuthenticated: false, // Firebase will handle auth state
+            userType: null,
             isSticky: true, 
             isSmall: false, 
             isHidden: false, 
@@ -137,8 +137,20 @@ export default {
         };
     },
     created() {
-        onAuthStateChanged(auth, (user) => {
-            this.isAuthenticated = !!user; 
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                this.isAuthenticated = true;
+                
+                // Fetch userType from Firebase Database or Firestore
+                const dbRef = firebaseRef(database, `users/${user.uid}`);
+                const userTypeSnapshot = await get(dbRef);
+                if (userTypeSnapshot.exists()) {
+                    this.userType = userTypeSnapshot.val().userType;
+                }
+            } else {
+                this.isAuthenticated = false;
+                this.userType = null;
+            }
         });
     },
     mounted() {
@@ -170,19 +182,10 @@ export default {
         },
         async signOut() {
             try {
-                if (EventBus) {
-                    EventBus.emit('google-oauth2-sign-out');
-                    console.log('Sign out event emitted.');
-                }
                 await firebaseSignOut(auth);
-
-                sessionStorage.removeItem('uid');
-                sessionStorage.removeItem('userType');
-                console.log('Session storage cleared');
-
                 this.isAuthenticated = false;
                 this.userType = null;
-                this.$router.push('/'); 
+                this.$router.push('/');
             } catch (error) {
                 console.error('Error signing out:', error.message);
             }

@@ -45,7 +45,7 @@
 
 <script>
 import { auth, database } from '../firebase/firebaseClientConfig';
-import { signInWithEmailAndPassword } from 'firebase/auth';
+import { signInWithEmailAndPassword, signOut as firebaseSignOut } from 'firebase/auth';
 import { ref, child, get } from 'firebase/database';
 // import GoogleLogin from '../components/GoogleLogin.vue';
 
@@ -72,34 +72,27 @@ export default {
                 const userCredential = await signInWithEmailAndPassword(auth, this.email, this.password);
                 const user = userCredential.user;
                 console.log('User logged in:', user);
-                sessionStorage.setItem('uid', user.uid);
-
+                
+                // Retrieve userType from Firebase Database
                 const dbRef = ref(database);
                 const userSnapshot = await get(child(dbRef, `users/${user.uid}`));
                 if (userSnapshot.exists()) {
                     const userData = userSnapshot.val();
-                    sessionStorage.setItem('userType', userData.userType);
+                    console.log("usertype:", userData.userType);
 
-
-
-                    if (userData.userType === 'organiser') { // Check if userType is 'organiser'
-                        this.$router.push('/organizer-dashboard'); // Redirect to Organizer Dashboard if the user is an organizer
+                    if (userData.userType === 'organiser') {
+                        this.$router.push('/organizer-dashboard'); // Redirect to organizer dashboard
                     } else {
-                        // Display an error message if the user is not an organizer
                         this.invalidCred = true;
                         alert("Access denied. You must have an organiser account to log in here.");
-                        // Clear session storage
-                        sessionStorage.removeItem('uid');
-                        sessionStorage.removeItem('userType');
-
-                        await auth.signOut();  // Sign out from Firebase
-                        this.$router.push('/login-for-organisers');  // Redirect to organizer login page
-
+                        await firebaseSignOut(auth); // Sign out to ensure a clean state
+                        this.$router.push('/login-for-organisers'); // Redirect to login
                     }
+                } else {
+                    alert("No user data found.");
                 }
-            }
 
-            catch (error) {
+            }catch (error) {
                 if (error.message === 'Firebase: Error (auth/invalid-credential).') {
                     this.invalidCred = true;
                 } else {

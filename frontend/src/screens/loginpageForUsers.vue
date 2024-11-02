@@ -45,7 +45,7 @@
 
 <script>
 import { auth, database } from '../firebase/firebaseClientConfig';
-import { signInWithEmailAndPassword } from 'firebase/auth';
+import { signInWithEmailAndPassword, signOut as firebaseSignOut } from 'firebase/auth';
 import { ref, child, get } from 'firebase/database';
 import GoogleLogin from '../components/GoogleLogin.vue';
 
@@ -75,32 +75,27 @@ export default {
         const userCredential = await signInWithEmailAndPassword(auth, this.email, this.password);
         const user = userCredential.user;
         console.log('User logged in:', user);
-        sessionStorage.setItem('uid', user.uid);
 
+        // Fetch user data directly from Firebase Database
         const dbRef = ref(database);
         const userSnapshot = await get(child(dbRef, `users/${user.uid}`));
         if (userSnapshot.exists()) {
           const userData = userSnapshot.val();
-          sessionStorage.setItem('userType', userData.userType);
-          console.log("usertype: " + sessionStorage.getItem('userType'));
+          console.log("usertype: " + userData.userType);
 
-          
-          if (userData.userType === 'customer') {  // Check if userType is 'customer'
+          if (userData.userType === 'customer') {
             this.$router.push('/'); // Redirect to root if the user is a customer
           } else {
             this.invalidCred = true;
             alert("Access denied. You must have a customer account to log in here.");
-            // Clear session storage for non-customers
-            sessionStorage.removeItem('uid');
-            sessionStorage.removeItem('userType');
-            
-            await auth.signOut();  // Sign out from Firebase
-            this.$router.push('/login-for-users');// Redirect to login page to ensure clean state
+
+            // Sign out and redirect to login page for clean state
+            await firebaseSignOut(auth);
+            this.$router.push('/login-for-users');
           }
         } else {
-          alert("No user data found."); // Additional error handling if no user data exists
+          alert("No user data found.");
         }
-
 
       } catch (error) {
         if (error.message === 'Firebase: Error (auth/invalid-credential).') {
