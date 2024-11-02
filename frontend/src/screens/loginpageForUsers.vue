@@ -1,30 +1,23 @@
 <template>
   <div v-if="!mobileBrowser" class="video-background-container">
-    <!-- Test1 -->
     <!-- Background Video -->
     <video autoplay muted loop playsinline id="background-video" @loadeddata="onVideoLoaded">
       <source src="https://assets.sands.com/MBS/Revamp/whats-on/whats-on-masthead-20240315-desktop.mp4"
         type="video/mp4" />
       Your browser does not support the video tag.
     </video>
-
-    <!-- Back Button (shown when video is loaded) -->
-    <!-- Overlay for the login form (shown when video is loaded) -->
-    <!-- <div class="container vh-100" v-if="videoLoaded"> -->
   </div>
 
   <div v-if="videoLoaded || mobileBrowser" class="login-container p-4 shadow col-4">
-    <RouterLink v-if="videoLoaded" to="/" class="back-button">
-      &lt; Back
-    </RouterLink>
+    <RouterLink v-if="videoLoaded" to="/" class="back-button">&lt; Back</RouterLink>
     <div class="login-item">
       <div class="mb-5"><img src="../assets/activity.ai.png" width="200px" height="auto"></div>
       <h5 class="text-start">Log in</h5>
       <form @submit.prevent="login">
         <div class="mb-3">
           <label for="email" class="form-label">Email</label>
-          <div v-if="invalidCred" class="text-danger" style="font-size: 12px;">Username or Password is
-            incorrect, please try again.</div>
+          <div v-if="invalidCred" class="text-danger" style="font-size: 12px;">Username or Password is incorrect, please
+            try again.</div>
           <input type="email" class="form-control" id="email" v-model="email" placeholder="moklay@smu.edu.sg"
             required />
         </div>
@@ -34,18 +27,16 @@
             required />
           <input type="checkbox" @click="togglePasswordVisibility" /> Show Password
         </div>
-        <button type="submit" class="btn btn-primary w-100" style="border-radius: 0%;">
-          Log in
-        </button>
+        <button type="submit" class="btn btn-primary w-100" style="border-radius: 0%;">Log in</button>
       </form>
       <br />
       <p>or access quickly</p>
       <GoogleLogin />
 
       <div class="text-center mt-3">
-        <p>
-          Don't have an account?
-          <RouterLink to="/signup">Sign Up</RouterLink>
+        <p>Don't have an account? <RouterLink to="/signup">Sign Up</RouterLink>
+        </p>
+        <p>Are you an organizer? <RouterLink to="/login-for-organisers">Log in as Organizer</RouterLink>
         </p>
       </div>
     </div>
@@ -56,6 +47,7 @@
 import { auth, database } from '../firebase/firebaseClientConfig';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { ref, child, get } from 'firebase/database';
+import GoogleLogin from '../components/GoogleLogin.vue';
 
 export default {
   data() {
@@ -63,14 +55,14 @@ export default {
       email: '',
       password: '',
       passwordFieldType: 'password',
-      videoLoaded: false, // Initial loading state for the video
+      videoLoaded: false,
       invalidCred: false,
       mobileBrowser: false,
     };
   },
   methods: {
     onVideoLoaded() {
-      this.videoLoaded = true; // Set videoLoaded to true when the video is ready
+      this.videoLoaded = true;
     },
     togglePasswordVisibility() {
       this.passwordFieldType = this.passwordFieldType === 'password' ? 'text' : 'password';
@@ -81,18 +73,31 @@ export default {
         const user = userCredential.user;
         console.log('User logged in:', user);
         sessionStorage.setItem('uid', user.uid);
+
         const dbRef = ref(database);
         const userSnapshot = await get(child(dbRef, `users/${user.uid}`));
         if (userSnapshot.exists()) {
           const userData = userSnapshot.val();
-          sessionStorage.setItem('userType', userData.userType); // Get userType from RTDB
+          sessionStorage.setItem('userType', userData.userType);
           console.log("usertype: " + sessionStorage.getItem('userType'));
-        }
-        this.$router.push('/');
-      }
 
-      catch (error) {
-        if (error.message == 'Firebase: Error (auth/invalid-credential).') {
+          
+          if (userData.userType === 'customer') {  // Check if userType is 'customer'
+            this.$router.push('/'); // Redirect to root if the user is a customer
+          } else {
+            this.invalidCred = true;
+            alert("Access denied. You must have a customer account to log in here.");
+            // Clear session storage for non-customers
+            sessionStorage.removeItem('uid');
+            sessionStorage.removeItem('userType');
+          }
+        } else {
+          alert("No user data found."); // Additional error handling if no user data exists
+        }
+
+
+      } catch (error) {
+        if (error.message === 'Firebase: Error (auth/invalid-credential).') {
           this.invalidCred = true;
         } else {
           console.error('Error logging in:', error.message);

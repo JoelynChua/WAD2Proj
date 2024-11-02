@@ -1,89 +1,94 @@
 <template>
     <div id="app">
-        <collapsible-navibar @toggle-modal="showModal = true" />
-        
-        <router-view @toggle-modal="showModal = true"></router-view>
+        <!-- Logo centered on the page -->
+        <a href="/">
+            <img
+                style="display: none; margin: 0 auto; width: 30%; height: auto"
+                alt="logo"
+                src="./assets/tabiLog_logo_noBackground.png"
+            />
+        </a>
+        <!-- Collapsible Navigation Bar -->
+        <collapsible-navibar v-if="!fullPageRoutes.includes($route.path)" />
 
-        <app-footer /> <!-- Include your footer here -->
+        <div
+            id="navbuffer"
+            style="height: 120px"
+            v-if="
+                !fullPageRoutes.includes($route.path) &&
+                !noBuffer.includes($route.path)
+            "
+        ></div>
+        <!-- Sticky Navbar Buffer -->
 
-        <div v-if="showModal" class="popup-overlay">
-            <div class="popup-content">
-                <button type="button" class="btn-close" @click="closeModal" aria-label="Close">X</button>
-                <LoginForm v-if="isLogin" @close-modal="closeModal" @switch-to-signup="isLogin = false" />
-                <SignupForm v-else @close-modal="closeModal" @switch-to-login="isLogin = true" />
-            </div>
-        </div>
+        <!-- Router View for Dynamic Content -->
+        <router-view />
+        <!-- <GoogleLogin :callback="callback" prompt /> -->
+         <div id="footerbuffer" v-if="!fullPageRoutes.includes($route.path) && !noBuffer.includes($route.path)"></div>
+
+        <!-- Footer Component -->
+        <AppFooter v-if="!fullPageRoutes.includes($route.path)" />
     </div>
 </template>
 
 <script>
-// Import necessary components
-import collapsibleNavibar from './components/naviBar.vue';
-import LoginForm from './components/LoginForm.vue';
-import SignupForm from './components/SignUpForm.vue';
-import AppFooter from './components/AppFooter.vue'; // Import your footer component
+// Import collapsibleNavibar component
+import collapsibleNavibar from './components/naviBar.vue'; // Adjust the path if necessary
+import AppFooter from './components/AppFooter.vue'; // Import the Footer component
 
 export default {
     data() {
         return {
-            showModal: false,
-            isLogin: true, // Controls whether login or signup is shown in the modal
+            fullPageRoutes: ['/login-for-users', '/signup', '/login-for-organisers'],
+            noBuffer: ['/'],
         };
     },
+    name: 'App',
     components: {
-        collapsibleNavibar,
-        LoginForm,
-        SignupForm,
-        AppFooter // Register your footer component
+        collapsibleNavibar, // Register the NavigationBar component
+        AppFooter, // Register the Footer component
     },
-    methods: {
-        closeModal() {
-            this.showModal = false;
-            this.isLogin = true; // Reset to login view when modal closes
-        }
-    }
 };
 </script>
 
-<style scoped>
-.popup-overlay {
-    background: rgba(0, 0, 0, 0.5); /* Dark background with transparency */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 1050;
+<!-- <script setup>
+import { decodeCredential } from 'vue3-google-login';
+
+const callback = (response) => {
+    // This callback will be triggered when the user selects or login to
+    // his Google account from the popup
+    console.log('Handle the response', response);
+    // decodeCredential will retrive the JWT payload from the credential
+    const userData = decodeCredential(response.credential);
+    console.log('Handle the userData', userData);
+};
+</script> -->
+
+<style>
+#app {
+    font-family: 'TT Commons', 'HelveticaNeueLTStd-Roman', 'Helvetica', 'Arial',
+        sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-align: center;
+    color: #2c3e50;
+    margin-top: 0;
 }
 
-.popup-content {
-    background: none; /* No background for the outer box */
-    backdrop-filter: blur(10px); /* Adds the glass effect */
-    border-radius: 10px; /* Optional: rounded corners */
-    padding: 10px; /* No padding around the form */
-    color: #c9c9c9; /* Text color for better visibility */
-    position: relative; /* Relative positioning to allow absolute positioning of the close button */
+#footerbuffer {
+    z-index: -50;
+    height: 100px
 }
 
-/* Close button styling */
-.btn-close {
-    position: absolute; /* Positioning the close button */
-    top: 15px; /* Adjust top padding as needed */
-    right: 15px; /* Adjust right padding as needed */
-    background: none;
-    border: none;
-    font-size: 1.5rem;
-    cursor: pointer;
-    color: #fff; /* Close button color */
-    opacity: 0.8; /* Slightly transparent for effect */
-    z-index: 1060; /* Ensure it appears above other content */
-}
+@import 'bootstrap/dist/css/bootstrap.min.css';
+@import '../node_modules/@flaticon/flaticon-uicons/css/thin/straight.css';
+@import '../node_modules/@flaticon/flaticon-uicons/css/thin/straight.css';
 
-.btn-close:hover {
-    opacity: 1; /* Fully visible on hover */
+
+@font-face {
+    font-family: 'graphie';
+    src: url('./assets/font/Graphie-Regular.otf') format('opentype');
+    font-weight: normal;
+    font-style: normal;
 }
 </style>
-

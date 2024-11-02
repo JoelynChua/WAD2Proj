@@ -1,11 +1,7 @@
 <template>
-    <div class="homepage" style="margin-top: 80px;">
+    <div class="homepage">
         <h1>Upcoming Attractions</h1>
-        <div v-if="!isAuthenticated" class="text-center">
-            <p>Please log in to view attractions.</p>
-            <button @click="$emit('toggle-modal')" class="btn btn-link">Log In</button>
-        </div>
-        <div class="attraction-container" v-if="isAuthenticated && attractions.length">
+        <div class="attraction-container" v-if="attractions.length">
             <div
                 class="attraction"
                 v-for="attraction in attractions"
@@ -13,8 +9,13 @@
                 @click="goToAttractionDetails(attraction.id)"
                 style="cursor: pointer; position: relative"
             >
+                <!-- Bookmark Icon Positioned in the Top Right -->
                 <font-awesome-icon
-                    :icon="isBookmarked(attraction.id) ? ['fas', 'bookmark'] : ['far', 'bookmark']"
+                    :icon="
+                        isBookmarked(attraction.id)
+                            ? ['fas', 'bookmark']
+                            : ['far', 'bookmark']
+                    "
                     class="bookmark-icon"
                     @click.stop="toggleWishlist(attraction.id)"
                 />
@@ -23,7 +24,7 @@
                 <p>Genre: {{ attraction.classifications[0].genre?.name }}</p>
             </div>
         </div>
-        <p v-if="isAuthenticated && !attractions.length">No attractions available.</p>
+        <p v-else>No attractions available.</p>
     </div>
 </template>
 
@@ -48,18 +49,18 @@ export default {
             attractions: [],
             wishlists: [],
             userID: null,
-            isAuthenticated: false, // Track authentication state
         };
     },
 
     async mounted() {
-        this.authListener(); // Start listening for authentication state
         try {
             // Fetch attractions first
             this.attractions = await attractionService.displayAttractions();
             console.log(this.attractions);
+
+            this.authListener();
         } catch (error) {
-            console.error('Failed to fetch attractions:', error);
+            console.error('Failed to fetch attractions or wishlists:', error);
         }
     },
 
@@ -69,57 +70,90 @@ export default {
         },
 
         isBookmarked(attractionID) {
-            return this.wishlists.some(wishlist => wishlist.attractionID === attractionID);
+            return this.wishlists.some(
+                (wishlist) => wishlist.attractionID === attractionID
+            );
         },
 
         authListener() {
-            const auth = getAuth();
+            const auth = getAuth(); // Initialize Firebase auth here
+            // Listen to the authentication state
             auth.onAuthStateChanged(async (user) => {
                 if (user) {
-                    this.isAuthenticated = true; // User is logged in
-                    this.userID = user.uid; // Get user ID
+                    // User is signed in
+                    this.userID = user.uid; // Get the user ID
                     try {
-                        this.wishlists = await itineraryService.getUserWishlist(this.userID);
+                        // Fetch itineraries using the UID
+                        this.itineraries =
+                            await itineraryService.getItineraryByUserID(
+                                this.userID
+                            );
+                        console.log(this.itineraries);
+                        await this.reloadWishlists(); // Reload wishlists after fetching itineraries
                     } catch (error) {
-                        console.error('Failed to fetch wishlists:', error);
+                        console.error('Failed to fetch itineraries:', error);
                     }
                 } else {
-                    this.isAuthenticated = false; // User is logged out
+                    // User is signed out
+                    console.log('User is signed out');
+                    // Optionally redirect to login page or handle sign-out logic here
+                    this.$router.push('/login');
                 }
             });
         },
 
-        async toggleWishlist(attractionID) {
-            const existingWishlist = this.wishlists.find(wishlist => wishlist.attractionID === attractionID);
-            const wishlistID = existingWishlist ? existingWishlist.id : null;
+        async reloadWishlists() {
+            try {
+                if (this.userID) {
+                    this.wishlists = await itineraryService.getUserWishlist(
+                        this.userID
+                    ); // Fetch updated wishlists
+                }
+            } catch (error) {
+                console.error('Failed to reload wishlists:', error);
+            }
+        },
 
-            const newWishlist = { userID: this.userID, attractionID };
+        async toggleWishlist(attractionID) {
+            const existingWishlist = this.wishlists.find(
+                (wishlist) => wishlist.attractionID === attractionID
+            );
+            const wishlistID = existingWishlist ? existingWishlist.id : null; // Safely access id
+
+            console.log('Existing Wishlist:', existingWishlist); // Log existing wishlist
+            console.log('Wishlist ID:', wishlistID); // Log the wishlist ID
+
+            const newWishlist = {
+                userID: this.userID,
+                attractionID,
+            };
 
             try {
                 if (!wishlistID) {
                     // If not found, add to wishlist
                     await itineraryService.addWishlist(newWishlist);
-                    this.wishlists.push({ ...newWishlist, id: wishlistID });
+                    console.log('Wishlist added:', newWishlist);
+                    // Update wishlists array
+                    this.wishlists.push({ ...newWishlist, id: newWishlist.id }); // Assuming the response has the new ID
                 } else {
                     // If found, delete from wishlist
                     await itineraryService.deleteWishlist(wishlistID);
-                    this.wishlists = this.wishlists.filter(wishlist => wishlist.id !== wishlistID);
+                    console.log('Wishlist deleted:', wishlistID);
+                    // Update wishlists by removing the deleted one
+                    this.wishlists = this.wishlists.filter(
+                        (wishlist) => wishlist.id !== wishlistID
+                    );
                 }
+
+                // Reload the wishlists after adding or deleting
                 await this.reloadWishlists();
             } catch (error) {
                 console.error('Failed to update wishlist:', error);
             }
         },
-
-        async reloadWishlists() {
-            if (this.userID) {
-                this.wishlists = await itineraryService.getUserWishlist(this.userID);
-            }
-        },
     },
 };
 </script>
-
 
 <style scoped>
 /* Container styling */
