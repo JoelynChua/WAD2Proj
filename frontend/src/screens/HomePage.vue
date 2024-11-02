@@ -26,6 +26,12 @@
         <button v-if="!this.paused" @click="toggleVideo" class="pause-button"><i class="fi fi-ts-pause-circle"></i></button>
         <button v-else @click="toggleVideo" class="pause-button"><i class="fi fi-ts-play-circle"></i></button>
       </section>
+
+      <div style="background-color: #f9f9f9;">
+        <section id="featuredEvents" class="featured-activities">
+          <featuredEvents />
+        </section>
+      </div>
     
       <div style="background-color: #f9f9f9;">
         <section id="aboutUs" class="featured-activities" :class="{ 'slide-in': isAboutUsVisible }">
@@ -48,17 +54,19 @@
 import router from '@/router';
 import gosomewhere from '../components/HomePage_gosomewhere.vue';
 import aboutUs from '../components/HomePage_aboutUs.vue';
+import featuredEvents from '../components/HomePage_featuredEvents.vue'
 
 export default {
   data() {
     return {
-      isAboutUsVisible: false, // Track visibility state
+      isAboutUsVisible: false,
       paused: false,
     };
   },
   components: {
     gosomewhere,
     aboutUs,
+    featuredEvents
   },
   methods: {
     findActivities() {
