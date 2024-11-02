@@ -121,15 +121,6 @@ export default {
             return this.userType === 'customer';
         }
     },
-    watch: {
-        // Watch for changes to session storage and update reactive state accordingly
-        isAuthenticated(newValue) {
-            this.isAuthenticated = !!sessionStorage.getItem('uid');
-        },
-        userType(newType) {
-            this.userType = sessionStorage.getItem('userType'); // Reflect changes reactively
-        }
-    },
     setup() {
         const isLargeScreen = ref(false);
 
