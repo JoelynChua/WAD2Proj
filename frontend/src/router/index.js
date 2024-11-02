@@ -6,7 +6,7 @@ import AttractionsList from '../screens/attractionsList.vue';
 import AttractionDetails from '../screens/attractionDetails.vue';
 import itineraryList from '../screens/itineraryList.vue';
 import Signup from '../screens/NewUser.vue';
-import LoginPage from '../screens/LoginPage.vue';
+import loginpageForUsers from '../screens/loginpageForUsers.vue';
 import ExpensePage from '../screens/ExpensePage.vue';
 import ItineraryDetails from '../screens/itineraryDetails.vue';
 import ItineraryForm from '../screens/itineraryForm.vue';
@@ -19,6 +19,11 @@ import FAQ from '../screens/FAQ.vue';
 import PrivacyPolicy from '../screens/PrivacyPolicy.vue';
 import EventsMarketplace from '../screens/EventsMarketplace.vue'
 import WhyUsOrganizers from '../screens/WhyUsOrganizers.vue'
+import loginpageForOrganisers from '../screens/loginpageForOrganisers.vue';
+import OrganizerDashboard from '../screens/OrganizerDashboard.vue';
+
+
+
 
 const routes = [
     {
@@ -73,11 +78,17 @@ const routes = [
         meta: { redirectIfAuthenticated: true }, // Redirect if authenticated
     },
     {
-        path: '/login',
-        name: 'LoginPage',
-        component: LoginPage,
+        path: '/login-for-users',
+        name: 'loginpageForUsers',
+        component: loginpageForUsers,
         meta: { redirectIfAuthenticated: true }, // Redirect if authenticated
     },
+    {
+        path: '/login-for-organisers',
+        name: 'loginpageForOrganisers',
+        component: loginpageForOrganisers, // Route to Organizer Login Page
+        meta: { redirectIfAuthenticated: true }, // Redirect if authenticated
+      },
     {
         path: '/ExpensePage',
         name: 'ExpensePage',
@@ -87,6 +98,12 @@ const routes = [
         path: '/dashboard',
         name: 'UserDashboard',
         component: ProfilePage,
+        meta: { requiresAuth: true }, // Requires authentication
+    },
+    {
+        path: '/organizer-dashboard',
+        name: 'OrganizerDashboard',
+        component: OrganizerDashboard,
         meta: { requiresAuth: true }, // Requires authentication
     },
     { path: '/calendar', name: 'calendar', component: CalendarPage },
@@ -115,7 +132,7 @@ router.beforeEach((to, from, next) => {
     console.log('Is Authenticated:', isAuthenticated); // Debugging line
 
     if (requiresAuth && !isAuthenticated) {
-        next('/login'); // Redirect to login page if not authenticated
+        next('/login-for-users'); // Redirect to login page if not authenticated
     } else if (redirectIfAuthenticated && isAuthenticated) {
         next('/dashboard'); // Redirect to Profile Page if already authenticated
     } else {

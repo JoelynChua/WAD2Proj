@@ -39,7 +39,7 @@ import AppFooter from './components/AppFooter.vue'; // Import the Footer compone
 export default {
     data() {
         return {
-            fullPageRoutes: ['/login', '/signup'],
+            fullPageRoutes: ['/login-for-users', '/signup', '/login-for-organisers'],
             noBuffer: ['/'],
         };
     },
