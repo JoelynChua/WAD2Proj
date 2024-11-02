@@ -24,7 +24,7 @@
         <!-- Router View for Dynamic Content -->
         <router-view />
         <!-- <GoogleLogin :callback="callback" prompt /> -->
-         <div id="footerbuffer"></div>
+         <div id="footerbuffer" v-if="!fullPageRoutes.includes($route.path) && !noBuffer.includes($route.path)"></div>
 
         <!-- Footer Component -->
         <AppFooter v-if="!fullPageRoutes.includes($route.path)" />
@@ -81,6 +81,9 @@ const callback = (response) => {
 }
 
 @import 'bootstrap/dist/css/bootstrap.min.css';
+@import '../node_modules/@flaticon/flaticon-uicons/css/thin/straight.css';
+@import '../node_modules/@flaticon/flaticon-uicons/css/thin/straight.css';
+
 
 @font-face {
     font-family: 'graphie';

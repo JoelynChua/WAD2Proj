@@ -27,4 +27,5 @@ export default {
 }
 
 /* You can adjust the width and height as needed */
+/*  */
 </style>

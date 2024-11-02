@@ -97,4 +97,20 @@ export default {
     color: #bbb;
     text-transform: capitalize;
 }
+
+@media (max-width: 768px) {
+    .go-somewhere__item {
+        min-width: 120px;
+        padding: 20px; /* Reduced padding */
+        margin: 5px
+    }
+
+    .go-somewhere__item i {
+        font-size: 60px; /* Smaller icon size */
+    }
+
+    .go-somewhere__title {
+        font-size: 1.5rem; /* Slightly smaller title font */
+    }
+}
 </style>

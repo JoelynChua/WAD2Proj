@@ -1,4 +1,4 @@
-import { createApp } from 'vue';
+import { createApp} from 'vue';
 import App from './App.vue';
 import router from './router';
 import { auth } from './firebase/firebaseClientConfig'; // Adjust the path to your Firebase config
@@ -14,9 +14,6 @@ import { library } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { faCoffee } from '@fortawesome/free-solid-svg-icons'; // Example icon
 
-import PrimeVue from 'primevue/config';
-import 'primeicons/primeicons.css';
-
 // Add icons to the Font Awesome library
 library.add(faCoffee);
 
@@ -26,9 +23,7 @@ onAuthStateChanged(auth, (user) => {
     // This function runs whenever the authentication state changes
     if (!app) {
         app = createApp(App);
-
         app.use(Antd);
-        app.use(PrimeVue);
         app.use(vueCountryRegionSelect);
 
         // Register Font Awesome component globally

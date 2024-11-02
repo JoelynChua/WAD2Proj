@@ -14,8 +14,8 @@
                     <div class="col-lg-12 justify-content-center text-center">
                         <!-- Message -->
                         <div style="margin-top: 10px; position: sticky; top: 0;">
-                            <div v-if="updateMessage" class="alert alert-success">{{ updateMessage }}</div>
-                            <div v-if="updateError" class="alert alert-danger">{{ updateError }}</div>
+                            <div v-if="updateMessage" class="popNotif success">{{ updateMessage }}</div>
+                            <div v-if="updateError" class="popNotif error">{{ updateError }}</div>
                         </div>
                     </div>
 
@@ -464,7 +464,7 @@ export default {
         },
 
 
-        onDrop(event) {
+        async onDrop(event) {
             event.preventDefault(); // Prevent default behavior
 
             // Get the dragged item data
@@ -488,13 +488,13 @@ export default {
                     if (Object.keys(wishlistItem).length === 2) {
                         // If length is 2, treat it as coming from the table
                         console.log("Dragging within the table, updating event timing.");
-                        this.updateEventTiming(wishlistItem.eventID, time);
-                        // Reload the page after updating the event timing
-                        location.reload();
+                        await this.updateEventTiming(wishlistItem.eventID, time); // Await here
+                        location.reload(); // Reload after timing update
                     } else {
                         // Otherwise, treat it as coming from the wishlist
                         console.log("Dragging from the wishlist, adding to event.");
-                        this.addToEvent(wishlistItem, { eventID, time });
+                        await this.addToEvent(wishlistItem, { eventID, time }); // Await here
+                        location.reload();
                     }
                 } else {
                     console.error("Wishlist item does not have a valid eventID or attractionID.");
@@ -503,6 +503,7 @@ export default {
                 console.error("Dropped event does not have a valid row.");
             }
         },
+
 
 
 
@@ -519,8 +520,8 @@ export default {
 
 
 
-         // Method to handle adding the item to the event
-         async addToEvent(wishlistItem, { eventID, time }) {
+        // Method to handle adding the item to the event
+        async addToEvent(wishlistItem, { eventID, time }) {
             // Use either eventID or attractionID
             const id = wishlistItem.eventID || wishlistItem.attractionID;
 
@@ -585,66 +586,60 @@ export default {
         //     });
         // },
         initializeTrail() {
-            document.onmousemove = this.followMouse;
+            document.addEventListener("mousemove", this.followMouse);
 
             if (this.displayDuration > 0) {
                 setTimeout(this.hideTrail, this.displayDuration * 1000);
             }
         },
-        // getTrailObj() {
-        //     return document.getElementById("trailimageid").style;
-        // },
+
         getTrailObj() {
             const trailImageElement = document.getElementById("trailimageid");
             if (!trailImageElement) {
                 console.error("Element with ID 'trailimageid' not found.");
-                return null; // Return null if the element is not found
+                return null;
             }
-            return trailImageElement.style; // Return the style object if found
+            return trailImageElement.style;
         },
-
 
         trueBody() {
-            return (!window.opera && document.compatMode && document.compatMode != "BackCompat")
-                ? document.documentElement : document.body;
+            return (document.compatMode && document.compatMode !== "BackCompat") ? document.documentElement : document.body;
         },
+
         hideTrail() {
-            this.getTrailObj().visibility = "hidden";
-            document.onmousemove = null;
+            const trailObj = this.getTrailObj();
+            if (trailObj) {
+                trailObj.visibility = "hidden";
+            }
+            document.removeEventListener("mousemove", this.followMouse);
         },
 
         followMouse(e) {
-            let xcoord = this.offsetFromMouse[0];
-            let ycoord = this.offsetFromMouse[1];
+            // Ensure compatibility with all browsers
+            const xcoord = e.clientX + window.scrollX + (this.offsetFromMouse?.[0] || 0);
+            const ycoord = e.clientY + window.scrollY + (this.offsetFromMouse?.[1] || 0);
 
-            if (typeof e !== "undefined") {
-                xcoord += e.pageX;
-                ycoord += e.pageY;
-            } else if (typeof window.event !== "undefined") {
-                xcoord += this.trueBody().scrollLeft + event.clientX;
-                ycoord += this.trueBody().scrollTop + event.clientY;
-            }
+            const trailObj = this.getTrailObj();
 
-            const docwidth = document.all ? this.trueBody().scrollLeft + this.trueBody().clientWidth : pageXOffset + window.innerWidth - 15;
-            const docheight = document.all ? Math.max(this.trueBody().scrollHeight, this.trueBody().clientHeight) : Math.max(document.body.offsetHeight, window.innerHeight);
+            if (trailObj) {
+                // Set the visibility based on boundaries
+                const docwidth = window.innerWidth + window.scrollX;
+                const docheight = window.innerHeight + window.scrollY;
 
-            const trailObj = this.getTrailObj(); // Get the trail image style object
-
-            if (trailObj) { // Check if the object is not null
-                // Set display based on coordinates
-                if (xcoord + this.trailImage[1] + 3 > docwidth || ycoord + this.trailImage[2] > docheight) {
-                    trailObj.display = "none"; // Hide the element
+                if (xcoord + this.trailImage[1] > docwidth || ycoord + this.trailImage[2] > docheight) {
+                    trailObj.display = "none"; // Hide if the trail goes out of bounds
                 } else {
-                    trailObj.display = ""; // Show the element
+                    trailObj.display = ""; // Show within bounds
+                    trailObj.left = `${xcoord}px`;
+                    trailObj.top = `${ycoord}px`;
                 }
-
-                // Update position of the trail image
-                trailObj.left = xcoord + "px";
-                trailObj.top = ycoord + "px";
-            } else {
-                console.warn("Trail object is null, cannot set properties."); // Log a warning if trailObj is null
-            }
+            } 
+            // else {
+            //     console.warn("Trail object is null, cannot set properties.");
+            // }
+            // test
         }
+
     },
 
 };
@@ -715,6 +710,18 @@ export default {
 
 
 /* CSS for Cursor Trail */
+#trailimageid {
+    position: fixed;
+    /* Change to fixed to follow the viewport */
+    visibility: visible;
+    pointer-events: none;
+    left: 0;
+    top: 0;
+    width: 1px;
+    height: 1px;
+    z-index: 1000;
+}
+
 .trail-container {
     position: relative;
     pointer-events: none;
@@ -727,8 +734,41 @@ export default {
     height: 100px;
     background-image: url('../assets/pencil_line.png');
     background-size: cover;
-    position: absolute;
+    position: fixed;
     pointer-events: none;
-    transition: transform 0.1s ease;
+    transition: none; /* Reduce to minimal delay for faster movement */
+}
+
+/* Pop notification */
+/* Base style for pop-up notification */
+.popNotif {
+    position: fixed;
+    top: 120px;
+    right: 20px;
+    z-index: 1000;
+    padding: 15px 20px;
+    border-radius: 5px;
+    color: #fff;
+    transform: translateX(100%);
+    opacity: 0;
+    transition: transform 0.4s ease, opacity 0.4s ease;
+    font-size: 1rem;
+}
+
+/* Slide-in effect */
+.popNotif {
+    transform: translateX(0);
+    opacity: 1;
+}
+
+/* Success and Error Notification Styles */
+.popNotif.success {
+    background-color: #28a745;
+    /* Green background for success */
+}
+
+.popNotif.error {
+    background-color: #dc3545;
+    /* Red background for error */
 }
 </style>
