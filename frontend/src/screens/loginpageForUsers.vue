@@ -90,6 +90,9 @@ export default {
             // Clear session storage for non-customers
             sessionStorage.removeItem('uid');
             sessionStorage.removeItem('userType');
+            
+            await auth.signOut();  // Sign out from Firebase
+            this.$router.push('/login-for-users');// Redirect to login page to ensure clean state
           }
         } else {
           alert("No user data found."); // Additional error handling if no user data exists

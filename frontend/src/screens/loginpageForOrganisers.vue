@@ -91,6 +91,10 @@ export default {
                         // Clear session storage
                         sessionStorage.removeItem('uid');
                         sessionStorage.removeItem('userType');
+
+                        await auth.signOut();  // Sign out from Firebase
+                        this.$router.push('/login-for-organisers');  // Redirect to organizer login page
+
                     }
                 }
             }
