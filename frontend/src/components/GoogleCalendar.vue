@@ -1,16 +1,16 @@
 <template>
     <div>
-        <button v-if="!loggedIn" @click="handleAuthClick">
-            Authorize Google Calendar
+        <button v-if="!loggedIn" @click="handleAuthClick" class="btn btn-info" style="position: fixed; left: 50px;">
+            Connect to Google Calendar
         </button>
-        <button v-if="loggedIn" @click="addEvent">Add Event</button>
+        <button v-if="loggedIn" @click="addEvent" class="btn btn-info" style="position: fixed; left: 50px;">Add Itinerary</button>
         <!-- <button v-else @click="listUpcomingEvents">List Upcoming Events</button> -->
-        <ul v-if="events.length" style="list-style: none">
+        <!-- <ul v-if="events.length" style="list-style: none">
             <li v-for="event in events" :key="event.id">
                 {{ event.summary }} -
                 {{ event.start.dateTime || event.start.date }}
             </li>
-        </ul>
+        </ul> -->
     </div>
 </template>
 
@@ -43,6 +43,7 @@ export default {
         );
         EventBus.on('google-oauth2-sign-out', this.handleSignOutClick);
     },
+    props: ['itinerary', 'date'],
     methods: {
         loadScript(src, onload) {
             const script = document.createElement('script');
@@ -111,7 +112,7 @@ export default {
                                 i < Math.min(events.length, 3);
                                 i++
                             ) {
-                                console.log(events[i]);
+                                // console.log(events[i]);
                             }
                         } else {
                             console.log('No upcoming events found.');
@@ -123,15 +124,14 @@ export default {
         },
         addEvent() {
             const event = {
-                summary: 'Test Event',
-                location: '800 Howard St., San Francisco, CA 94103',
-                description: 'A chance to meet and network with people.',
+                summary: this.itinerary,
+                description: 'Log in to Activity.ai for more details on this itinerary',
                 start: {
-                    dateTime: '2024-10-28T09:00:00-07:00',
+                    date: this.date,
                     timeZone: 'Asia/Singapore',
                 },
                 end: {
-                    dateTime: '2024-10-28T17:00:00-07:00',
+                    date: this.date,
                     timeZone: 'Asia/Singapore',
                 },
                 reminders: {
@@ -142,7 +142,6 @@ export default {
                     ],
                 },
             };
-
             gapi.client.calendar.events
                 .insert({
                     calendarId: 'primary',

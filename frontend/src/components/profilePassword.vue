@@ -3,15 +3,17 @@
     <!-- Show Password Change Form if user is eligible -->
     <div v-if="showPasswordChange">
         <div class="mt-4 shadow p-3 bg-body hover-effect"
-            :style="{ height: isEditing ? '150px' : '100px', transition: 'height 0.3s ease', backgroundColor: isEditing ? 'grey' : '' }">
+            :style="{ height: isEditing ? '170px' : '100px', transition: 'height 0.3s ease', backgroundColor: isEditing ? 'grey' : '' }">
             <h5 class="text-start">Password</h5>
             <div>
                 <div v-if="isEditing && showEditingControls" class="edit-controls"
                     style="opacity: 1; transition: opacity 0.1s ease;">
                     <input type="text" v-model="newPassword" class="form-control" placeholder="Enter new password"
                         required />
-                    <button class="btn btn-secondary mt-2 me-1" @click="cancelEdit">Cancel</button>
-                    <button class="btn btn-primary mt-2" @click="changePassword">Save</button>
+                    <div class="d-flex mt-3">
+                        <button class="btn-cancel" @click="cancelEdit">Cancel</button>
+                        <button class="btn-save" @click="changePassword">Save</button>
+                    </div>
                 </div>
 
                 <div v-else class="d-flex justify-content-between align-items-start">
@@ -157,4 +159,38 @@ export default {
 
 
 
-<style></style>
+<style scoped>
+.btn-cancel {
+    color: #3b82f6; /* Blue color for text */
+    background: none;
+    border: none;
+    font-weight: bold;
+    margin: 0px 5px;
+    padding: 13px 40px;
+    border-radius: 3px; /* Rounded corners */
+}
+
+.btn-cancel:hover {
+    background-color: #7dabf6;
+    color: white;
+}
+
+.btn-save {
+    background-color: #3b82f6; /* Blue background */
+    color: white;
+    border: none;
+    padding: 13px 44px;
+    border-radius: 3px; /* Rounded corners */
+    font-weight: bold;
+    margin: 0px 5px;
+
+}
+
+.btn-save:hover {
+    background-color: #7dabf6; /* Blue color for text */
+    color: white;
+    border: none;
+    font-weight: bold;
+}
+
+</style>

@@ -12,25 +12,29 @@
                     <ul id="verticalnav" class="nav flex-column nav-pills mt-3" role="tablist">
                         <li class="nav-item">
                             <a class="nav-link active" id="main-tab" data-bs-toggle="pill" href="#main" role="tab"
-                                aria-controls="main" aria-selected="true">
+                            aria-controls="main" aria-selected="true">
+                                <i class="fi fi-rs-user"></i>
                                 Profile
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" id="payment-tab" data-bs-toggle="pill" href="#payment" role="tab"
                                 aria-controls="payment" aria-selected="false">
+                                <i class="fi fi-rr-credit-card"></i>
                                 Payment Methods
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" id="payment-tab" data-bs-toggle="pill" href="#wallet" role="tab"
                                 aria-controls="payment" aria-selected="false">
+                                <i class="fi fi-rr-wallet"></i>
                                 Wallet
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" id="security-tab" data-bs-toggle="pill" href="#security" role="tab"
                                 aria-controls="security" aria-selected="false">
+                                <i class="fi fi-rr-shield-keyhole"></i>
                                 Security
                             </a>
                         </li>
@@ -43,7 +47,7 @@
                     <div class="tab-pane fade show active" id="main" role="tabpanel" aria-labelledby="main-tab">
                         <h5 class="text-start">User Details</h5>
                         <div class="mt-4 shadow p-3 bg-body hover-effect"
-                            :style="{ height: isEditing ? '150px' : '100px', transition: 'height 0.3s ease', backgroundColor: isEditing ? 'grey' : '' }">
+                            :style="{ height: isEditing ? '170px' : '100px', transition: 'height 0.3s ease', 'background-color': isEditing ? 'grey' : 'yellow' }">
 
                             <h5 class="text-start">Name</h5>
 
@@ -51,8 +55,10 @@
                             <div v-if="isEditing && showEditingControls" class="edit-controls"
                                 style="opacity: 1; transition: opacity 0.1s ease;">
                                 <input type="text" v-model="editedName" class="form-control" />
-                                <button class="btn btn-secondary mt-2 me-1" @click="cancelEdit">Cancel</button>
-                                <button class="btn btn-primary mt-2" @click="saveName">Save</button>
+                                <div class="d-flex mt-3">
+                                    <button class="btn-cancel" @click="cancelEdit">Cancel</button>
+                                    <button class="btn-save" @click="saveName">Save</button>
+                                </div>
                             </div>
 
                             <!-- If not editing, display the name and edit button -->
@@ -302,7 +308,7 @@ export default {
 </script>
 
 
-<style>
+<style scoped>
 .form-control{
     border-radius: 0px;
 }
@@ -327,6 +333,7 @@ export default {
     padding: 10px 15px;
     width: 100%;
     color: #000;
+    text-align: left
 }
 
 #verticalnav .nav-link.active {
@@ -361,6 +368,39 @@ export default {
 
 .hover-effect:hover {
     box-shadow: 0px 2px 4px 4px rgba(196, 196, 196, 0.7) !important; /* Increased values for a stronger shadow */
+}
+
+.btn-cancel {
+    color: #3b82f6; /* Blue color for text */
+    background: none;
+    border: none;
+    font-weight: bold;
+    margin: 0px 5px;
+    padding: 13px 40px;
+    border-radius: 3px; /* Rounded corners */
+}
+
+.btn-cancel:hover {
+    background-color: #7dabf6;
+    color: white;
+}
+
+.btn-save {
+    background-color: #3b82f6; /* Blue background */
+    color: white;
+    border: none;
+    padding: 13px 44px;
+    border-radius: 3px; /* Rounded corners */
+    font-weight: bold;
+    margin: 0px 5px;
+
+}
+
+.btn-save:hover {
+    background-color: #7dabf6; /* Blue color for text */
+    color: white;
+    border: none;
+    font-weight: bold;
 }
 
 </style>

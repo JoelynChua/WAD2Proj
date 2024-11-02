@@ -8,7 +8,7 @@
             </div>
 
             <!-- Navy Blue Box -->
-            <div class="navy-box">
+            <div class="navy-box" :class="{ 'visible': showSearchBar }">
                 <div class="form-field search-bar">
                     <div class="search-container">
                         <i class="fi fi-rr-search search-icon"></i>
@@ -21,6 +21,9 @@
                 </div>
             </div>
         </div>
+        
+        <PopularEvents :events="events" />
+
         <div class="filter-container">
             <h1>Upcoming Events</h1>
             <div class="dropdown-container">
@@ -37,6 +40,7 @@
                 v-for="event in events"
                 :key="event.id"
                 @click="goToEventDetails(event.id)"
+                @popevent="goToEventDetails(event.id)"
                 style="cursor: pointer; position: relative"
             >
                 <!-- Event Image Placeholder -->
@@ -84,19 +88,26 @@ import { faBookmark } from '@fortawesome/free-solid-svg-icons';
 import { faBookmark as farBookmark } from '@fortawesome/free-regular-svg-icons';
 import { getAuth } from 'firebase/auth';
 
+import PopularEvents from '../components/PopularEvents.vue';
+
 library.add(faBookmark, farBookmark); // Add the icons to the library
 
 export default {
     name: 'HomePage',
     components: {
-        FontAwesomeIcon, // Register the component
+        FontAwesomeIcon,
+        PopularEvents, // Register the component
     },
     data() {
         return {
             events: [], // Initialize events as an empty array
             wishlists: [],
             userID: null, // Store userID in data
+            showSearchBar: false,
         };
+    },
+    beforeUnmount() {
+        window.removeEventListener('scroll', this.handleScroll);
     },
 
     async mounted() {
@@ -122,9 +133,18 @@ export default {
         } catch (error) {
             console.error('Failed to fetch events or wishlists:', error);
         }
+
+        window.addEventListener('scroll', this.handleScroll);
     },
 
     methods: {
+        handleScroll() {
+            if (window.scrollY > 120) {
+                this.showSearchBar = true;
+            } else {
+                this.showSearchBar = false;
+            }
+        },
         goToEventDetails(id) {
             // Use Vue Router's 'push' method to navigate to EventDetails page
             this.$router.push({ name: 'EventDetails', params: { id } });
@@ -220,14 +240,13 @@ export default {
 <style scoped>
 .homepage {
     text-align: center;
-    padding: 40px;
     background: #f9f9f9;
     color: #333;
 }
 .hero-section {
     position: relative;
     width: 100%;
-    height: 500px; /* Adjust the height as needed */
+    height: 100vh; /* Adjust the height as needed */
     background-image: url('https://plus.unsplash.com/premium_photo-1661943659036-aa040d92ee64?q=80&w=870&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'); /* Replace with your image URL */
     background-size: cover;
     background-position: center;
@@ -237,7 +256,7 @@ export default {
     justify-content: center;
     color: white;
     text-align: center;
-    padding-top: 50px;
+    z-index: 1;
 }
 .hero-content {
     position: relative;
@@ -250,17 +269,24 @@ export default {
     margin: 0;
 }
 .navy-box {
-    position: absolute;
-    bottom: -30px; /* Set a negative value to extend it beyond the hero section */
-    width: 70%; /* Adjust width as needed */
-    max-width: 1000px;
-    background-color: #1a1a40; /* Navy blue color */
-    padding: 15px 20px;
-    align-items: center;
-    color: white;
-    border-radius: 8px; /* Optional rounded corners */
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2); /* Shadow for visual depth */
-    z-index: 2; /* Ensure it overlaps any content below */
+  position: absolute;
+  bottom: -20px; /* Final position of the box */
+  width: 70%; 
+  max-width: 1000px;
+  background-color: #1a1a40;
+  padding: 15px 20px;
+  align-items: center;
+  color: white;
+  border-radius: 8px; 
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+  transition: all 0.5s ease-in-out;
+  z-index: 2;
+  opacity: 0; /* Initially hidden */
+  transform: translateY(100%); /* Initially moved below */
+}
+.navy-box.visible {
+  opacity: 1; /* Make it visible */
+  transform: translateY(0); /* Move to the final position */
 }
 .search-container {
     position: relative;
@@ -339,7 +365,7 @@ export default {
     position: absolute;
     right: 15px; /* Position inside the dropdown box */
     top: 50%;
-    transform: translateY(-50%);
+    transform: translateY(-40%);
     font-size: 0.8em;
     color: #888;
     pointer-events: none; /* Make the icon unclickable */

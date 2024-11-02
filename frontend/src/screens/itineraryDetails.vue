@@ -6,6 +6,8 @@
             <img :src="trailImage[0]" border="0" :width="trailImage[1] + 'px'" :height="trailImage[2] + 'px'" />
         </div>
 
+        <google-calendar-a-p-i :itinerary="itineraryDetails.title" :date="itineraryDetails.date"/>
+
 
         <div class="row">
             <!-- Main Content Section -->
@@ -172,6 +174,8 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { faMinus } from '@fortawesome/free-solid-svg-icons'; // Import the icon you want to use
 import { getAuth } from "firebase/auth";
 
+import GoogleCalendarAPI from "../components/GoogleCalendar.vue"
+
 // Add the icon to the library
 library.add(faMinus);
 
@@ -179,6 +183,7 @@ library.add(faMinus);
 export default {
     components: {
         FontAwesomeIcon,
+        GoogleCalendarAPI
     },
     data() {
         return {
