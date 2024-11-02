@@ -22,7 +22,6 @@
             <div class="collapse navbar-collapse" :class="{ hiddencollapse: isHidden }" id="navbarNav"
                 style="background-color: white">
                 <ul class="navbar-nav mx-auto">
-                    <!-- Center the nav items -->
                     <li class="nav-item">
                         <RouterLink class="nav-link" :class="{ active: $route.path === '/events' }" aria-current="page"
                             to="/events">events</RouterLink>
@@ -51,8 +50,8 @@
                     </li>
 
 
-                    <li class="nav-item">
-                        <RouterLink class="nav-link" v-if="!isAuthenticated"
+                    <li class="nav-item" v-if="!isAuthenticated">
+                        <RouterLink class="nav-link"
                             :class="{ active: $route.path === '/organizers' }" to="/organizers">organizers</RouterLink>
                     </li>
                     <li class="nav-item">
@@ -76,12 +75,10 @@
                         <ul class="dropdown-menu dropdown-menu-end mb-3" :class="{ hidden: isHidden }"
                             aria-labelledby="navbarDropdown">
                             <li>
-                                <RouterLink class="dropdown-item" to="/dashboard">Profile</RouterLink>
-                                <!-- Link to profile -->
+                                <RouterLink class="dropdown-item text-center" to="/dashboard">Profile</RouterLink>
                             </li>
                             <li>
-                                <a class="dropdown-item" href="#" @click.prevent="signOut">Sign Out</a>
-                                <!-- Sign out link -->
+                                <a class="dropdown-item text-center" href="#" @click.prevent="signOut">Sign Out</a>
                             </li>
                         </ul>
                     </li>
@@ -92,31 +89,29 @@
 </template>
 
 <script>
-import { auth } from '../firebase/firebaseClientConfig'; // Adjust the path to your Firebase config
-import { onAuthStateChanged, signOut as firebaseSignOut } from 'firebase/auth'; // Import Firebase Auth methods
+import { auth } from '../firebase/firebaseClientConfig'; 
+import { onAuthStateChanged, signOut as firebaseSignOut } from 'firebase/auth'; 
 import EventBus from '../utils/eventBus.js';
-import { computed, ref, onMounted, onBeforeUnmount } from 'vue';
+import { ref, onMounted, onBeforeUnmount } from 'vue';
 
 export default {
     name: 'navbarNav',
     data() {
         return {
-            isAuthenticated: !!sessionStorage.getItem('uid'), // Track authentication state as reactive
-            userType: sessionStorage.getItem('userType'), // Track userType as a reactive property
-            isSticky: true, // Track if the navbar should be sticky
-            isSmall: false, // Track if the navbar is small
-            isHidden: false, // Track if the navbar should be hidden
-            lastScrollY: 0, // Store the last scroll position
-            stickyTop: 0, // Store the offset top of the navbar
-            scrollThreshold: 750, // Threshold for hiding the navbar
+            isAuthenticated: !!sessionStorage.getItem('uid'), 
+            userType: sessionStorage.getItem('userType'), 
+            isSticky: true, 
+            isSmall: false, 
+            isHidden: false, 
+            lastScrollY: 0, 
+            stickyTop: 0, 
+            scrollThreshold: 750, 
         };
     },
     computed: {
-        // Determine if the user is an organizer based on reactive userType
         isOrganiser() {
             return this.userType === 'organiser';
         },
-        // Determine if the user is a customer based on reactive userType
         isCustomer() {
             return this.userType === 'customer';
         }
@@ -125,7 +120,7 @@ export default {
         const isLargeScreen = ref(false);
 
         const updateScreenSize = () => {
-            isLargeScreen.value = window.innerWidth >= 992; // 'lg' breakpoint in Bootstrap
+            isLargeScreen.value = window.innerWidth >= 992; 
         };
 
         onMounted(() => {
@@ -142,45 +137,35 @@ export default {
         };
     },
     created() {
-        // Check authentication state on component creation
         onAuthStateChanged(auth, (user) => {
-            this.isAuthenticated = !!user; // Update isAuthenticated based on user state
+            this.isAuthenticated = !!user; 
         });
     },
     mounted() {
-        // Set the initial sticky position
         this.stickyTop = this.$el.offsetTop;
 
-        // Add scroll event listener
         window.addEventListener('scroll', this.handleScroll);
     },
     beforeUnmount() {
-        // Clean up the scroll event listener when the component is destroyed
         window.removeEventListener('scroll', this.handleScroll);
     },
     methods: {
         handleScroll() {
             const scrollY = window.scrollY;
 
-            // Check if the scroll position has reached the navbar's position
             this.isSticky = scrollY >= this.stickyTop;
-            this.isSmall = scrollY > 200; // Adjust threshold for small navbar
+            this.isSmall = scrollY > 200; 
 
-            // Only hide the navbar if the user has scrolled down past the threshold
             if (scrollY > this.scrollThreshold) {
                 if (scrollY > this.lastScrollY) {
-                    // Scrolling down
                     this.isHidden = true;
                 } else {
-                    // Scrolling up
                     this.isHidden = false;
                 }
             } else {
-                // If not past the threshold, ensure the navbar is visible
                 this.isHidden = false;
             }
 
-            // Update lastScrollY
             this.lastScrollY = scrollY;
         },
         async signOut() {
@@ -189,26 +174,23 @@ export default {
                     EventBus.emit('google-oauth2-sign-out');
                     console.log('Sign out event emitted.');
                 }
-                await firebaseSignOut(auth); // Sign out from Firebase
+                await firebaseSignOut(auth);
 
-                // Clear session storage data
                 sessionStorage.removeItem('uid');
                 sessionStorage.removeItem('userType');
                 console.log('Session storage cleared');
-                
-                this.isAuthenticated = false; // Update local state
-                this.userType = null; // Update userType to reflect logged-out state
-                this.$router.push('/'); // Redirect to home or desired page
+
+                this.isAuthenticated = false;
+                this.userType = null;
+                this.$router.push('/'); 
             } catch (error) {
                 console.error('Error signing out:', error.message);
             }
         },
 
         updateNavbarBasedOnRoute(path) {
-            // Add logic to update the navbar based on the current path
             if (path === '/') {
                 console.log('Navigated to ExpensePage');
-                // Add specific logic if needed
             }
         },
     },
@@ -221,13 +203,11 @@ export default {
     font-weight: 600;
     font-family: graphie, sans-serif;
     font-size: 1.1rem;
-    /* Slightly larger font size for better visibility */
     font-style: normal;
     position: relative;
     display: inline-block;
     overflow: hidden;
     padding: 0.75rem 0px !important;
-    /* Adjusted padding for bigger space between items */
     margin: 0px 1.5rem;
     padding-bottom: 0px !important;
 }
@@ -345,7 +325,6 @@ export default {
 
 .hiddencollapse {
     transform: translateY(-100%);
-    /* Slide up to hide */
     transition: transform 0.9s ease;
 }
 
@@ -422,14 +401,11 @@ export default {
     animation-delay: 0.8s;
 }
 
-/* Ensure animation works in collapsed state (mobile view) */
 .collapse.show .nav-item {
     animation-delay: 0s;
-    /* No delay when showing items in the collapsed menu */
 }
 
 .custom-max-width {
     max-width: fit-content;
-    /* or specify a specific value like max-width: 300px; */
 }
 </style>

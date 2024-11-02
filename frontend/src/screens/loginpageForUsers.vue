@@ -60,6 +60,9 @@ export default {
       mobileBrowser: false,
     };
   },
+  components: {
+    GoogleLogin,
+  },
   methods: {
     onVideoLoaded() {
       this.videoLoaded = true;
@@ -110,10 +113,6 @@ export default {
     },
   },
 };
-</script>
-
-<script setup>
-import GoogleLogin from '../components/GoogleLogin.vue';
 </script>
 
 <style scoped>

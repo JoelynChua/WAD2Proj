@@ -13,7 +13,7 @@
 
         <div
             id="navbuffer"
-            style="height: 120px"
+            style="height: 100px"
             v-if="
                 !fullPageRoutes.includes($route.path) &&
                 !noBuffer.includes($route.path)
