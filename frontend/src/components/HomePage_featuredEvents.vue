@@ -1,54 +1,72 @@
 <template>
   <h2 class="fe-title">featured events</h2>
   <h5 class="fe-secondary">SINGAPORE</h5>
-  <div class="fe-carousel">
-    <div class="text-end">
-      <i @click="prev" :class="['fi', 'fi-rr-angle-circle-left', 'h1', 'me-1', { 'active': isPrevActive }]" @mouseenter="isPrevActive = true" @mouseleave="isPrevActive = false"></i>
-      <i @click="next" :class="['fi', 'fi-rr-angle-circle-right', 'h1', { 'active': isNextActive }]" @mouseenter="isNextActive = true" @mouseleave="isNextActive = false"></i>
-    </div>
-    <Carousel ref="carouselRef" :itemsToShow="4" :itemsToScroll="6" :transition="250">
-      <Slide v-for="(slide, index) in slides" :key="index">
-        <div class="carousel__slide-content">
-          <img :src="slide.image" alt="Event Image" class="carousel__slide-image" />
-          <div class="carousel__slide-card">
-            <p class="carousel__slide-text lead"><b>{{ slide.title }}</b></p>
-            <p class="carousel__slide-text carousel__slide-description">{{ slide.date }}</p>
-            <p class="carousel__slide-text carousel__slide-description">{{ slide.location }}</p>
-            <p class="carousel__slide-text mt-1 mb-1"><b>{{ slide.price }}</b></p>
-            <p class="carousel__slide-text carousel__slide-description">{{ slide.followers }} followers</p>
-          </div>
+  <div class="pop-events">
+    <swiper :slidesPerView="4" :spaceBetween="100" :grabCursor="true" :pagination="{
+      clickable: true,
+    }" :modules="modules" :breakpoints="{
+      0: {
+        slidesPerView: 1,
+      },      
+      440: {
+        slidesPerView: 2,
+        spaceBetween: 10
+      },
+      768: {
+        slidesPerView: 3,
+        spaceBetween: 15
+      },
+      1024: {
+        slidesPerView: 4,
+        spaceBetween: 50
+      }
+    }" class="mySwiper">
+      <swiper-slide v-for="event in events" :key="event.id" class="event-box" @click="goToEventDetails(event.id)"
+        style="cursor: pointer; position: relative">
+        <!-- Event Image Placeholder -->
+        <div class="event-image-container">
+          <img :src="event.image || 'https://via.placeholder.com/300x200?text=Event+Image'" alt="Event image"
+            class="event-image" />
         </div>
-      </Slide>
-      <template #addons>
-      </template>
-    </Carousel>
+
+        <div class="event-details">
+          <div
+            style="font-weight: 600; font-size: 22px; font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;">
+            {{ event.name }}</div>
+
+          <div style="font-weight: 400; font-size: 14px;">{{ event.date }}</div>
+
+          <div style="font-weight: 400; font-size: 14px;">{{ event.location }}</div>
+          <div class="mt-4">{{ event.price }}</div>
+          <div class="mt-3" style="font-size: 14px;"><i class="fi fi-rs-following"></i> {{ event.followers }} followers</div>
+
+        </div>
+
+      </swiper-slide>
+    </swiper>
   </div>
 </template>
 
-<script setup>
-import 'vue3-carousel/dist/carousel.css';
-import { ref } from 'vue';
-import { Carousel, Slide } from 'vue3-carousel';
-
-const carouselRef = ref();
-const isPrevActive = ref(false);
-const isNextActive = ref(false);
-
-const next = () => carouselRef.value.next();
-const prev = () => carouselRef.value.prev();
-</script>
-
 <script>
+// Import Swiper Vue.js components
+import { Swiper, SwiperSlide } from 'swiper/vue';
+
+// Import Swiper styles
+import 'swiper/css';
+import 'swiper/css/pagination';
+
+// Import required modules
+import { Pagination } from 'swiper/modules';
 
 export default {
-  name: 'featuredEvents',
+  name: 'PopularEvents',
   data() {
     return {
-      slides: [
+      events: [
         {
           image: require('@/assets/featuredEvents/1.jpg'),
           date: '31 December 2024, 04:00PM',
-          title: 'Premier League Summer Series',
+          name: 'Premier League Summer Series',
           location: 'Singapore National Stadium',
           price: '$5.99',
           followers: '420'
@@ -56,7 +74,7 @@ export default {
         {
           image: require('@/assets/featuredEvents/2.jpg'),
           date: '1 October 2025, 8:00PM',
-          title: 'Olivia Rodrigo: Guts World Tour',
+          name: 'Olivia Rodrigo: Guts World Tour',
           location: 'Singapore Indoor Stadium',
           price: '$99.90',
           followers: '50'
@@ -64,7 +82,7 @@ export default {
         {
           image: require('@/assets/featuredEvents/3.jpg'),
           date: '29 November 2025, All Day',
-          title: 'Gardens By The Bay: Carnival of Flowers',
+          name: 'Gardens By The Bay: Carnival of Flowers',
           location: 'Gardens By The Bay',
           price: '$49.90',
           followers: '993'
@@ -72,7 +90,7 @@ export default {
         {
           image: require('@/assets/featuredEvents/4.jpg'),
           date: 'Today at 10:00pm',
-          title: 'AKON: The Superfan Tour 2025',
+          name: 'AKON: The Superfan Tour 2025',
           location: 'Arena @ Expo Hall 7',
           price: 'Free',
           followers: '310'
@@ -80,7 +98,7 @@ export default {
         {
           image: require('@/assets/featuredEvents/5.jpg'),
           date: '24 January 2025, 6:00PM',
-          title: 'Coldplay x Michael Jackson',
+          name: 'Coldplay x Michael Jackson Singapore',
           location: 'Singapore National Stadium',
           price: '$49,90',
           followers: '78326'
@@ -88,7 +106,7 @@ export default {
         {
           image: require('@/assets/featuredEvents/6.jpg'),
           date: '11 October 2024, 7:00PM',
-          title: 'Jay Chou: World Tour 2025',
+          name: 'Jay Chou: World Tour 2025 Singapore',
           location: 'Singapore National Stadium',
           price: '$129.90',
           followers: '83127'
@@ -96,7 +114,7 @@ export default {
         {
           image: require('@/assets/featuredEvents/7.jpg'),
           date: '31 October 2025, 7:00PM',
-          title: 'Bruno Mars: Singapore World Tour 2025',
+          name: 'Bruno Mars: Singapore World Tour 2025',
           location: 'Singapore National Stadium',
           price: '$100.00 - $190.00',
           followers: '93821'
@@ -104,20 +122,34 @@ export default {
         {
           image: require('@/assets/featuredEvents/8.jpg'),
           date: '31 October 2025, 7:00PM',
-          title: 'NBL Finals: London Mets vs New York Nets',
+          name: 'NBL Finals: London Mets vs New York Nets',
           location: 'Metro Center, DC',
           price: '$100.00 - $190.00',
           followers: '932821'
         },
       ],
-    };
+    }
   },
   components: {
-    Carousel,
-    Slide,
+    Swiper,
+    SwiperSlide,
+  },
+  setup() {
+    const onSlideClick = (category) => {
+      console.log(`${category} clicked`);
+      // Add additional logic for when the slide is clicked
+    };
+
+    return {
+      modules: [Pagination],
+      onSlideClick, // Expose the onSlideClick function
+    };
   },
   methods: {
-  },
+    goToEventDetails(event) {
+      this.$emit('popevent', event)
+    }
+  }
 };
 </script>
 
@@ -135,51 +167,95 @@ export default {
   text-align: center;
 }
 
-.fe-carousel {
-  padding: 50px;
-  margin: 0px 15%;
+.pop-events {
+  background-color: #f9f9f9;
+  margin-top: 100px;
+  padding: 1px;
+  font-family: graphie, sans-serif;
 }
 
-.carousel__slide-content {
+.pop-events h1 {
+  color: #f0f0f0
+}
+
+.event-box {
   display: flex;
   flex-direction: column;
-  gap: 30px;
-  margin: 40px;
-  text-align: center;
-  color: white;
+  background-color: #ffffff;
+  border-radius: 15px;
+  width: 400px;
+  height: 350px;
+  flex-shrink: 0;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-.carousel__slide-image {
-  width: 250px;
-  height: 140px;
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+.event-image-container {
+  width: 100%;
+  overflow: hidden;
+  border-radius: 8px;
+  /* Match card rounding */
 }
 
-.carousel__slide-card {
-  background: #fff;
+.event-image {
+  width: 100%;
+  min-height: 150px;
+  max-height: 150px;
+  object-fit: cover;
+
+}
+
+.event-details {
+  padding: 15px;
   text-align: start;
-  padding-top: 20px;
-  padding-left: 15px;
-  padding-bottom: 50px;
-  border-radius: 0px 0px 10px 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  margin-top: -38px;
-  z-index: -5;
+  flex-grow: 1;
 }
 
-.carousel__slide-text {
+/* Optional Swiper styling to make it match the design */
+.mySwiper {
+  margin: 30px auto;
+  padding-top: 10px;
+  max-width: 1200px;
+  overflow: hidden;
+}
+
+.swiper-slide {
+  background: #f0f0f0;
+  /* Placeholder background color */
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  font-size: 1.2em;
+  font-weight: bold;
   color: #333;
-  margin-bottom: 0px;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+  text-align: center;
+  width: auto;
+  flex-shrink: 0;
+  height: 400px;
 }
 
-.fi.active {
-  color: rgb(207, 89, 59);
-  transform: scale(1.1);
-  transition: all 0.2s;
+.swiper-slide:hover {
+  transform: scale(1.05);
+  /* Slight zoom effect on hover */
 }
 
-.carousel__slide-description {
-  font-size: 15px;
+::v-deep .swiper-pagination {
+  position: relative;
+  margin-top: 20px;
+  /* Increase the value to move it lower */
+}
+
+
+.swiper-slide img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+::v-deep .swiper-wrapper {
+  overflow: visible;
 }
 </style>

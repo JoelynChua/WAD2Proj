@@ -9,17 +9,17 @@
         </video>
 
         <section id="largeHomeScreen">
-          <h2 class="slide-right" style="margin-top: 250px;">Las Vegas Sphere now presents: <br>Hamilton</h2>
-          <p class="fade-in mt-5">Proudly casted by Lay Foo and Mok Ngee HeHe</p>
-          <button @click="findActivities" class="section1_buttons pulse mt-4 p-3" style="border-radius: 50px; font-size: 16px; height: 40px">Find Activities</button>
-          <a href="#aboutUs"><button class="section1_buttons pulse p-3 ms-4" style="border-radius: 50px; font-size: 16px; height: 40px">About Us</button></a>
+          <h2 class="slide-right ms-4" style="margin-top: 250px;">Las Vegas Sphere now presents: <br>Hamilton</h2>
+          <p class="fade-in mt-5 ms-4">Proudly casted by Lay Foo and Mok Ngee HeHe</p>
+          <button @click="findActivities" class="section1_buttons pulse mt-4 p-3 ms-4" style="border-radius: 50px; font-size: 16px; height: 40px">Find Activities</button>
+          <a href="#aboutUs"><button class="section1_buttons pulse p-3 ms-5" style="border-radius: 50px; font-size: 16px; height: 40px">About Us</button></a>
         </section>
 
         <section id="smallHomeScreen" class="text-center">
           <h2 class="slide-right" style="margin-top: 250px;">Las Vegas Sphere now presents: <br>Hamilton</h2>
           <p class="fade-in mt-5">Proudly casted by Lay Foo and Mok Ngee HeHe</p>
           <button @click="findActivities" class="section1_buttons pulse mt-4 p-3" style="border-radius: 50px; font-size: 16px; height: 40px">Find Activities</button>
-          <a href="#aboutUs"><button class="section1_buttons pulse p-3 ms-4" style="border-radius: 50px; font-size: 16px; height: 40px">About Us</button></a>
+          <a href="#aboutUs"><button class="section1_buttons pulse p-3" style="border-radius: 50px; font-size: 16px; height: 40px">About Us</button></a>
         </section>
 
         <!-- Pause Button -->

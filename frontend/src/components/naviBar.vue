@@ -34,7 +34,7 @@
                         <RouterLink class="nav-link" :class="{ active: $route.path === '/itineraryList' }"
                             to="/itineraryList">itinerary</RouterLink>
                     </li>
-                    <li class="nav-item">
+                    <li class="nav-item" v-if="isCustomer">
                         <RouterLink class="nav-link" :class="{ active: $route.path === '/ExpensePage' }"
                             to="/ExpensePage">expense</RouterLink>
                     </li>
