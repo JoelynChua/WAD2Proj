@@ -47,7 +47,7 @@
 import { auth, database } from '../firebase/firebaseClientConfig';
 import { signInWithEmailAndPassword, signOut as firebaseSignOut } from 'firebase/auth';
 import { ref, child, get } from 'firebase/database';
-import GoogleLogin from '../components/GoogleLogin.vue';
+// import GoogleLogin from '../components/GoogleLogin.vue';
 
 export default {
   data() {

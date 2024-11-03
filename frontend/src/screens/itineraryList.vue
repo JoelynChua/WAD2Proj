@@ -4,15 +4,23 @@
 
     <div style="margin: 60px;">
       <!-- Add itinerary -->
-      <button style="margin-bottom: 20px; display: block; background-color:#c8e0ea" @click="toItineraryForm()"
+      <button v-if="!loginMessage" style="margin-bottom: 20px; display: block; background-color: #c8e0ea" @click="toItineraryForm()"
         class="btn btn">
         <span class="plus-sign">New Itinerary +</span>
       </button>
 
-      <div v-if="itineraries.length">
+      <!-- Display login prompt if user is not logged in -->
+      <div v-if="loginMessage">
+        <p>
+          {{ loginMessage }}
+          <RouterLink  to="/login-for-users">Log in </RouterLink>
+        </p>
+      </div>
+
+      <!-- Display itineraries if available -->
+      <div v-else-if="itineraries.length > 0">
         <div class="carousel-client">
           <div class="slide" v-for="(itinerary, index) in itineraries" :key="index">
-
             <div class="itinerary-item" @click="getItineraryByID(itinerary.id)">
               <!-- Delete Icon -->
               <font-awesome-icon :icon="['fas', 'trash']" class="delete-icon"
@@ -27,10 +35,18 @@
         </div>
       </div>
 
+      <!-- Display message if no itineraries are available -->
+      <div v-else-if="itineraries.length === 0">
+        <p>No itinerary available.</p>
+      </div>
+
+      <!-- Loading message if itineraries are being fetched -->
       <div v-else>Loading itineraries...</div>
     </div>
   </div>
 </template>
+
+
 
 <script>
 import itineraryService from '../services/itineraryService'; // Adjust the path as needed
@@ -53,6 +69,7 @@ export default {
     return {
       itineraries: [], // Initialize itineraries as an empty array
       uid: null,
+      loginMessage: "", // Message displayed when user is not logged in
     };
   },
 
@@ -117,7 +134,10 @@ export default {
           // User is signed out
           console.log('User is signed out');
           // Optionally redirect to login page or handle sign-out logic here
-          this.$router.push('/login');
+          // this.$router.push('/login');
+          // Display a message with a link to the login page
+          this.itineraries = []; // Reset itineraries to an empty array instead of null
+          this.loginMessage = "Please log in to view your itineraries. ";
         }
       });
     },

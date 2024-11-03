@@ -30,7 +30,7 @@
                         <RouterLink class="nav-link" :class="{ active: $route.path === '/attractionsList' }"
                             to="/attractionsList">attractions</RouterLink>
                     </li>
-                    <li class="nav-item">
+                    <li class="nav-item" v-if="isCustomer">
                         <RouterLink class="nav-link" :class="{ active: $route.path === '/itineraryList' }"
                             to="/itineraryList">itinerary</RouterLink>
                     </li>
@@ -92,6 +92,8 @@
 import { auth, database } from '../firebase/firebaseClientConfig'; 
 import { onAuthStateChanged, signOut as firebaseSignOut } from 'firebase/auth'; 
 import { ref as firebaseRef, get } from 'firebase/database'; // Rename `ref` from Firebase to `firebaseRef`
+// import EventBus from '../utils/eventBus.js';
+// computed
 import { ref, onMounted, onBeforeUnmount } from 'vue';
 
 export default {

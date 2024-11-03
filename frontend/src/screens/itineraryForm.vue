@@ -1,7 +1,9 @@
 <template>
     <div class="container mt-5">
         <h2>Event Submission Form</h2>
-        <form @submit.prevent="handleSubmit">
+
+        <!-- Display form only if user is signed in -->
+        <form v-if="uid" @submit.prevent="handleSubmit">
             <div class="mb-3">
                 <label for="title" class="form-label">Title</label>
                 <input type="text" class="form-control" id="title" v-model="formData.title" required />
@@ -45,12 +47,17 @@
             <br />
             <button type="submit" class="btn btn-primary">Create</button>
         </form>
+
+        <!-- Message displayed if user is not signed in -->
+        <div v-else>
+            <p>Please log in to submit an event.</p>
+        </div>
     </div>
 </template>
 
 <script>
 import ItineraryService from '../services/itineraryService';
-import { getAuth } from 'firebase/auth';
+import { auth } from '../firebase/firebaseClientConfig';
 
 export default {
     data() {
@@ -63,25 +70,16 @@ export default {
                 collaborators: '', // Will be populated with uid
                 events: {}, // Initialize as an empty object
             },
-            userUid: '', // Store user UID for display
+            uid: null,
             hours: [], // Initialize empty and populate in created hook
             isLoading: true,
         };
     },
     created() {
+        this.authListener();
+        
         this.hours = this.generateHours();
         this.formData.events = this.initializeTimetable();
-
-        const auth = getAuth();
-        const user = auth.currentUser;
-
-        if (user) {
-            this.formData.collaborators = user.uid; // Set collaborators to user's uid
-            this.userUid = user.uid; // Store the user's UID for reference
-            console.log('User UID:', this.userUid);
-        } else {
-            console.log('No user is signed in');
-        }
 
         this.isLoading = false; // Set loading to false after data retrieval
     },
@@ -97,6 +95,22 @@ export default {
     },
 
     methods: {
+        authListener() {
+            // Listen to the authentication state
+            auth.onAuthStateChanged(async (user) => {
+                if (user) {
+                    // User is signed in
+                    this.uid = user.uid; // Get the user ID
+                    this.formData.collaborators = this.uid; // Set collaborators to user's UID
+                    console.log(this.uid, "UID");
+                } else {
+                    // User is signed out
+                    console.log("User is signed out");
+                    // Optionally redirect to login page or handle sign-out logic here
+                    this.$router.push("/login-for-users");
+                }
+            });
+        },
         async handleSubmit() {
             console.log(this.formData, "FORMDATA");
 
@@ -104,6 +118,11 @@ export default {
             const collaboratorsArray = this.formData.collaborators
                 .split(',')
                 .map(collaborator => collaborator.trim()); // Ensure you trim any excess spaces
+            
+            // Ensure that the user's UID is included in the collaborators array
+            if (!collaboratorsArray.includes(this.uid)) {
+                collaboratorsArray.push(this.uid); // Include the user's UID
+            }
             console.log(collaboratorsArray, "Collaborators Array");
 
             // Transform events object into an array of objects with "time" and "eventID"
@@ -154,7 +173,7 @@ export default {
                 budget: null,
                 totalCost: null,
                 date: '',
-                collaborators: this.userUid || '', // Reset to the user's UID
+                collaborators: this.uid || '', // Reset to the user's UID
                 events: this.initializeTimetable(),
             };
         }

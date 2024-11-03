@@ -10,7 +10,7 @@
                 style="cursor: pointer; position: relative"
             >
                 <!-- Bookmark Icon Positioned in the Top Right -->
-                <font-awesome-icon
+                <font-awesome-icon v-if="userID"
                     :icon="
                         isBookmarked(attraction.id)
                             ? ['fas', 'bookmark']
@@ -51,17 +51,19 @@ export default {
             userID: null,
         };
     },
-
-    async mounted() {
+    async created() {
         try {
-            // Fetch attractions first
             this.attractions = await attractionService.displayAttractions();
             console.log(this.attractions);
-
-            this.authListener();
         } catch (error) {
             console.error('Failed to fetch attractions or wishlists:', error);
         }
+    },
+
+    async mounted() {
+         // Set up the authentication listener first
+         this.authListener();
+        window.addEventListener('scroll', this.handleScroll);
     },
 
     methods: {
@@ -97,7 +99,7 @@ export default {
                     // User is signed out
                     console.log('User is signed out');
                     // Optionally redirect to login page or handle sign-out logic here
-                    this.$router.push('/login');
+                    // this.$router.push('/login');
                 }
             });
         },

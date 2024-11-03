@@ -23,8 +23,6 @@ import loginpageForOrganisers from '../screens/loginpageForOrganisers.vue';
 import OrganizerDashboard from '../screens/OrganizerDashboard.vue';
 
 
-
-
 const routes = [
     {
         path: '/',

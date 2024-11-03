@@ -1,15 +1,11 @@
 <template>
-    <div class="container-fluid" ref="trailContainer">
-        <!-- Image trail -->
-        <div id="trailimageid"
-            style="position: absolute; visibility: visible; left: 0px; top: 0px; width: 1px; height: 1px; pointer-events: none;">
-            <img :src="trailImage[0]" border="0" :width="trailImage[1] + 'px'" :height="trailImage[2] + 'px'" />
-        </div>
+    <div class="container-fluid">
+        <!-- PixiJS canvas -->
+        <canvas ref="pixiCanvas"></canvas>
 
-        <google-calendar-a-p-i :itinerary="itineraryDetails.title" :date="itineraryDetails.date"/>
+        <google-calendar-a-p-i :itinerary="itineraryDetails.title" :date="itineraryDetails.date" />
 
-
-        <div class="row">
+        <div class="row" style="position: relative; z-index: 2;">
             <!-- Main Content Section -->
             <div class="col-md-9">
                 <div class="row">
@@ -51,7 +47,6 @@
                                 </div>
                             </div>
 
-
                             <!-- Table content -->
                             <div class="row">
                                 <div class="col-lg-3"></div>
@@ -64,12 +59,10 @@
                                                 <th>Event Name</th>
                                             </tr>
                                         </thead>
-
                                         <tbody @drop="onDrop($event, event)" @dragover="allowDrop">
                                             <tr v-for="event in sortedEvents" :key="event.eventID" :draggable="true"
                                                 @dragstart="onDragStart($event, event)" :data-event-id="event.eventID"
                                                 class="draggable-item">
-
                                                 <td>{{ event.time }}</td>
 
                                                 <template v-if="eventDetails[event.eventID]">
@@ -80,7 +73,6 @@
                                                             {{ eventDetails[event.eventID].type }}<br>
                                                             Status: {{ eventDetails[event.eventID].dates.status.code ||
                                                                 'N/A' }}
-
                                                             <!-- Remove Icon at top-right -->
                                                             <font-awesome-icon :icon="['fas', 'minus']"
                                                                 @click="onRemoveEvent(event.eventID)"
@@ -99,14 +91,11 @@
                                                             Genre: {{
                                                                 attractionDetails[event.eventID].classifications[0]?.genre.name
                                                                 || 'N/A' }}
-
                                                             <!-- Remove Icon at top-right -->
                                                             <font-awesome-icon :icon="['fas', 'minus']"
                                                                 @click="onRemoveEvent(event.eventID)"
                                                                 class="remove-icon" />
                                                         </div>
-
-
                                                     </td>
                                                 </template>
 
@@ -117,21 +106,17 @@
                                                             drop</span>
                                                     </td>
                                                 </template>
-
                                             </tr>
                                         </tbody>
-
                                     </table>
                                 </div>
                                 <div v-else>
                                     <p>No events scheduled.</p>
                                 </div>
                             </div>
-
                         </form>
                     </div>
                 </div>
-
             </div>
 
             <!-- Jumbotron (Wishlist) -->
@@ -164,6 +149,8 @@
 
 
 
+
+
 <script>
 import itineraryService from "../services/itineraryService"; // Update to your itinerary service
 import eventService from "../services/eventService"; // Import event service
@@ -173,6 +160,8 @@ import { library } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { faMinus } from '@fortawesome/free-solid-svg-icons'; // Import the icon you want to use
 import { getAuth } from "firebase/auth";
+// import { Graphics } from 'pixi.js';
+import * as PIXI from 'pixi.js'
 
 import GoogleCalendarAPI from "../components/GoogleCalendar.vue"
 
@@ -199,9 +188,12 @@ export default {
             updateError: null,   // Initialize the error message
             wishlists: [], // Initialize wishlist as an empty array
             userID: null,
-            trailImage: [require('@/assets/pencil.png'), 50, 30], // image path, width, height
-            offsetFromMouse: [10, -20], // x, y offsets from cursor position
-            displayDuration: 0, // duration in seconds
+
+            app: null,
+            circle: null
+            // trailImage: [require('@/assets/pencil.png'), 50, 30], // image path, width, height
+            // offsetFromMouse: [10, -20], // x, y offsets from cursor position
+            // displayDuration: 0, // duration in seconds
 
         };
     },
@@ -254,7 +246,7 @@ export default {
                         this.itineraries = await itineraryService.getItineraryByUserID(this.userID);
                         console.log(this.itineraries);
                         this.fetchWishlist();
-                        await this.reloadWishlists(); // Reload wishlists after fetching itineraries
+                        // await this.reloadWishlists(); // Reload wishlists after fetching itineraries
                     } catch (error) {
                         console.error("Failed to fetch itineraries:", error);
                     }
@@ -511,7 +503,6 @@ export default {
 
 
 
-
         //Dragging events within the events table
         // Handle when an event drag starts
         onEventDragStart(event) {
@@ -522,8 +513,6 @@ export default {
         allowDrop(event) {
             event.preventDefault(); // Prevent default behavior to allow drop
         },
-
-
 
         // Method to handle adding the item to the event
         async addToEvent(wishlistItem, { eventID, time }) {
@@ -576,76 +565,70 @@ export default {
             }
         },
 
-
-
-        // trackMouse(event) {
-        //     const ghostElements = this.$refs.trailContainer.querySelectorAll(".ghost");
-        //     const offsetX = -80; // Adjust this value for horizontal offset
-        //     const offsetY = -100; // Adjust this value for vertical offset
-
-        //     ghostElements.forEach((ghost, index) => {
-        //         //const delay = index * 50; // Staggered delay for each ghost
-        //         ghost.style.transform = `translate(${event.pageX + offsetX}px, ${event.pageY + offsetY}px)`;
-        //         ghost.style.transition = `${0.1 + index / 20}s cubic-bezier(0.175, 0.885, 0.32, 1.275)`;
-
-        //     });
-        // },
+        // Cursor trial with pixi.js
         initializeTrail() {
-            document.addEventListener("mousemove", this.followMouse);
-
-            if (this.displayDuration > 0) {
-                setTimeout(this.hideTrail, this.displayDuration * 1000);
-            }
-        },
-
-        getTrailObj() {
-            const trailImageElement = document.getElementById("trailimageid");
-            if (!trailImageElement) {
-                console.error("Element with ID 'trailimageid' not found.");
-                return null;
-            }
-            return trailImageElement.style;
-        },
-
-        trueBody() {
-            return (document.compatMode && document.compatMode !== "BackCompat") ? document.documentElement : document.body;
-        },
-
-        hideTrail() {
-            const trailObj = this.getTrailObj();
-            if (trailObj) {
-                trailObj.visibility = "hidden";
-            }
-            document.removeEventListener("mousemove", this.followMouse);
-        },
-
-        followMouse(e) {
-            // Ensure compatibility with all browsers
-            const xcoord = e.clientX + window.scrollX + (this.offsetFromMouse?.[0] || 0);
-            const ycoord = e.clientY + window.scrollY + (this.offsetFromMouse?.[1] || 0);
-
-            const trailObj = this.getTrailObj();
-
-            if (trailObj) {
-                // Set the visibility based on boundaries
-                const docwidth = window.innerWidth + window.scrollX;
-                const docheight = window.innerHeight + window.scrollY;
-
-                if (xcoord + this.trailImage[1] > docwidth || ycoord + this.trailImage[2] > docheight) {
-                    trailObj.display = "none"; // Hide if the trail goes out of bounds
-                } else {
-                    trailObj.display = ""; // Show within bounds
-                    trailObj.left = `${xcoord}px`;
-                    trailObj.top = `${ycoord}px`;
+            try {
+                // Ensure the canvas reference is available
+                if (!this.$refs.pixiCanvas) {
+                    console.error('Pixi canvas reference is not available.');
+                    return;
                 }
-            } 
-            // else {
-            //     console.warn("Trail object is null, cannot set properties.");
-            // }
-            // test
-        }
 
+                // Create a new PixiJS application
+                this.app = new PIXI.Application({
+                    view: this.$refs.pixiCanvas,
+                    antialias: true,
+                    resizeTo: window,
+                    backgroundColor: 0xFFFFFF,
+                });
+
+                // Load the Font Awesome pencil icon as an SVG texture
+                const pencilTexture = PIXI.Texture.from(require('@/assets/pencil-solid.svg')); // Use require to load the SVG
+
+                // Create a sprite for the pencil icon
+                this.pencilIcon = new PIXI.Sprite(pencilTexture);
+                this.pencilIcon.anchor.set(0.5);
+                this.pencilIcon.width = 32; // Set the desired width
+                this.pencilIcon.height = 32; // Set the desired height
+                this.app.stage.addChild(this.pencilIcon);
+
+                // Enable interactivity
+                this.app.stage.interactive = true;
+                this.app.stage.hitArea = this.app.screen;
+
+                // Follow the pointer
+                this.app.stage.on('pointermove', (e) => {
+                    this.pencilIcon.position.copyFrom(e.global);
+                });
+
+                // Resize the canvas when the window is resized
+                this.onResize = () => {
+                    if (this.app) {
+                        this.app.renderer.resize(window.innerWidth, window.innerHeight);
+                    }
+                };
+                window.addEventListener('resize', this.onResize);
+
+                // Initial resize
+                this.app.renderer.resize(window.innerWidth, window.innerHeight);
+            } catch (error) {
+                console.error('Error initializing trail:', error);
+            }
+
+        },
     },
+
+
+    // use beforeUnmount to reflect the updated Vue lifecycle hook.
+    beforeUnmount() {
+        // Clean up the PixiJS application when the component is unmounted
+        if (this.app) {
+            this.app.stage.off('pointermove', this.onPointerMove); // Remove pointer move event listener
+            window.removeEventListener('resize', this.onResize); // Remove resize event listener
+            this.app.destroy(true, { children: true }); // Clean up the app
+        }
+    },
+
 
 };
 </script>
@@ -714,6 +697,22 @@ export default {
 
 
 
+
+
+canvas {
+    width: 100%;
+    /* Full width */
+    height: 100%;
+    /* Full height */
+    position: fixed;
+    /* Fixed to stay in view while scrolling */
+    top: 0;
+    left: 0;
+    z-index: 0;
+    /* Lower than other content */
+}
+
+
 /* CSS for Cursor Trail */
 #trailimageid {
     position: fixed;
@@ -741,7 +740,8 @@ export default {
     background-size: cover;
     position: fixed;
     pointer-events: none;
-    transition: none; /* Reduce to minimal delay for faster movement */
+    transition: none;
+    /* Reduce to minimal delay for faster movement */
 }
 
 /* Pop notification */
@@ -760,20 +760,59 @@ export default {
     font-size: 1rem;
 }
 
-/* Slide-in effect */
 .popNotif {
     transform: translateX(0);
     opacity: 1;
+    background-color: #F9F9F9;
+    /* Grey background */
+    color: black;
+    border-left: 15px solid transparent;
+    /* Accent border for success or error */
+    border-radius: 4px;
+
 }
 
 /* Success and Error Notification Styles */
 .popNotif.success {
-    background-color: #28a745;
-    /* Green background for success */
+    border-left-color: #28a745;
+    /* Green accent border for success */
 }
 
 .popNotif.error {
-    background-color: #dc3545;
-    /* Red background for error */
+    border-left-color: #dc3545;
+    /* Red accent border for error */
+}
+
+/* Responsive styling for screens up to 768px */
+@media (max-width: 768px) {
+    .popNotif {
+        margin-top: 100px;
+        /* Space for navi bar */
+        margin: 0;
+        left: 0;
+        right: 0;
+        bottom: auto;
+        width: 100vw;
+        /* Full viewport width */
+        max-width: none;
+        border-radius: 0;
+        /* Remove border radius for flush look */
+        box-sizing: border-box;
+    }
+
+    /* Success and Error Notification Styles on smaller screens */
+    .popNotif.success {
+        background-color: #28a745;
+        /* Green background for success */
+        border-left-color: transparent;
+        /* Remove left border accent */
+    }
+
+    .popNotif.error {
+        background-color: #dc3545;
+        /* Red background for error */
+        border-left-color: transparent;
+        /* Remove left border accent */
+    }
 }
 </style>

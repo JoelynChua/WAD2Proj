@@ -12,57 +12,40 @@
                 <div class="form-field search-bar">
                     <div class="search-container">
                         <i class="fi fi-rr-search search-icon"></i>
-                        <input
-                            type="text"
-                            placeholder="Search for events..."
-                            aria-label="Search"
-                        />
+                        <input type="text" placeholder="Search for events..." aria-label="Search" />
                     </div>
                 </div>
             </div>
         </div>
-        
+
+
         <PopularEvents :events="events" />
 
-        <div class="filter-container">
+        <!-- Events filter -->
+        <div v-if="userID" class="filter-container">
             <h1>Upcoming Events</h1>
             <div class="dropdown-container">
                 <i class="fi fi-rr-angle-small-down dropdown-icon"></i>
-                <select id="event-filter" class="custom-dropdown">
+                <select id="event-filter" class="custom-dropdown" v-model="selectedFilter">
                     <option value="all">All Events</option>
                     <option value="wishlist">My Wishlist</option>
                 </select>
             </div>
         </div>
-        <div class="event-container" v-if="events.length">
-            <div
-                class="event"
-                v-for="event in events"
-                :key="event.id"
-                @click="goToEventDetails(event.id)"
-                @popevent="goToEventDetails(event.id)"
-                style="cursor: pointer; position: relative"
-            >
+
+        <div class="event-container" v-if="selectedFilter === 'wishlist' && filteredEvents.length">
+            <div class="event" v-for="event in filteredEvents" :key="event.id" @click="goToEventDetails(event.id)"
+                @popevent="goToEventDetails(event.id)" style="cursor: pointer; position: relative">
                 <!-- Event Image Placeholder -->
-                <img
-                    :src="
-                        event.image ||
-                        'https://via.placeholder.com/300x200?text=Event+Image'
-                    "
-                    alt="Event image"
-                    class="event-image"
-                />
+                <img :src="event.images[0].url ||
+                    'https://via.placeholder.com/300x200?text=Event+Image'
+                    " alt="Event image" class="event-image" />
 
                 <!-- Bookmark Icon Positioned in the Top Right -->
-                <font-awesome-icon
-                    :icon="
-                        isBookmarked(event.id)
-                            ? ['fas', 'bookmark']
-                            : ['far', 'bookmark']
-                    "
-                    class="bookmark-icon"
-                    @click.stop="toggleWishlist(event.id)"
-                />
+                <font-awesome-icon v-if="userID" :icon="isBookmarked(event.id)
+                    ? ['fas', 'bookmark']
+                    : ['far', 'bookmark']
+                    " class="bookmark-icon" @click.stop="toggleWishlist(event.id)" />
 
                 <!-- Event Details -->
                 <div class="event-details">
@@ -75,7 +58,40 @@
                 </div>
             </div>
         </div>
-        <p v-else>No events available.</p>
+        <!-- <p v-else>No events available.</p> -->
+
+
+
+        <div v-else>
+            <div v-if="events.length" class="event-container">
+                <div class="event" v-for="event in events" :key="event.id" @click="goToEventDetails(event.id)"
+                    @popevent="goToEventDetails(event.id)" style="cursor: pointer; position: relative">
+                    <!-- Event Image Placeholder -->
+                    <img :src="event.images[0].url ||
+                        'https://via.placeholder.com/300x200?text=Event+Image'
+                        " alt="Event image" class="event-image" />
+
+                    <!-- Bookmark Icon Positioned in the Top Right -->
+                    <font-awesome-icon v-if="userID" :icon="isBookmarked(event.id)
+                        ? ['fas', 'bookmark']
+                        : ['far', 'bookmark']
+                        " class="bookmark-icon" @click.stop="toggleWishlist(event.id)" />
+
+                    <!-- Event Details -->
+                    <div class="event-details">
+                        <h2>{{ event.name }}</h2>
+                        <p>Type: {{ event.type }}</p>
+                        <p>
+                            Age Restrictions:
+                            {{ event.ageRestrictions.legalAgeEnforced }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <p v-else>No events available.</p>
+
+        </div>
+
     </div>
 </template>
 
@@ -104,7 +120,17 @@ export default {
             wishlists: [],
             userID: null, // Store userID in data
             showSearchBar: false,
+            selectedFilter: 'all', // Default filter to show all events
+
         };
+    },
+    async created() {
+        try {
+            this.events = await eventService.displayEvents();
+            console.log(this.events);
+        } catch (error) {
+            console.error('Failed to fetch events or wishlists:', error);
+        }
     },
     beforeUnmount() {
         window.removeEventListener('scroll', this.handleScroll);
@@ -112,23 +138,18 @@ export default {
 
     async mounted() {
         try {
-            // Fetch events first
-            this.events = await eventService.displayEvents();
-            console.log(this.events);
-
+            // Set up the authentication listener first
             this.authListener();
 
+            // Fetch events only after the user state has been set
             if (this.userID) {
-                this.wishlists = await itineraryService.getUserWishlist(
-                    this.userID
-                ); // Assign wishlists if userID exists
-                if (this.wishlists.length > 0) {
-                    console.log(this.wishlists);
-                } else {
-                    console.warn('No wishlists found for the user.');
-                }
+                this.events = await eventService.displayEvents();
+                console.log(this.events);
+                this.wishlists = await itineraryService.getUserWishlist(this.userID); // Fetch wishlists if userID exists
             } else {
-                console.warn('User ID not found in Vuex store.');
+                // If userID is not available yet, you might want to fetch events without wishlists
+                this.events = await eventService.displayEvents();
+                console.log(this.events);
             }
         } catch (error) {
             console.error('Failed to fetch events or wishlists:', error);
@@ -136,6 +157,28 @@ export default {
 
         window.addEventListener('scroll', this.handleScroll);
     },
+    computed: {
+        /*
+        computed property will automatically re-evaluate and return the updated result. This behavior is ideal for scenarios 
+        where you want to display derived state based on existing reactive data.
+
+        This means that if you reference a computed property multiple times in your template, Vue only recalculates its value 
+        once and reuses the cached result, enhancing performance.
+
+        Method only perfor again when its called
+        */
+        filteredEvents() {
+            // If userID is present and wishlists are loaded, filter the events
+            if (this.userID && this.wishlists.length) {
+                return this.events.filter(event =>
+                    this.wishlists.some(wishlist => wishlist.eventID === event.id)
+                );
+            }
+            console.log(this.wishlists); // Log wishlists for debugging
+            return this.events; // Return all events if no userID or no wishlists
+        }
+    },
+
 
     methods: {
         handleScroll() {
@@ -179,7 +222,7 @@ export default {
                     // User is signed out
                     console.log('User is signed out');
                     // Optionally redirect to login page or handle sign-out logic here
-                    this.$router.push('/login');
+                    // this.$router.push('/login');
                 }
             });
         },
@@ -233,6 +276,7 @@ export default {
                 console.error('Failed to reload wishlists:', error);
             }
         },
+
     },
 };
 </script>
@@ -243,11 +287,14 @@ export default {
     background: #f9f9f9;
     color: #333;
 }
+
 .hero-section {
     position: relative;
     width: 100%;
-    height: 100vh; /* Adjust the height as needed */
-    background-image: url('https://plus.unsplash.com/premium_photo-1661943659036-aa040d92ee64?q=80&w=870&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'); /* Replace with your image URL */
+    height: 100vh;
+    /* Adjust the height as needed */
+    background-image: url('https://plus.unsplash.com/premium_photo-1661943659036-aa040d92ee64?q=80&w=870&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D');
+    /* Replace with your image URL */
     background-size: cover;
     background-position: center;
     display: flex;
@@ -258,41 +305,53 @@ export default {
     text-align: center;
     z-index: 1;
 }
+
 .hero-content {
     position: relative;
-    z-index: 1; /* Ensures it stays above the background */
+    z-index: 1;
+    /* Ensures it stays above the background */
     color: white;
     text-align: center;
 }
+
 .hero-content h1 {
     font-size: 3em;
     margin: 0;
 }
+
 .navy-box {
-  position: absolute;
-  bottom: -20px; /* Final position of the box */
-  width: 70%; 
-  max-width: 1000px;
-  background-color: #1a1a40;
-  padding: 15px 20px;
-  align-items: center;
-  color: white;
-  border-radius: 8px; 
-  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
-  transition: all 0.5s ease-in-out;
-  z-index: 2;
-  opacity: 0; /* Initially hidden */
-  transform: translateY(100%); /* Initially moved below */
+    position: absolute;
+    bottom: -20px;
+    /* Final position of the box */
+    width: 70%;
+    max-width: 1000px;
+    background-color: #1a1a40;
+    padding: 15px 20px;
+    align-items: center;
+    color: white;
+    border-radius: 8px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+    transition: all 0.5s ease-in-out;
+    z-index: 2;
+    opacity: 0;
+    /* Initially hidden */
+    transform: translateY(100%);
+    /* Initially moved below */
 }
+
 .navy-box.visible {
-  opacity: 1; /* Make it visible */
-  transform: translateY(0); /* Move to the final position */
+    opacity: 1;
+    /* Make it visible */
+    transform: translateY(0);
+    /* Move to the final position */
 }
+
 .search-container {
     position: relative;
     margin: auto;
     width: 90%;
 }
+
 .search-icon {
     position: absolute;
     left: 15px;
@@ -309,24 +368,34 @@ export default {
     margin: 0 10px;
     flex: 1;
 }
+
 .search-bar {
-    flex: 1; /* Makes the search bar take up more space */
+    flex: 1;
+    /* Makes the search bar take up more space */
 }
+
 .search-container input[type='text'] {
     padding: 10px 15px;
     padding-left: 40px;
-    width: 100%; /* Takes full width of the .form-field */
-    border: 2px solid #87cefa; /* Light blue border */
-    border-radius: 25px; /* Fully rounded corners */
+    width: 100%;
+    /* Takes full width of the .form-field */
+    border: 2px solid #87cefa;
+    /* Light blue border */
+    border-radius: 25px;
+    /* Fully rounded corners */
     font-size: 1em;
     color: #333;
-    background-color: #f5f5f5; /* Light gray background */
+    background-color: #f5f5f5;
+    /* Light gray background */
     outline: none;
     transition: background-color 0.3s ease;
 }
+
 .search-container input[type='text']:hover {
-    background-color: #e0e0e0; /* Slightly darker grey on hover */
+    background-color: #e0e0e0;
+    /* Slightly darker grey on hover */
 }
+
 .filter-container {
     padding: 20px;
     margin: 0 auto;
@@ -336,39 +405,47 @@ export default {
     justify-content: space-between;
     max-width: 900px;
 }
+
 .filter-container h1 {
     font-size: 2em;
     color: #333;
     margin: 0;
     font-weight: bolder;
 }
+
 .dropdown-container {
-    position: relative; /* Relative positioning for icon placement */
+    position: relative;
+    /* Relative positioning for icon placement */
     display: inline-block;
 }
 
 .custom-dropdown {
-    padding: 10px 40px 10px 20px; /* Add right padding for the icon */
+    padding: 10px 40px 10px 20px;
+    /* Add right padding for the icon */
     font-size: 1em;
     color: #333;
     border: 1px solid #ddd;
     border-radius: 12px;
     background-color: #f9f9f9;
-    appearance: none; /* Removes default arrow */
+    appearance: none;
+    /* Removes default arrow */
     outline: none;
     cursor: pointer;
     font-weight: bold;
-    width: 150px; /* Adjust width as needed */
+    width: 150px;
+    /* Adjust width as needed */
 }
 
 .dropdown-icon {
     position: absolute;
-    right: 15px; /* Position inside the dropdown box */
+    right: 15px;
+    /* Position inside the dropdown box */
     top: 50%;
     transform: translateY(-40%);
     font-size: 0.8em;
     color: #888;
-    pointer-events: none; /* Make the icon unclickable */
+    pointer-events: none;
+    /* Make the icon unclickable */
 }
 
 .custom-dropdown:hover {
@@ -376,8 +453,10 @@ export default {
 }
 
 .custom-dropdown option:hover {
-    background-color: #26f501; /* Light blue on hover */
-    color: #333; /* Text color on hover */
+    background-color: #26f501;
+    /* Light blue on hover */
+    color: #333;
+    /* Text color on hover */
 }
 
 .event-container {
@@ -398,8 +477,10 @@ export default {
     overflow: hidden;
     box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
     transition: all 0.1s ease;
-    max-width: 300px; /* Set a max-width to ensure the image does not exceed the card width */
-    margin: 0 auto; /* Center align each card */
+    max-width: 300px;
+    /* Set a max-width to ensure the image does not exceed the card width */
+    margin: 0 auto;
+    /* Center align each card */
 }
 
 .event:hover {
@@ -409,11 +490,13 @@ export default {
 
 /* Event Image Styling */
 .event-image {
-    width: 100%; /* Ensure the image fills the width of the card */
+    width: 100%;
+    /* Ensure the image fills the width of the card */
     height: auto;
     display: block;
     margin: 0 auto;
-    object-fit: cover; /* Maintain aspect ratio while covering the area */
+    object-fit: cover;
+    /* Maintain aspect ratio while covering the area */
 }
 
 /* Event Details Styling */
