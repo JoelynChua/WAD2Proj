@@ -31,7 +31,7 @@
       </form>
       <br />
       <p>or access quickly</p>
-      <GoogleLogin />
+      <!-- <GoogleLogin /> -->
 
       <div class="text-center mt-3">
         <p>Don't have an account? <RouterLink to="/signup">Sign Up</RouterLink>
@@ -60,9 +60,9 @@ export default {
       mobileBrowser: false,
     };
   },
-  components: {
-    GoogleLogin,
-  },
+  // components: {
+  //   GoogleLogin,
+  // },
   methods: {
     onVideoLoaded() {
       this.videoLoaded = true;

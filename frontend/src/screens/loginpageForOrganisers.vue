@@ -30,7 +30,7 @@
             </form>
             <br />
             <p>or access quickly</p>
-            <GoogleLogin />
+            <!-- <GoogleLogin /> -->
 
             <!-- New: Link to switch to User Login Page -->
             <div class="text-center mt-3">
