@@ -120,7 +120,7 @@
 import { auth, database } from '../firebase/firebaseClientConfig';
 import { onAuthStateChanged, signOut as firebaseSignOut } from 'firebase/auth';
 import { ref as firebaseRef, get } from 'firebase/database'; // Rename `ref` from Firebase to `firebaseRef`
-// import EventBus from '../utils/eventBus.js';
+import EventBus from '../utils/eventBus.js';
 // computed
 import { ref, onMounted, onBeforeUnmount } from 'vue';
 
@@ -216,6 +216,7 @@ export default {
                 this.isAuthenticated = false;
                 this.userType = null;
                 this.$router.push('/');
+                EventBus.emit('google-oauth2-sign-out') // dont remove this line, logs out from google 
             } catch (error) {
                 console.error('Error signing out:', error.message);
             }
