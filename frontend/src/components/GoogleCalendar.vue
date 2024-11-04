@@ -81,7 +81,8 @@ export default {
             }
         },
         handleAuthClick() {
-            gapi.auth2.getAuthInstance().signIn();
+            gapi.auth2.getAuthInstance().signIn().catch((error) => {
+                console.error('Error during Google sign-in:', error)});
         },
         async handleSignOutClick() {
             await gapi.auth2
@@ -165,4 +166,7 @@ export default {
 
 <style scoped>
 /* Add your styles */
+.btn {
+    z-index: 3;
+}
 </style>

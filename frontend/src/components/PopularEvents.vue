@@ -11,6 +11,10 @@
           }"
           :modules="modules"
           :breakpoints="{
+            320: {
+                slidesPerView: 2,
+                spaceBetween: 10
+            },
             540: {
                 slidesPerView: 2,
                 spaceBetween: 10
@@ -36,7 +40,7 @@
                 <!-- Event Image Placeholder -->
                 <div class="event-image-container">
                     <img
-                        :src="event.image || 'https://via.placeholder.com/300x200?text=Event+Image'"
+                        :src="event.images[0].url || 'https://via.placeholder.com/300x200?text=Event+Image'"
                         alt="Event image"
                         class="event-image"
                     />
@@ -82,9 +86,10 @@ setup() {
     };
 },
 methods: {
-    goToEventDetails(event) {
-        this.$emit('popevent', event)
-    }
+    goToEventDetails(id) {
+            // Use Vue Router's 'push' method to navigate to EventDetails page
+            this.$router.push({ name: 'EventDetails', params: { id } });
+        },
 }
 };
 </script>
@@ -142,6 +147,7 @@ methods: {
     text-overflow: ellipsis; 
     height: 100%; 
     margin: 0 auto; 
+    align-content: center
 }
 
 /* Optional Swiper styling to make it match the design */
