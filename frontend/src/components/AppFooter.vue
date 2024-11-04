@@ -33,6 +33,7 @@
 
       <!-- Copyright -->
       <p>&copy; 2024 Activity.ai. All Rights Reserved.</p>
+      <p>API from ticketMaster developer</p>
     </div>
   </footer>
 </template>
@@ -53,6 +54,13 @@ export default {
   position: relative;
   bottom: 0;
   width: 100%;
+
+  /* shadow */
+  box-shadow:
+    inset 0 -2em 4em rgb(39, 9, 67), /* Inner green shadow */
+    0 0 5px 3px rgba(255, 255, 255, 0.1), /* Outer soft white outline */
+    0 4px 20px blue; /* Red glow underneath */
+
 }
 
 .container {
@@ -62,18 +70,23 @@ export default {
 /* Social Links Container with Lines */
 .social-links-container {
   display: flex;
-  align-items: center; /* Center items vertically within the container */
+  align-items: center;
+  /* Center items vertically within the container */
   justify-content: center;
-  margin: 20px 0; /* Space around the social links and lines */
+  margin: 20px 0;
+  /* Space around the social links and lines */
 }
 
 /* Horizontal lines on either side of social icons */
 .line {
   flex: 1;
   height: 1px;
-  background-color: #ddd; /* Adjust color as needed */
-  margin: 0 15px; /* Space between line and social icons */
-  align-self: center; /* Centers the line vertically with the icons */
+  background-color: #ddd;
+  /* Adjust color as needed */
+  margin: 0 15px;
+  /* Space between line and social icons */
+  align-self: center;
+  /* Centers the line vertically with the icons */
 }
 
 /* Social Links */
@@ -83,18 +96,21 @@ export default {
   margin: 0;
   display: flex;
   justify-content: center;
-  align-items: center; /* Ensures the icons are vertically centered */
+  align-items: center;
+  /* Ensures the icons are vertically centered */
 }
 
 .social-links li {
-  margin: 0 15px; /* Space between icons */
+  margin: 0 15px;
+  /* Space between icons */
 }
 
 /* Footer Links */
 .footer-links {
   list-style-type: none;
   padding: 0;
-  margin: 20px 0 10px; /* Space between social links and footer links */
+  margin: 20px 0 10px;
+  /* Space between social links and footer links */
 }
 
 .footer-links li {

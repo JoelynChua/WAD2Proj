@@ -15,6 +15,17 @@ async function displayEvents() {
     }
 }
 
+async function searchEventName(eventName) {
+    try {
+        const res = await axiosInstance.get(`${finalURL}/api/displayEvents/${eventName}`);
+        console.log(res)
+        // Return the list of events
+        return res.data;
+    } catch (error) {
+        console.error("Error fetching events:", error);
+        throw error;
+    }
+}
 
 async function goToEventDetails(eventId) {
     try {
@@ -31,5 +42,6 @@ async function goToEventDetails(eventId) {
 
 export default {
     displayEvents,
-    goToEventDetails
+    goToEventDetails,
+    searchEventName
 };
