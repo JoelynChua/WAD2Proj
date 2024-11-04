@@ -11,6 +11,10 @@
           }"
           :modules="modules"
           :breakpoints="{
+            320: {
+                slidesPerView: 2,
+                spaceBetween: 10
+            },
             540: {
                 slidesPerView: 2,
                 spaceBetween: 10
@@ -143,6 +147,7 @@ methods: {
     text-overflow: ellipsis; 
     height: 100%; 
     margin: 0 auto; 
+    align-content: center
 }
 
 /* Optional Swiper styling to make it match the design */
