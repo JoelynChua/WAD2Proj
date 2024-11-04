@@ -57,9 +57,9 @@ export default {
 
   /* shadow */
   box-shadow:
-    inset 0 -2em 4em rgb(39, 9, 67), /* Inner green shadow */
+    inset 0 -2em 4em rgb(0, 0, 0), /* Inner green shadow */
     0 0 5px 3px rgba(255, 255, 255, 0.1), /* Outer soft white outline */
-    0 4px 20px blue; /* Red glow underneath */
+    0 4px 40px rgb(68, 68, 72); /* Red glow underneath */
 
 }
 
