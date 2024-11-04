@@ -28,17 +28,6 @@
                 </div>
                 <button type="submit" class="btn btn-primary w-100" style="border-radius: 0%;">Log in</button>
             </form>
-            <br />
-            <p>or access quickly</p>
-            <GoogleLogin />
-
-            <!-- New: Link to switch to User Login Page -->
-            <div class="text-center mt-3">
-                <p>Don't have an account? <RouterLink to="/signup">Sign Up</RouterLink>
-                </p>
-                <p>Are you a user? <RouterLink to="/login-for-users">Log in as User</RouterLink>
-                </p> <!-- New Link -->
-            </div>
         </div>
     </div>
 </template>
@@ -47,7 +36,6 @@
 import { auth, database } from '../firebase/firebaseClientConfig';
 import { signInWithEmailAndPassword, signOut as firebaseSignOut } from 'firebase/auth';
 import { ref, child, get } from 'firebase/database';
-import GoogleLogin from '../components/GoogleLogin.vue';
 
 export default {
     data() {
@@ -59,9 +47,6 @@ export default {
             invalidCred: false,
             mobileBrowser: false,
         };
-    },
-    components: {
-        GoogleLogin,
     },
     methods: {
         onVideoLoaded() {

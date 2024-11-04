@@ -43,10 +43,6 @@
                             to="/ExpensePage">expense</RouterLink>
                     </li>
 
-                    <li class="nav-item">
-                        <RouterLink class="nav-link" :class="{ active: $route.path === '/marketplace' }"
-                            to="/marketplace">marketplace</RouterLink>
-                    </li>
                 </ul>
 
                 <ul class="navbar-nav mx-auto" v-if="isOrganiser">
@@ -68,16 +64,15 @@
                         <RouterLink class="nav-link" :class="{ active: $route.path === '/organizer-dashboard' }"
                             to="/organizer-dashboard">dashboard</RouterLink>
                     </li>
-
-                    <li class="nav-item">
-                        <RouterLink class="nav-link" :class="{ active: $route.path === '/marketplace' }"
-                            to="/marketplace">marketplace</RouterLink>
-                    </li>
                 </ul>
-   
+
                 <ul class="navbar-nav mx-auto" v-if="!isCustomer && !isOrganiser">
                     <li class="nav-item">
-                        <RouterLink class="nav-link" :class="{ active: $route.path === '/events' }" aria-current="page"
+                        <RouterLink class="nav-link" :class="{ active: $route.path === '/' }" aria-current="page"
+                            to="/">home</RouterLink>
+                    </li>
+                    <li class="nav-item">
+                        <RouterLink class="nav-link" :class="{ active: $route.path === '/events' }"
                             to="/events">events</RouterLink>
                     </li>
                     <li class="nav-item">
@@ -86,20 +81,15 @@
                     </li>
 
                     <li class="nav-item" v-if="!isAuthenticated">
-                        <RouterLink class="nav-link"
-                            :class="{ active: $route.path === '/organizers' }" to="/organizers">organizers</RouterLink>
+                        <RouterLink class="nav-link" :class="{ active: $route.path === '/organizers' }"
+                            to="/organizers">partner with us</RouterLink>
                     </li>
 
-                    <li class="nav-item">
-                        <RouterLink class="nav-link" :class="{ active: $route.path === '/marketplace' }"
-                            to="/marketplace">marketplace</RouterLink>
-                    </li>
                 </ul>
 
                 <!-- NAVBAR CONDITIONAL RENDERING -->
 
                 <ul class="navbar-nav">
-                    <!-- Separate nav for Profile and Log In / Sign Up -->
                     <li id="last-item" class="nav-item" v-if="!isAuthenticated">
                         <RouterLink class="nav-link mt-3 mb-3 text-nowrap" to="/login-for-users">login / sign up
                         </RouterLink>
@@ -127,8 +117,8 @@
 </template>
 
 <script>
-import { auth, database } from '../firebase/firebaseClientConfig'; 
-import { onAuthStateChanged, signOut as firebaseSignOut } from 'firebase/auth'; 
+import { auth, database } from '../firebase/firebaseClientConfig';
+import { onAuthStateChanged, signOut as firebaseSignOut } from 'firebase/auth';
 import { ref as firebaseRef, get } from 'firebase/database'; // Rename `ref` from Firebase to `firebaseRef`
 // import EventBus from '../utils/eventBus.js';
 // computed
@@ -140,12 +130,12 @@ export default {
         return {
             isAuthenticated: false, // Firebase will handle auth state
             userType: null,
-            isSticky: true, 
-            isSmall: false, 
-            isHidden: false, 
-            lastScrollY: 0, 
-            stickyTop: 0, 
-            scrollThreshold: 750, 
+            isSticky: true,
+            isSmall: false,
+            isHidden: false,
+            lastScrollY: 0,
+            stickyTop: 0,
+            scrollThreshold: 750,
         };
     },
     computed: {
@@ -160,7 +150,7 @@ export default {
         const isLargeScreen = ref(false);
 
         const updateScreenSize = () => {
-            isLargeScreen.value = window.innerWidth >= 992; 
+            isLargeScreen.value = window.innerWidth >= 992;
         };
 
         onMounted(() => {
@@ -180,7 +170,7 @@ export default {
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 this.isAuthenticated = true;
-                
+
                 // Fetch userType from Firebase Database or Firestore
                 const dbRef = firebaseRef(database, `users/${user.uid}`);
                 const userTypeSnapshot = await get(dbRef);
@@ -206,7 +196,7 @@ export default {
             const scrollY = window.scrollY;
 
             this.isSticky = scrollY >= this.stickyTop;
-            this.isSmall = scrollY > 200; 
+            this.isSmall = scrollY > 200;
 
             if (scrollY > this.scrollThreshold) {
                 if (scrollY > this.lastScrollY) {
@@ -451,4 +441,5 @@ export default {
 .custom-max-width {
     max-width: fit-content;
 }
+
 </style>

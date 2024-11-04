@@ -4,29 +4,21 @@
         <div class="go-somewhere__grid p-5 pb-0">
             <div class="go-somewhere__item" @click="this.$router.push('/events')">
                 <i class="fi fi-rs-navigation"></i>
-                find activities
+                find an activity
             </div>
+            <div class="go-somewhere__item">
+                <i class="fi fi-rr-castle" @click="this.$router.push('/attractionsList')"></i>
+                find an attraction
+            </div>
+        </div>
+        <div class="go-somewhere__grid p-5 pt-0">
             <div class="go-somewhere__item" @click="this.$router.push('/ExpensePage')">
                 <i class="fi fi-rr-shopping-bag"></i>
                 calculate expenses
             </div>
-            <div class="go-somewhere__item">
+            <div class="go-somewhere__item" @click="this.$router.push('/itineraryList')">
                 <i class="fi fi-rr-track"></i>
                 build an itinerary
-            </div>
-        </div>
-        <div class="go-somewhere__grid p-5 pt-0">
-            <div class="go-somewhere__item">
-                <i class="fi fi-rr-castle"></i>
-                find an attraction
-            </div>
-            <div class="go-somewhere__item">
-                <i class="fi fi-rr-ticket"></i>
-                show tickets
-            </div>
-            <div class="go-somewhere__item">
-                <i class="fi fi-rs-user-pen"></i>
-                edit my profile
             </div>
         </div>
     </section>
@@ -35,11 +27,14 @@
 <script>
 import '../../node_modules/@flaticon/flaticon-uicons/css/regular/all.css';
 
+
 export default {
     data() {
         return {
         };
     },
+    methods: {
+    }
 };
 </script>
 

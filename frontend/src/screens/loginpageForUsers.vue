@@ -34,9 +34,9 @@
       <GoogleLogin />
 
       <div class="text-center mt-3">
-        <p>Don't have an account? <RouterLink to="/signup">Sign Up</RouterLink>
+        <p class="changeuser"><RouterLink class="router-link" to="/signup">Sign Up</RouterLink>
         </p>
-        <p>Are you an organizer? <RouterLink to="/login-for-organisers">Log in as Organizer</RouterLink>
+        <p class="changeuser"><RouterLink class="router-link" to="/login-for-organisers">Organizer</RouterLink>
         </p>
       </div>
     </div>
@@ -171,5 +171,20 @@ export default {
 h5 {
   font-size: 38px;
   font-weight: 900;
+}
+
+.changeuser {
+  text-align: start;
+  margin-bottom: 8px
+}
+
+.router-link {
+  text-decoration: none;
+  color: rgb(54, 89, 227);
+  font-family: "Neue Plak", -apple-system, BlinkMacSystemFont, Roboto, "Helvetica Neue", Helvetica, Tahoma, Arial, sans-serif;
+}
+
+.router-link:hover {
+  text-decoration: underline;
 }
 </style>

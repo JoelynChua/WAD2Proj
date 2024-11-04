@@ -18,13 +18,6 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" id="payment-tab" data-bs-toggle="pill" href="#payment" role="tab"
-                                aria-controls="payment" aria-selected="false">
-                                <i class="fi fi-rr-credit-card"></i>
-                                Payment Methods
-                            </a>
-                        </li>
-                        <li class="nav-item">
                             <a class="nav-link" id="payment-tab" data-bs-toggle="pill" href="#wallet" role="tab"
                                 aria-controls="payment" aria-selected="false">
                                 <i class="fi fi-rr-wallet"></i>
@@ -100,51 +93,6 @@
                             <div class="d-flex justify-content-between align-items-start">
                                 <div><b>I would like to receive emails about promotions</b></div>
                                 <div><a-switch v-model:checked="promotions" /></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="tab-pane fade" id="payment" role="tabpanel" aria-labelledby="payment-tab">
-                        <div class="">
-                            <h5 class="text-start">Payment Methods</h5>
-                            <div class="shadow p-3 mt-4">
-                                <div v-if="!isFormVisible">
-                                    <p class="mt-4">Add, remove, or manage your payment methods here.</p>
-                                    <button @click="togglePaymentForm" class="btn btn-primary d-none">Add Payment
-                                        Method</button>
-                                    <img src="../assets/visa-mastercard-amex_0.png" width="300px">
-                                </div>
-
-                                <div v-if="isFormVisible" class="mt-3">
-                                    <form @submit.prevent="submitPaymentMethod" class="text-start">
-                                        <div class="mb-3">
-                                            <label for="cardNumber" class="form-label">Card Number</label>
-                                            <input type="text" class="form-control" v-model="cardNumber"
-                                                placeholder="Enter card number" required />
-                                        </div>
-                                        <div class="mb-3">
-                                            <label for="cardHolder" class="form-label">Card Holder Name</label>
-                                            <input type="text" class="form-control" v-model="cardHolder"
-                                                placeholder="Enter card holder name" required />
-                                        </div>
-                                        <div class="container-fluid ml-0 p-0">
-                                            <div class="row">
-                                                <div class="mb-3 col-4">
-                                                    <label for="expiryDate" class="form-label">Expiry Date</label>
-                                                    <input type="text" class="form-control" v-model="expiryDate"
-                                                        placeholder="MM/YY" required />
-                                                </div>
-                                                <div class="mb-3 col-4">
-                                                    <label for="cvv" class="form-label">CVV</label>
-                                                    <input type="text" class="form-control" v-model="cvv"
-                                                        placeholder="Enter CVV" required />
-                                                </div>
-                                                <div class="col-4"></div>
-                                            </div>
-                                        </div>
-                                        <button type="submit" class="btn btn-success">Save Payment Method</button>
-                                    </form>
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -235,25 +183,6 @@ export default {
         cancelEdit() {
             this.isEditing = false;  // cancel editing, revert to previous name
             this.showEditingControls = false;  // Hide editing controls
-        },
-        togglePaymentForm() {
-            this.isFormVisible = !this.isFormVisible;
-        },
-        submitPaymentMethod() {
-            // Here you would typically handle form submission, e.g., sending the data to your backend
-            console.log('Payment Method Submitted:', {
-                cardNumber: this.cardNumber,
-                cardHolder: this.cardHolder,
-                expiryDate: this.expiryDate,
-                cvv: this.cvv,
-            });
-
-            // Reset form fields
-            this.cardNumber = '';
-            this.cardHolder = '';
-            this.expiryDate = '';
-            this.cvv = '';
-            this.isFormVisible = false; // Optionally close the form after submission
         },
         topup(amount) {
             this.balance += amount;

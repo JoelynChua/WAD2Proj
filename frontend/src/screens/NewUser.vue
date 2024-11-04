@@ -35,7 +35,7 @@
           <input type="checkbox" @click="togglePasswordVisibility"> Show Password
           <small v-if="passwordError" class="text-danger">{{ passwordError }}</small>
         </div>
-        <button type="submit" class="btn btn-primary" style="border-radius: 0%;" :disabled="isLoading">
+        <button type="submit" class="btn btn-primary w-100" style="border-radius: 0%;" :disabled="isLoading">
           {{ isLoading ? 'Signing Up...' : 'Sign up' }}
         </button>
         <br>
@@ -44,7 +44,9 @@
         <GoogleLogin />
       </form>
       <div class="text-center mt-3">
-        <p>Already have an account? <RouterLink to="/login-for-users">Log In</RouterLink>
+        <p class="changeuser"><RouterLink class="router-link" to="/login-for-users">Login</RouterLink>
+        </p>
+        <p class="changeuser"><RouterLink class="router-link" to="/login-for-organisers">Organizer</RouterLink>
         </p>
       </div>
     </div>
@@ -185,5 +187,20 @@ export default {
 h5 {
   font-size: 38px;
   font-weight: 900;
+}
+
+.changeuser {
+  text-align: start;
+  margin-bottom: 8px
+}
+
+.router-link {
+  text-decoration: none;
+  color: rgb(54, 89, 227);
+  font-family: "Neue Plak", -apple-system, BlinkMacSystemFont, Roboto, "Helvetica Neue", Helvetica, Tahoma, Arial, sans-serif;
+}
+
+.router-link:hover {
+  text-decoration: underline;
 }
 </style>

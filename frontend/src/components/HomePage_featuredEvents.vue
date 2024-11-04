@@ -2,10 +2,11 @@
   <h2 class="fe-title">featured events</h2>
   <h5 class="fe-secondary">SINGAPORE</h5>
   <div class="pop-events">
-    <div class="text-end">
-      <i @click="prev" :class="['fi', 'fi-rr-angle-circle-left', 'h1', 'me-1', { 'active': isPrevActive }]" @mouseenter="isPrevActive = true" @mouseleave="isPrevActive = false"></i>
-      <i @click="next" :class="['fi', 'fi-rr-angle-circle-right', 'h1', { 'active': isNextActive }]" @mouseenter="isNextActive = true" @mouseleave="isNextActive = false"></i>
-    </div>
+    <div id="carouselController" class="text-end">
+  <i @click="prev" :class="['fi', 'fi-rr-angle-circle-left', 'h1', 'me-1', { 'active': isPrevActive }]" @mouseenter="isPrevActive = true" @mouseleave="isPrevActive = false"></i>
+  <i @click="next" :class="['fi', 'fi-rr-angle-circle-right', 'h1', { 'active': isNextActive }]" @mouseenter="isNextActive = true" @mouseleave="isNextActive = false"></i>
+</div>
+
     <swiper :slidesPerView="4" :spaceBetween="100" :grabCursor="true" :pagination="{
       clickable: true,
     }" :modules="modules" :breakpoints="{
@@ -24,7 +25,9 @@
         slidesPerView: 4,
         spaceBetween: 50
       }
-    }" class="mySwiper">
+    }" class="mySwiper"
+      @swiper="setSwiperInstance"
+      >
       <swiper-slide v-for="event in events" :key="event.id" class="event-box" @click="goToEventDetails(event.id)"
         style="cursor: pointer; position: relative">
         <!-- Event Image Placeholder -->
@@ -52,14 +55,9 @@
 </template>
 
 <script>
-// Import Swiper Vue.js components
 import { Swiper, SwiperSlide } from 'swiper/vue';
-
-// Import Swiper styles
 import 'swiper/css';
 import 'swiper/css/pagination';
-
-// Import required modules
 import { Pagination } from 'swiper/modules';
 
 export default {
@@ -132,6 +130,9 @@ export default {
           followers: '932821'
         },
       ],
+      swiperInstance: null,
+      isPrevActive: false,
+      isNextActive: false,
     }
   },
   components: {
@@ -152,7 +153,26 @@ export default {
   methods: {
     goToEventDetails(event) {
       this.$emit('popevent', event)
-    }
+    },
+    next() {
+      if (this.swiperInstance) {
+        this.swiperInstance.slideNext();
+        this.swiperInstance.slideNext();
+        this.swiperInstance.slideNext();
+        this.swiperInstance.slideNext();
+      }
+    },
+    prev() {
+      if (this.swiperInstance) {
+        this.swiperInstance.slidePrev();
+        this.swiperInstance.slidePrev();
+        this.swiperInstance.slidePrev();
+        this.swiperInstance.slidePrev();
+      }
+    },
+    setSwiperInstance(swiper) {
+      this.swiperInstance = swiper;
+    },
   }
 };
 </script>
@@ -173,7 +193,7 @@ export default {
 
 .pop-events {
   background-color: #f9f9f9;
-  margin-top: 100px;
+  margin-top: 30px;
   padding: 1px;
   font-family: graphie, sans-serif;
 }
@@ -198,7 +218,6 @@ export default {
   width: 100%;
   overflow: hidden;
   border-radius: 8px;
-  /* Match card rounding */
 }
 
 .event-image {
@@ -215,7 +234,6 @@ export default {
   flex-grow: 1;
 }
 
-/* Optional Swiper styling to make it match the design */
 .mySwiper {
   margin: 30px auto;
   padding-top: 10px;
@@ -262,4 +280,39 @@ export default {
 ::v-deep .swiper-wrapper {
   overflow: visible;
 }
+
+@media (max-width: 520px) {
+  #carouselController {
+    display: flex;
+    justify-content: center;
+    margin-right: 0px !important;
+  }
+}
+
+#carouselController {
+    margin-right: 15%;
+}
+
+i {
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+i:hover {
+  transform: scale(1.1);
+  color: rgb(207, 89, 59);
+}
+
+i:active {
+  animation: clickAnimation 0.1s forwards;
+}
+
+@keyframes clickAnimation {
+  0% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
 </style>
