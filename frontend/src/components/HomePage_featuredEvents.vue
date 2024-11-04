@@ -2,6 +2,10 @@
   <h2 class="fe-title">featured events</h2>
   <h5 class="fe-secondary">SINGAPORE</h5>
   <div class="pop-events">
+    <div class="text-end">
+      <i @click="prev" :class="['fi', 'fi-rr-angle-circle-left', 'h1', 'me-1', { 'active': isPrevActive }]" @mouseenter="isPrevActive = true" @mouseleave="isPrevActive = false"></i>
+      <i @click="next" :class="['fi', 'fi-rr-angle-circle-right', 'h1', { 'active': isNextActive }]" @mouseenter="isNextActive = true" @mouseleave="isNextActive = false"></i>
+    </div>
     <swiper :slidesPerView="4" :spaceBetween="100" :grabCursor="true" :pagination="{
       clickable: true,
     }" :modules="modules" :breakpoints="{

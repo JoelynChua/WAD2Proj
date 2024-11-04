@@ -21,7 +21,11 @@
 
             <div class="collapse navbar-collapse" :class="{ hiddencollapse: isHidden }" id="navbarNav"
                 style="background-color: white">
-                <ul class="navbar-nav mx-auto">
+
+                <!-- NAVBAR CONDITIONAL RENDERING -->
+                <!-- SEPARATED INDIVIDUAL RENDERING DUE TO V-IF AFFECTING ANIMATION ORDERING -->
+
+                <ul class="navbar-nav mx-auto" v-if="isCustomer">
                     <li class="nav-item">
                         <RouterLink class="nav-link" :class="{ active: $route.path === '/events' }" aria-current="page"
                             to="/events">events</RouterLink>
@@ -39,6 +43,22 @@
                             to="/ExpensePage">expense</RouterLink>
                     </li>
 
+                    <li class="nav-item">
+                        <RouterLink class="nav-link" :class="{ active: $route.path === '/marketplace' }"
+                            to="/marketplace">marketplace</RouterLink>
+                    </li>
+                </ul>
+
+                <ul class="navbar-nav mx-auto" v-if="isOrganiser">
+                    <li class="nav-item">
+                        <RouterLink class="nav-link" :class="{ active: $route.path === '/events' }" aria-current="page"
+                            to="/events">events</RouterLink>
+                    </li>
+                    <li class="nav-item">
+                        <RouterLink class="nav-link" :class="{ active: $route.path === '/attractionsList' }"
+                            to="/attractionsList">attractions</RouterLink>
+                    </li>
+
                     <!-- Organizer-specific links -->
                     <li class="nav-item" v-if="isOrganiser">
                         <RouterLink class="nav-link" :class="{ active: $route.path === '/calendar' }" to="/calendar">
@@ -49,16 +69,34 @@
                             to="/organizer-dashboard">dashboard</RouterLink>
                     </li>
 
-
-                    <li class="nav-item" v-if="!isAuthenticated">
-                        <RouterLink class="nav-link"
-                            :class="{ active: $route.path === '/organizers' }" to="/organizers">organizers</RouterLink>
-                    </li>
                     <li class="nav-item">
                         <RouterLink class="nav-link" :class="{ active: $route.path === '/marketplace' }"
                             to="/marketplace">marketplace</RouterLink>
                     </li>
                 </ul>
+   
+                <ul class="navbar-nav mx-auto" v-if="!isCustomer && !isOrganiser">
+                    <li class="nav-item">
+                        <RouterLink class="nav-link" :class="{ active: $route.path === '/events' }" aria-current="page"
+                            to="/events">events</RouterLink>
+                    </li>
+                    <li class="nav-item">
+                        <RouterLink class="nav-link" :class="{ active: $route.path === '/attractionsList' }"
+                            to="/attractionsList">attractions</RouterLink>
+                    </li>
+
+                    <li class="nav-item" v-if="!isAuthenticated">
+                        <RouterLink class="nav-link"
+                            :class="{ active: $route.path === '/organizers' }" to="/organizers">organizers</RouterLink>
+                    </li>
+
+                    <li class="nav-item">
+                        <RouterLink class="nav-link" :class="{ active: $route.path === '/marketplace' }"
+                            to="/marketplace">marketplace</RouterLink>
+                    </li>
+                </ul>
+
+                <!-- NAVBAR CONDITIONAL RENDERING -->
 
                 <ul class="navbar-nav">
                     <!-- Separate nav for Profile and Log In / Sign Up -->
