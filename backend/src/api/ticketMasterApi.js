@@ -1,26 +1,41 @@
 const axios = require('axios');
 require("dotenv").config();
 
+// There is a discrepancy between the events retrieved in displayEvents and searchEvents
+//Therefore eventObjectsArray is use to story the events array in displayEvents then searchEvents will check if the event is included before returning
+// Declare a global array to store all the event objects
+let eventObjectsArray = [];
+
 async function displayEvents(req, res) {
     const apiKey = process.env.ticketMasterAPI;
     try {
-        const eventResponse = await axios.get(`https://app.ticketmaster.com/discovery/v2/events.json?apikey=${apiKey}`);
+        const eventResponse = await axios.get(`https://app.ticketmaster.com/discovery/v2/events.json?countryCode=US&apikey=${apiKey}`);
         console.log(eventResponse.data._embedded.events); // Log the events
-        let events = eventResponse.data._embedded.events
-        console.log(events); //display the array of events
-        for (i in events) {
+
+        let events = eventResponse.data._embedded.events;
+        console.log(events); // Display the array of events
+
+        // Clear the global array before populating it
+        eventObjectsArray = [];
+
+        for (let i in events) {
             let eventObject = events[i];
             let eventName = eventObject.name;
-            //console.log(eventName);
+            // Push the event object to the global array
+            eventObjectsArray.push(eventObject);
         }
 
+        console.log(eventObjectsArray, "eventObjectsArray")
+
         // Send the fetched events as a response
-        res.json(eventResponse.data._embedded.events);
+        res.json(eventObjectsArray); // Use the global array of event objects
     } catch (error) {
         console.error('Error fetching events:', error);
         res.status(500).send('Failed to fetch events');
     }
 }
+
+
 
 
 //Id has to be passed as a URL parameter because using external API
@@ -46,6 +61,36 @@ async function getEventById(req, res) {
         res.status(500).send('Failed to fetch event');
     }
 }
+
+async function searchEventsByName(req, res) {
+    const apiKey = process.env.ticketMasterAPI;
+    const eventName = req.params.eventName; // Extract eventName from request parameters
+
+    if (!eventName) {
+        return res.status(400).send('Event name is required');
+    }
+
+    try {
+        // Fetch the specific events by keyword
+        const eventResponse = await axios.get(`https://app.ticketmaster.com/discovery/v2/events.json?keyword=${eventName}&countryCode=US&apikey=${apiKey}`);
+
+        // Log the event details
+        console.log(eventResponse.data); // Log the event details
+
+        // Filter the events to include only those present in the global eventObjectsArray
+        const filteredEvents = eventResponse.data._embedded.events.filter(event => 
+            eventObjectsArray.some(globalEvent => globalEvent.id === event.id)
+        );
+
+        // Send the filtered events as a response
+        res.json(filteredEvents);
+    } catch (error) {
+        console.error('Error fetching event:', error);
+        res.status(500).send('Failed to search event');
+    }
+}
+
+
 
 
 
@@ -167,4 +212,4 @@ async function getEventByIdItinerary(req, res) {
 
 
 module.exports = { displayEvents, displayAttractions, getEventById, getAttractionsById, 
-    getAttractionByIdItinerary, getEventByIdItinerary };  // Ensure that you are exporting it this way
+    getAttractionByIdItinerary, getEventByIdItinerary, searchEventsByName };  // Ensure that you are exporting it this way

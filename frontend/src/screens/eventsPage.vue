@@ -12,7 +12,8 @@
                 <div class="form-field search-bar">
                     <div class="search-container">
                         <i class="fi fi-rr-search search-icon"></i>
-                        <input type="text" placeholder="Search for events..." aria-label="Search" />
+                        <input type="text" placeholder="Search for events..." aria-label="Search" v-model="searchQuery"
+                            @keyup="searchEvents(searchQuery)" />
                     </div>
                 </div>
             </div>
@@ -81,10 +82,10 @@
                     <div class="event-details">
                         <h2>{{ event.name }}</h2>
                         <p>Type: {{ event.type }}</p>
-                        <p>
+                        <!-- <p>
                             Age Restrictions:
                             {{ event.ageRestrictions.legalAgeEnforced }}
-                        </p>
+                        </p> -->
                     </div>
                 </div>
             </div>
@@ -103,6 +104,8 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { faBookmark } from '@fortawesome/free-solid-svg-icons';
 import { faBookmark as farBookmark } from '@fortawesome/free-regular-svg-icons';
 import { getAuth } from 'firebase/auth';
+// import axios from 'axios';
+
 
 import PopularEvents from '../components/PopularEvents.vue';
 
@@ -121,6 +124,7 @@ export default {
             userID: null, // Store userID in data
             showSearchBar: false,
             selectedFilter: 'all', // Default filter to show all events
+            searchQuery: '', // Bind to the search input
 
         };
     },
@@ -276,6 +280,26 @@ export default {
                 console.error('Failed to reload wishlists:', error);
             }
         },
+
+        // Search
+        async searchEvents(query) {
+            console.log(query, "QUERY");
+
+            // Check if the query is empty
+            if (query && query.length > 0) {
+                try {
+                    this.events = await eventService.searchEventName(query);
+                    console.log(this.events, "searched events");
+                } catch (error) {
+                    console.error('Error searching events:', error);
+                    this.events = [];
+                }
+            } else {
+                // If query is empty, fetch all events
+                this.events = await eventService.displayEvents();
+                console.log(this.events, "all events"); // Log the fetched events for clarity
+            }
+        }
 
     },
 };

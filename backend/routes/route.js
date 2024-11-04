@@ -19,13 +19,13 @@ const router = express.Router();
 const app = express();
 app.use(cors());
 
-const { displayEvents, displayAttractions, getEventById, getAttractionsById } = require('../src/api/ticketMasterApi'); // Adjust path if needed
+const { displayEvents, displayAttractions, getEventById, getAttractionsById, searchEventsByName } = require('../src/api/ticketMasterApi'); // Adjust path if needed
 const itineraryController = require('../controllers/itineraryController');
 const wishlistController = require('../controllers/wishlistController');
 
 // Define API routes
 router.get('/displayEvents', displayEvents);
-
+router.get('/displayEvents/:eventName', searchEventsByName);
 router.get('/eventDetails/:eventID', (req, res) => {
     const eventID = req.params.eventID;  // Extract eventID from URL params
     getEventById(req, res, eventID);     // Pass the eventID to the getEventById function
