@@ -1,82 +1,62 @@
 <template>
-    <div class="container d-flex flex-column align-items-center">
-        <div class="row justify-content-center">
-            <div class="col-md-12 text-center">
-                <div class="d-flex align-items-start">
-                    <img v-if="eventDetails.images?.length" :src="eventDetails.images[0].url" class="img-fluid me-3"
-                        alt="Event Image" style="margin: 30px; width: 500px; height: 300px" />
-
-                    <!-- Ticket Box -->
-                    <div class="col-auto ticket-box text-center container-fluid">
-                        <p class="ticket-title">Learn More</p>
-                        <button class="btn btn-danger get-tickets-btn" @click="openTickets">TicketMaster</button>
-                        
-                        <!-- Button trigger modal -->
-                        <button type="button" class="btn btn-primary get-tickets-btn" data-bs-toggle="modal"
-                            data-bs-target="#staticBackdrop">Seatmap</button>
-                    </div>
-                </div>
-
-                <h1 v-if="eventDetails.name">{{ eventDetails.name }}</h1>
-                <p v-if="eventDetails.type">Type: {{ eventDetails.type }}</p>
-                <p v-if="eventDetails.dates?.start?.localDate">Date: {{ eventDetails.dates.start.localDate }}</p>
-                <p v-if="eventDetails.dates?.start?.localTime">Time: {{ eventDetails.dates.start.localTime }}</p>
-                <p v-if="eventDetails.dates?.timezone">Timezone: {{ eventDetails.dates.timezone }}</p>
-                <p v-if="eventDetails.dates?.status?.code">Status: {{ eventDetails.dates.status.code }}</p>
-                <hr />
-                <h3>Sales:</h3>
-                <p v-if="eventDetails.sales?.public?.startDateTime">Start date:
-                    {{ eventDetails.sales.public.startDateTime }}</p>
-                <p v-if="eventDetails.sales?.public?.endDateTime">End date: {{ eventDetails.sales.public.endDateTime }}
-                </p>
-                <p v-if="eventDetails.priceRanges">
-                    Price range:
-                    {{ `${eventDetails.priceRanges[0].min || 'N/A'} to ${eventDetails.priceRanges[0].max || 'N/A'}
-                    ${eventDetails.priceRanges[0].currency || ''}` }}
-                </p>
-
-            </div>
+    <div>
+        <div v-if="loading" class="loading">
+            <img class="loading-image" src="../assets/logo.png"/>
+            <p>Loading...</p>
         </div>
-
-        <!-- Modal for Seatmap -->
-        <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
-            aria-labelledby="staticBackdropLabel" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h1 class="modal-title fs-5" id="staticBackdropLabel">Seatmap</h1>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <img v-if="eventDetails.seatmap?.staticUrl" :src="eventDetails.seatmap.staticUrl"
-                            class="img-fluid" alt="Seatmap" />
-                        <p v-else>No seatmap available.</p>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    </div>
+        <div v-else>
+            <div class="d-flex justify-content-center">
+                <div class="col-8 container-fluid">
+                        <div ref="topFocusElement" tabindex="-1"></div>
+                        <div class="event-hero-wrapper">
+                            <img :src="eventDetails.images[0].url" class="event-hero-image"
+                                alt="Event Image" aria/>
+                        </div>
                 </div>
             </div>
+            <div class="event-details">
+                <h1>{{ eventDetails.name }}</h1>
+                    <p>Type: {{ eventDetails.type }}</p>
+                    <p>Date: {{ eventDetails.dates.start.localDate }}</p>
+                    <p>Time: {{ eventDetails.dates.start.localTime }}</p>
+                    <p>Timezone: {{ eventDetails.dates.timezone }}</p>
+                    <p>Status: {{ eventDetails.dates.status.code }}</p>
+                    <hr />
+                    <h3>Sales:</h3>
+                    <p>Start date:
+                        {{ eventDetails.sales.public.startDateTime }}</p>
+                    <p>End date: {{ eventDetails.sales.public.endDateTime }}
+                    </p>
+                    <p>
+                        Price range:
+                        {{ `${eventDetails.priceRanges[0].min || 'N/A'} to ${eventDetails.priceRanges[0].max || 'N/A'}
+                        ${eventDetails.priceRanges[0].currency || ''}` }}
+                    </p>
+            </div>
         </div>
-    </div>
+        <EventNaviBar :event="eventDetails"></EventNaviBar>
+    </div>      
 </template>
 
 
 <script>
-import { Modal } from "bootstrap";
 import eventService from "../services/eventService"; // Adjust the import to your event service
 import 'bootstrap/dist/css/bootstrap.min.css'; // Import Bootstrap CSS
 import 'bootstrap'; // Import Bootstrap JS
+import EventNaviBar from "../components/EventDetails_navibar.vue"
 
 export default {
     data() {
         return {
             eventDetails: {}, // Initialize as an empty object
-            //eventDetails is an empty object where the details of the event will be stored after they are fetched.
+            loading: true,
         };
     },
+    components: {
+        EventNaviBar,
+    },
     // Created hook -- lifecycle method
-    created() {
+    async created() {
         // ensure that the data loading happens immediately and does not require the user to click a button or perform another action first.
         this.fetchEventDetails();
     },
@@ -85,86 +65,59 @@ export default {
             const id = this.$route.params.id; // Get the id from the route parameters
             console.log(id)
             try {
+                this.loading = true;
                 this.eventDetails = await eventService.goToEventDetails(id); // Fetch event details
             } catch (error) {
                 console.error("Failed to fetch event details:", error);
+            } finally {
+                this.loading = false; // Set loading to false after data is fetched
             }
-        },
-        openTickets() {
-            window.open(this.eventDetails.url, '_blank');
-        },
-        showSeatmap() {
-            const myModal = new Modal(document.getElementById("staticBackdrop"));
-            myModal.show();
         },
     },
 };
 </script>
 
 <style>
-.aligned {
-    text-align: center;
-}
-
-.ticket-box {
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
-    margin: 30px;
-    padding: 20px;
-    background-color: #ffffff;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    z-index: 1000; /* Ensure it appears above other content */
-}
-
-/* Media query for viewports larger than md */
-@media (min-width: 1100px) {
-    .ticket-box {
-        /* Optional adjustments for larger viewports */
-        margin-right: 100px; /* Space between image and ticket box */
-        position: fixed; /* Adjusted to use relative positioning */
-        right: 0;
+@keyframes bob {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-10px); /* Adjust the height as needed */
     }
 }
-
-/* Media query for viewports smaller than md */
-@media (max-width: 1100px) {
-    .ticket-box {
-        width: 100%; /* Cover the full width of the viewport */
-        height: auto; /* Height can be auto or a specific value */
-        position: fixed; /* Fixed positioning for bottom placement */
-        bottom: 0; /* Place it at the bottom of the viewport */
-        left: 0; /* Align to the left */
-        margin: 0; /* Remove margin to cover full width */
-        padding: 20px; /* Add padding if needed */
-        box-shadow: none; /* Optional: remove shadow for a flatter design */
-    }
+.loading {
+    width: 50px; /* Adjust the size as needed */
+    animation: bob 1.5s ease-in-out infinite;
+    display: block;
+    margin: 50px auto; 
+    display: flex;
+    align-items: center
+}
+.loading p {
+    margin: 0 auto;
+}
+.loading-image {
+    width: 100%
 }
 
-/* Ensure the container has padding to prevent content overlap */
-.container {
-    padding-bottom: 150px;
-    /* Adjust as needed for fixed ticket box */
+.event-hero-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 800px; 
+  max-height: 400px;
+  height: auto; 
+  border-radius: 20px;
+  overflow: hidden;
+  margin: 20px auto;
 }
 
-.ticket-title {
-    font-size: 24px;
-    font-weight: bold;
-    color: #333;
-    margin-bottom: 15px;
-}
-
-.get-tickets-btn {
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 5px;
-    font-size: 16px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-}
-
-.get-tickets-btn:hover {
-    background-color: #f5a358;
-    transform: scale(1.10);
+.event-hero-image {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  border-radius: 8px;
 }
 </style>
