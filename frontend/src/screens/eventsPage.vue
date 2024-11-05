@@ -38,7 +38,6 @@
         </div>
 
         <!-- Wishlist Filtered Events -->
-        
         <div class="container mt-4" v-if="selectedFilter === 'wishlist' && filteredEvents.length">
             <div class="row">
                 <div class="col-lg-4 col-md-6 col-12 mb-4" v-for="event in filteredEvents" :key="event.id">
@@ -219,7 +218,6 @@ export default {
             } else {
                 // If userID is not available yet, you might want to fetch events without wishlists
                 this.events = await eventService.displayEvents();
-
                 console.log(this.events);
             }
         } catch (error) {
