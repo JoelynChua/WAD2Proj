@@ -47,7 +47,11 @@
                         <img :src="event.images[0].url || 'https://via.placeholder.com/300x200?text=Event+Image'"
                             alt="Event image" class="card-img-top event-image" />
 
-                        <div class="icon-container">
+                        <div class="icon-container" v-if="!isBookmarked(event.id)">
+                            <font-awesome-icon v-if="userID" :icon="isBookmarked(event.id) ? ['fas', 'bookmark'] : ['far', 'bookmark']"
+                            class="bookmark-icon" @click.stop="toggleWishlist(event.id)" />
+                        </div>
+                        <div class="fixed-icon-container" v-else>
                             <font-awesome-icon v-if="userID" :icon="isBookmarked(event.id) ? ['fas', 'bookmark'] : ['far', 'bookmark']"
                             class="bookmark-icon" @click.stop="toggleWishlist(event.id)" />
                         </div>
@@ -117,7 +121,7 @@ export default {
     name: 'HomePage',
     components: {
         FontAwesomeIcon,
-        PopularEvents, // Register the component
+        PopularEvents,
     },
     data() {
         return {

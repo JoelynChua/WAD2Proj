@@ -263,7 +263,7 @@ export default {
   /* Slight zoom effect on hover */
 }
 
-::v-deep .swiper-pagination {
+:deep(.swiper-pagination) {
   position: relative;
   margin-top: 20px;
   /* Increase the value to move it lower */
@@ -277,7 +277,7 @@ export default {
   object-fit: cover;
 }
 
-::v-deep .swiper-wrapper {
+:deep(.swiper-wrapper) {
   overflow: visible;
 }
 
