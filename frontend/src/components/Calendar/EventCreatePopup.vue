@@ -78,7 +78,7 @@
                 v-model="localEvent.description" 
                 id="description" 
                 class="description-textarea" 
-                placeholder="Add description or attachment"
+                placeholder="Add description"
               ></textarea>
             </div>
           </div>

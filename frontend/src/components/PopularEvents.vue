@@ -37,7 +37,7 @@
                 @click="goToEventDetails(event.id)"
                 style="cursor: pointer; position: relative"
                 >
-                <!-- Event Image Placeholder -->
+                <!-- Event Image Container -->
                 <div class="event-image-container">
                     <img
                         :src="event.images[0].url || 'https://via.placeholder.com/300x200?text=Event+Image'"
@@ -48,7 +48,6 @@
 
                 <div class="event-details">
                     <p>{{ event.name }}</p>
-                    
                 </div>
 
             </swiper-slide>
@@ -68,29 +67,27 @@ import 'swiper/css/pagination';
 import { Pagination } from 'swiper/modules';
 
 export default {
-name: 'PopularEvents',
-components: {
-    Swiper,
-    SwiperSlide,
-},
-props: ['events'],
-setup() {
-    const onSlideClick = (category) => {
-    console.log(`${category} clicked`);
-    // Add additional logic for when the slide is clicked
-    };
+    name: 'PopularEvents',
+    components: {
+        Swiper,
+        SwiperSlide,
+    },
+    props: ['events'],
+    setup() {
+        const onSlideClick = (category) => {
+            console.log(`${category} clicked`);
+        };
 
-    return {
-    modules: [Pagination],
-    onSlideClick, // Expose the onSlideClick function
-    };
-},
-methods: {
-    goToEventDetails(id) {
-            // Use Vue Router's 'push' method to navigate to EventDetails page
+        return {
+            modules: [Pagination],
+            onSlideClick,
+        };
+    },
+    methods: {
+        goToEventDetails(id) {
             this.$router.push({ name: 'EventDetails', params: { id } });
         },
-}
+    }
 };
 </script>
 
@@ -101,8 +98,9 @@ methods: {
     padding: 1px;
     font-family: graphie, sans-serif;
 }
-.pop-events h1{
-    color: #f0f0f0
+
+.pop-events h1 {
+    color: #f0f0f0;
 }
 
 .event-box {
@@ -110,89 +108,72 @@ methods: {
     flex-direction: column;
     background-color: #ffffff;
     border-radius: 15px;
-    width: 400px;
-    height: 300px;
+    width: 300px !important;
+    height: 350px !important; 
     flex-shrink: 0;
     box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
+    margin: 0 auto; 
 }
-
 .event-image-container {
     width: 100%;
+    height: 200px; 
     overflow: hidden;
-    border-radius: 8px; /* Match card rounding */
+    border-radius: 15px 15px 0 0; 
 }
-
 .event-image {
     width: 100%;
-    height: 150px;
+    height: 100%;
     object-fit: cover;
-    
+    object-position: center;
 }
 
 .event-details {
     padding: 15px;
     text-align: center;
     flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
 .event-details p {
     font-size: 1.1rem;
     display: -webkit-box;
-    -webkit-line-clamp: 2; 
+    -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     color: #34495e;
-    margin: 10px 0;
-    overflow: hidden; 
-    text-overflow: ellipsis; 
-    height: 100%; 
-    margin: 0 auto; 
-    align-content: center
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin: 0;
+    line-height: 1.4;
 }
 
-/* Optional Swiper styling to make it match the design */
 .mySwiper {
-margin: 30px auto;
-padding-top: 10px;
-max-width: 1200px;
-overflow: hidden;
+    margin: 30px auto;
+    padding: 20px 0;
+    max-width: 1200px;
+    overflow: hidden;
 }
 
 .swiper-slide {
-background: #f0f0f0; /* Placeholder background color */
-border-radius: 10px;
-display: flex;
-align-items: center;
-font-size: 1.2em;
-font-weight: bold;
-color: #333;
-cursor: pointer;
-padding: 20px 10px;
-transition: transform 0.3s ease;
-text-align: center;
-width: auto;
-flex-shrink: 0;
-height: 300px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: transform 0.3s ease;
 }
 
 .swiper-slide:hover {
-transform: scale(1.05); /* Slight zoom effect on hover */
+    transform: scale(1.05);
 }
 
 :deep(.swiper-pagination) {
-  position: relative;
-  margin-top: 20px; /* Increase the value to move it lower */
-}
-
-
-.swiper-slide img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+    position: relative;
+    margin-top: 20px;
 }
 
 :deep(.swiper-wrapper) {
     overflow: visible;
+    padding: 20px 0; /* Add padding to account for hover scale effect */
 }
 </style>
