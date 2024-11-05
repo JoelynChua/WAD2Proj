@@ -43,38 +43,16 @@
             <div class="row">
                 <div class="col-lg-4 col-md-6 col-12 mb-4" v-for="event in filteredEvents" :key="event.id">
                     <div class="card event" @click="goToEventDetails(event.id)" style="cursor: pointer; position: relative;">
-                        <!-- Event Image -->
-                        <img :src="event.images[0].url || 'https://via.placeholder.com/300x200?text=Event+Image'"
-                            alt="Event image" class="card-img-top event-image" />
-
-                        <div class="icon-container" v-if="!isBookmarked(event.id)">
-                            <font-awesome-icon v-if="userID" :icon="isBookmarked(event.id) ? ['fas', 'bookmark'] : ['far', 'bookmark']"
-                            class="bookmark-icon" @click.stop="toggleWishlist(event.id)" />
+                        <!-- Event Image Section -->
+                        <div v-if="event.type === 'Organiser Event'" 
+                            class="custom-event-image" 
+                            :style="{ backgroundColor: event.colour || '#1a1a40' }">
+                            <img src="../assets/logo.png" alt="Event logo" class="event-logo" />
                         </div>
-                        <div class="fixed-icon-container" v-else>
-                            <font-awesome-icon v-if="userID" :icon="isBookmarked(event.id) ? ['fas', 'bookmark'] : ['far', 'bookmark']"
-                            class="bookmark-icon" @click.stop="toggleWishlist(event.id)" />
-                        </div>
-
-                        <!-- Event Details -->
-                        <div class="card-body text-center">
-                            <h5 class="card-title">{{ event.name }}</h5>
-                            <p class="card-text">Type: {{ event.type }}</p>
-                            <p v-if="event.ageRestrictions.legalAgeEnforced">Age Restrictions: {{ event.ageRestrictions.legalAgeEnforced }}</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- All Events (Default View) -->
-        <div class="container mt-4" v-else>
-            <div class="row" v-if="events.length">
-                <div class="col-lg-4 col-md-6 col-12 mb-4" v-for="event in events" :key="event.id">
-                    <div class="card event" @click="goToEventDetails(event.id)" style="cursor: pointer; position: relative;">
-                        <!-- Event Image -->
-                        <img :src="event.images[0].url || 'https://via.placeholder.com/300x200?text=Event+Image'"
-                            alt="Event image" class="card-img-top event-image" />
+                        <img v-else
+                            :src="event.images[0].url"
+                            alt="Event image" 
+                            class="ticketmaster-image" />
 
                         <!-- Bookmark Icon -->
                         <div class="icon-container" v-if="!isBookmarked(event.id)">
@@ -86,24 +64,78 @@
                             class="bookmark-icon" @click.stop="toggleWishlist(event.id)" />
                         </div>
 
-                        
-
                         <!-- Event Details -->
-                        <div class="card-body pt-3 pb-5">
+                        <div class="card-body">
                             <h5 class="card-title">{{ event.name }}</h5>
                             <p class="card-text">Type: {{ event.type }}</p>
+                            <p class="card-text">
+                                {{ new Date(event.dates?.start?.dateTime || event.start).toLocaleDateString('en-US', {
+                                    weekday: 'short',
+                                    year: 'numeric',
+                                    month: 'short',
+                                    day: 'numeric',
+                                    hour: '2-digit',
+                                    minute: '2-digit'
+                                }) }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- All Events (Default View) -->
+        <div class="container mt-4" v-else>
+            <div class="row" v-if="sortedEvents.length">
+                <div class="col-lg-4 col-md-6 col-12 mb-4" v-for="event in sortedEvents" :key="event.id">
+                    <div class="card event" @click="goToEventDetails(event.id)" style="cursor: pointer; position: relative;">
+                        <!-- Event Image Section -->
+                        <div v-if="event.type === 'Organiser Event'" 
+                            class="custom-event-image" 
+                            :style="{ backgroundColor: event.colour || '#1a1a40' }">
+                            <img src="../assets/logo.png" alt="Event logo" class="event-logo" />
+                        </div>
+                        <img v-else
+                            :src="event.images[0].url"
+                            alt="Event image" 
+                            class="ticketmaster-image" />
+
+                        <!-- Bookmark Icon -->
+                        <div class="icon-container" v-if="!isBookmarked(event.id)">
+                            <font-awesome-icon v-if="userID" :icon="isBookmarked(event.id) ? ['fas', 'bookmark'] : ['far', 'bookmark']"
+                            class="bookmark-icon" @click.stop="toggleWishlist(event.id)" />
+                        </div>
+                        <div class="fixed-icon-container" v-else>
+                            <font-awesome-icon v-if="userID" :icon="isBookmarked(event.id) ? ['fas', 'bookmark'] : ['far', 'bookmark']"
+                            class="bookmark-icon" @click.stop="toggleWishlist(event.id)" />
+                        </div>
+
+                        <!-- Event Details -->
+                        <div class="card-body">
+                            <h5 class="card-title">{{ event.name }}</h5>
+                            <p class="card-text">Type: {{ event.type }}</p>
+                            <p class="card-text">
+                                {{ new Date(event.dates?.start?.dateTime || event.start).toLocaleDateString('en-US', {
+                                    weekday: 'short',
+                                    year: 'numeric',
+                                    month: 'short',
+                                    day: 'numeric',
+                                    hour: '2-digit',
+                                    minute: '2-digit'
+                                }) }}
+                            </p>
                         </div>
                     </div>
                 </div>
             </div>
             <p v-else>No events available.</p>
         </div>
-
     </div>
 </template>
 
 <script>
 import eventService from '../services/eventService'; // Import the event service
+import organiserEventService from '../services/organiserEventService';
 import itineraryService from '../services/itineraryService';
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
@@ -125,34 +157,60 @@ export default {
     },
     data() {
         return {
-            events: [], // Initialize events as an empty array
+            events: [], // Initialize events as an empty array, ticket master events
+            organiserEvents: [], // organiser events from firebase
+            eventDateMap: [], // Master list of both event origin types -> {id, date} objects
             wishlists: [],
             userID: null, // Store userID in data
             showSearchBar: false,
             selectedFilter: 'all', // Default filter to show all events
             searchQuery: '', // Bind to the search input
             pop_events: [],
+            filteredTicketmasterEvents: [], // New property to store filtered Ticketmaster events
+            filteredOrganiserEvents: [], // New property to store filtered organizer events
 
         };
     },
+
     async created() {
+        this.authListener(); 
         try {
-            this.events = await eventService.displayEvents();
-            console.log(this.events);
-            this.pop_events = this.events.slice(0,8) // Added this to only take the first 8 of the events 
+            // Fetch both types of events
+            const [ticketmasterEvents, organiserEvents] = await Promise.all([
+                eventService.displayEvents(),
+                organiserEventService.getAllEvents()
+            ]);
+            
+            this.events = ticketmasterEvents;
+            this.organiserEvents = organiserEvents;
+            
+            // Create the master date-sorted list
+            this.eventDateMap = [
+                ...ticketmasterEvents.map(event => ({
+                    id: event.id,
+                    date: new Date(event.dates?.start?.dateTime || event.dates?.start?.localDate),
+                    type: 'ticketmaster'
+                })),
+                ...organiserEvents.map(event => ({
+                    id: event.id,
+                    date: new Date(event.start),
+                    type: 'organiser'
+                }))
+            ].sort((a, b) => a.date - b.date);
+
+            console.log("Raw organiserEvents data:", JSON.parse(JSON.stringify(organiserEvents)));
+            console.log("Raw eventDateMap data:", JSON.parse(JSON.stringify(this.eventDateMap)));
+
+            this.pop_events = this.events.slice(0, 8);
         } catch (error) {
-            console.error('Failed to fetch events or wishlists:', error);
+            console.error('Failed to fetch events:', error);
         }
     },
-    beforeUnmount() {
-        window.removeEventListener('scroll', this.handleScroll);
-    },
+
 
     async mounted() {
         try {
             // Set up the authentication listener first
-            this.authListener();
-
             // Fetch events only after the user state has been set
             if (this.userID) {
                 this.events = await eventService.displayEvents();
@@ -180,15 +238,42 @@ export default {
 
         Method only perfor again when its called
         */
+        sortedEvents() {
+
+            const eventsToUse = this.searchQuery ? 
+                {
+                    ticketmaster: this.filteredTicketmasterEvents,
+                    organiser: this.filteredOrganiserEvents
+                } : 
+                {
+                    ticketmaster: this.events,
+                    organiser: this.organiserEvents
+                };
+
+            return this.eventDateMap
+                .map(item => {
+                    if (item.type === 'ticketmaster') {
+                        return eventsToUse.ticketmaster.find(e => e.id === item.id);
+                    } else {
+                        const orgEvent = eventsToUse.organiser.find(e => e.id === item.id);
+                        return orgEvent ? {
+                            ...orgEvent,
+                            name: orgEvent.title,
+                            type: 'Organiser Event',
+                            colour: orgEvent.colour || '#1a1a40'
+                        } : null;
+                    }
+                })
+                .filter(Boolean); 
+        },
+        
         filteredEvents() {
-            // If userID is present and wishlists are loaded, filter the events
             if (this.userID && this.wishlists.length) {
-                return this.events.filter(event =>
+                return this.sortedEvents.filter(event =>
                     this.wishlists.some(wishlist => wishlist.eventID === event.id)
                 );
             }
-            console.log(this.wishlists); // Log wishlists for debugging
-            return this.events; // Return all events if no userID or no wishlists
+            return this.sortedEvents;
         }
     },
 
@@ -292,21 +377,56 @@ export default {
 
         // Search
         async searchEvents(query) {
-            console.log(query, "QUERY");
+            console.log('Searching with query:', query);
 
-            // Check if the query is empty
             if (query && query.length > 0) {
                 try {
-                    this.events = await eventService.searchEventName(query);
-                    console.log(this.events, "searched events");
+                    // Search Ticketmaster events
+                    this.filteredTicketmasterEvents = await eventService.searchEventName(query);
+
+                    // Search organizer events locally
+                    this.filteredOrganiserEvents = this.organiserEvents.filter(event => 
+                        event.title.toLowerCase().includes(query.toLowerCase()) ||
+                        (event.description && event.description.toLowerCase().includes(query.toLowerCase()))
+                    );
+
+                    // Update eventDateMap for the filtered results
+                    this.eventDateMap = [
+                        ...this.filteredTicketmasterEvents.map(event => ({
+                            id: event.id,
+                            date: new Date(event.dates?.start?.dateTime || event.dates?.start?.localDate),
+                            type: 'ticketmaster'
+                        })),
+                        ...this.filteredOrganiserEvents.map(event => ({
+                            id: event.id,
+                            date: new Date(event.start),
+                            type: 'organiser'
+                        }))
+                    ].sort((a, b) => a.date - b.date);
+
                 } catch (error) {
                     console.error('Error searching events:', error);
-                    this.events = [];
+                    this.filteredTicketmasterEvents = [];
+                    this.filteredOrganiserEvents = [];
                 }
             } else {
-                // If query is empty, fetch all events
-                this.events = await eventService.displayEvents();
-                console.log(this.events, "all events"); // Log the fetched events for clarity
+                // Reset to original state when search query is empty
+                this.filteredTicketmasterEvents = [];
+                this.filteredOrganiserEvents = [];
+                
+                // Restore original eventDateMap
+                this.eventDateMap = [
+                    ...this.events.map(event => ({
+                        id: event.id,
+                        date: new Date(event.dates?.start?.dateTime || event.dates?.start?.localDate),
+                        type: 'ticketmaster'
+                    })),
+                    ...this.organiserEvents.map(event => ({
+                        id: event.id,
+                        date: new Date(event.start),
+                        type: 'organiser'
+                    }))
+                ].sort((a, b) => a.date - b.date);
             }
         }
 
@@ -467,15 +587,85 @@ export default {
 }
 .event {
     position: relative;
-    border: 1px solid #e0e4e7;
-    border-radius: 10px;
+    border: none;
+    border-radius: 15px;
     background-color: #fff;
     overflow: hidden;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-    transition: all 0.1s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
     margin: 0 auto;
-
+    height: 320px;
 }
+
+.event:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+}
+
+.custom-event-image {
+    width: 100%;
+    height: 160px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    /* Use a gradient background instead of solid color
+    background: linear-gradient(45deg, rgba(26, 26, 64, 0.9), rgba(26, 26, 64, 0.7)); */
+}
+
+.event-logo {
+    width: 80px;
+    height: 80px;
+    object-fit: contain;
+    opacity: 0.9;
+}
+
+.card-body {
+    padding: 1.5rem;
+    background: white;
+}
+
+.card-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #2d3748;
+    margin-bottom: 0.75rem;
+}
+
+.card-text {
+    color: #718096;
+    font-size: 0.95rem;
+    margin-bottom: 0.5rem;
+}
+
+/* Add some spacing between cards */
+.col-lg-4, .col-md-6, .col-12 {
+    padding: 1rem;
+}
+
+/* Optional: Add a subtle transition when cards appear */
+.row > div {
+    opacity: 0;
+    animation: fadeIn 0.5s ease forwards;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.ticketmaster-image {
+    width: 100%;
+    height: 160px; /* Same height as custom-event-image */
+    object-fit: cover;
+}
+
 .event:hover {
     transform: scale(1.03);
     box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);

@@ -32,6 +32,7 @@ import interactionPlugin from '@fullcalendar/interaction'
 import { useCalendarEvents } from './useCalendarEvents'
 import EventCreatePopup from './EventCreatePopup.vue'
 import EventEditPopup from './EventEditPopup.vue'
+import { getAuth } from 'firebase/auth';
 
 export default {
   name: 'CalendarComponent',
@@ -46,7 +47,11 @@ export default {
     organiserId: {
       type: String,
       required: true,
-      default: () => sessionStorage.getItem('uid')
+      default: function() {
+        const auth = getAuth();
+        const user = auth.currentUser;
+        return user ? user.uid : null;
+      }
     }
   },
 
@@ -55,7 +60,7 @@ export default {
     const showEventEditor = ref(false)
     const newEvent = ref(null)
     const editingEvent = ref(null)
-    const defaultColor = '#fb00bc'
+    const defaultColor = '#4339cf'
     // const calendarRef = ref(null)
 
     const {
@@ -66,7 +71,7 @@ export default {
       updateEvent,
       deleteEvent
     } = useCalendarEvents(props.organiserId)
-
+    
     // Calendar event handlers
     const handleDateSelect = (selectInfo) => {
       console.log('Select info:', selectInfo);
@@ -99,6 +104,7 @@ export default {
       console.log('New event data:', newEvent.value);
       showEventPopup.value = true
     }
+
     function handleEventClick(info) {
         const event = info.event
         
@@ -234,10 +240,32 @@ export default {
       select: handleDateSelect,
       eventClick: handleEventClick,
       eventDrop: handleEventDrop,
+      customButtons: {
+        createEventButton: {
+          text: 'Create Event',
+          click: () => {
+            const today = new Date()
+            const formattedDate = formatDate(today)
+            
+            newEvent.value = {
+              title: '',
+              description: '',
+              start: formattedDate,
+              end: formattedDate,
+              startTime: '',
+              endTime: '',
+              allDay: true,
+              colour: defaultColor,
+              organiserId: props.organiserId
+            }
+            
+            showEventPopup.value = true
+          }
+        }
+      },
       headerToolbar: {
-        left: 'prev,next today',
-        center: 'title',
-        right: 'dayGridMonth,timeGridWeek,timeGridDay'
+        left: 'prev,next today title',
+        right: 'createEventButton dayGridMonth,timeGridWeek,timeGridDay'
       },
       eventTimeFormat: {
         hour: '2-digit',

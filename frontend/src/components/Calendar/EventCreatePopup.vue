@@ -1,70 +1,124 @@
 <template>
   <div class="event-popup">
     <div class="event-popup-content">
-      <h2>Create Event</h2>
+      <div class="popup-header">
+        <h2>Create Event</h2>
+        <button class="close-button" @click="$emit('close')">
+          <i class="fi fi-rr-cross"></i>
+        </button>
+      </div>
+
       <form @submit.prevent="handleSubmit">
-        <div class="form-group title-group">
-          <div class="title-label">
-            <label for="title">Title</label>
-            <div class="checkbox-group">
-              <input type="checkbox" v-model="localEvent.allDay" id="allDay">
-              <label for="allDay">All Day Event</label>
+        <div class="form-body">
+          <!-- Title and All Day Checkbox -->
+          <div class="form-group title-group">
+            <div class="input-with-icon">
+              <span class="input-icon">
+                <i class="fi fi-rr-edit"></i>
+              </span>
+              <input 
+                type="text" 
+                v-model="localEvent.title" 
+                id="title" 
+                required 
+                placeholder="Add title and time"
+                class="title-input"
+              >
             </div>
           </div>
-          <input type="text" v-model="localEvent.title" id="title" required placeholder="Enter event title">
+
+          <!-- Date/Time Section -->
+          <div class="form-group datetime-group">
+            <div class="datetime-icon">
+              <i class="fi fi-rr-calendar"></i>
+            </div>
+            <div class="datetime-inputs">
+              <div class="date-row above-date-row">
+                <input 
+                  v-model="localEvent.start" 
+                  id="start" 
+                  type="date" 
+                  required
+                  class="date-input"
+                >
+                <input 
+                  v-if="!localEvent.allDay"
+                  v-model="localEvent.startTime" 
+                  id="startTime" 
+                  type="time" 
+                  required
+                  class="time-input"
+                >
+              </div>
+              <div class="date-row">
+                <input 
+                  v-model="localEvent.end" 
+                  id="end" 
+                  type="date"
+                  class="date-input"
+                >
+                <input 
+                  v-if="!localEvent.allDay"
+                  v-model="localEvent.endTime" 
+                  id="endTime" 
+                  type="time"
+                  class="time-input"
+                >
+              </div>
+            </div>
+          </div>
+
+          <!-- Description -->
+          <div class="form-group">
+            <div class="input-with-icon">
+              <span class="input-icon">
+                <i class="fi fi-rr-document-signed"></i>
+              </span>
+              <textarea 
+                v-model="localEvent.description" 
+                id="description" 
+                class="description-textarea" 
+                placeholder="Add description or attachment"
+              ></textarea>
+            </div>
+          </div>
+
+          <!-- Color Picker -->
+          <div class="form-group color-group">
+            <span class="input-icon">
+              <i class="fi fi-rr-palette"></i>
+            </span>
+            <input 
+              type="color" 
+              v-model="localEvent.colour" 
+              id="eventColor"
+              class="color-picker"
+            >
+            <label for="eventColor">Event color</label>
+            <div class="all-day-toggle">
+              <input 
+                type="checkbox" 
+                v-model="localEvent.allDay" 
+                id="allDay"
+                class="all-day-checkbox"
+              >
+              <label for="allDay">All Day</label>
+            </div> 
+          </div>
         </div>
-        <div class="form-group">
-          <label for="description">Description</label>
-          <textarea v-model="localEvent.description" id="description" class="description-textarea" placeholder="Enter event description"></textarea>
-        </div>
-        <div class="form-group">
-          <label for="start">Start Date</label>
-          <input 
-            v-model="localEvent.start" 
-            id="start" 
-            type="date" 
-            required
-          >
-        </div>
-        <div class="form-group" v-if="!localEvent.allDay">
-          <label for="startTime">Start Time</label>
-          <input 
-            v-model="localEvent.startTime" 
-            id="startTime" 
-            type="time" 
-            required
-          >
-        </div>
-        <div class="form-group">
-          <label for="end">End Date</label>
-          <input 
-            v-model="localEvent.end" 
-            id="end" 
-            type="date"
-          >
-        </div>
-        <div class="form-group" v-if="!localEvent.allDay">
-          <label for="endTime">End Time</label>
-          <input 
-            v-model="localEvent.endTime" 
-            id="endTime" 
-            type="time"
-          >
-        </div>
-        <div class="form-group">
-          <label for="eventColor">Event Color</label>
-          <input type="color" v-model="localEvent.colour" id="eventColor">
-        </div>
-        <div class="button-group">
-          <button type="submit" class="btn btn-primary">Create Event</button>
-          <button type="button" @click="$emit('close')" class="btn btn-secondary">Cancel</button>
+
+        <!-- Footer -->
+        <div class="popup-footer">
+          <div class="button-group">
+            <button type="submit" class="btn btn-primary">Create</button>
+          </div>
         </div>
       </form>
     </div>
   </div>
 </template>
-
 <script>
+import '../../../node_modules/@flaticon/flaticon-uicons/css/regular/all.css';
 import { ref, watch } from 'vue'
 
 export default {
@@ -112,7 +166,6 @@ export default {
     emit('create', formattedEvent)
   }
 
-// formatEventForBackend
 
 
 
@@ -125,4 +178,5 @@ export default {
 </script>
 
 <style scoped src="./CalendarStyles.css">
+
 </style>
