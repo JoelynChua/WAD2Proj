@@ -1,53 +1,143 @@
 <template>
-    <div class="event-popup">
-      <div class="event-popup-content">
+  <div class="event-popup">
+    <div class="event-popup-content">
+      <div class="popup-header">
         <h2>Edit Event</h2>
-        <form @submit.prevent="handleSubmit">
+        <button class="close-button" @click="$emit('close')">
+          <i class="fi fi-rr-cross"></i>
+        </button>
+      </div>
+
+      <form @submit.prevent="handleSubmit">
+        <div class="form-body">
+          <!-- Title and All Day Checkbox -->
           <div class="form-group title-group">
-            <div class="title-label">
-              <label for="editTitle">Title</label>
-              <div class="checkbox-group">
-                <input type="checkbox" v-model="localEvent.allDay" id="editAllDay">
-                <label for="editAllDay">All Day Event</label>
+            <div class="input-with-icon">
+              <span class="input-icon">
+                <i class="fi fi-rr-edit"></i>
+              </span>
+              <input 
+                type="text" 
+                v-model="localEvent.title" 
+                id="title" 
+                required 
+                placeholder="Add title and time"
+                class="title-input"
+              >
+            </div>
+          </div>
+
+          <!-- Date/Time Section -->
+          <div class="form-group datetime-group">
+            <div class="datetime-icon">
+              <i class="fi fi-rr-calendar"></i>
+            </div>
+            <div class="datetime-inputs">
+              <div class="date-row above-date-row">
+                <input 
+                  v-model="localEvent.start" 
+                  id="editStart" 
+                  type="date" 
+                  required
+                  class="date-input"
+                >
+                <input 
+                  v-if="!localEvent.allDay"
+                  v-model="localEvent.startTime" 
+                  id="editStartTime" 
+                  type="time" 
+                  required
+                  class="time-input"
+                >
+              </div>
+              <div class="date-row">
+                <input 
+                  v-model="localEvent.end" 
+                  id="editEnd" 
+                  type="date"
+                  class="date-input"
+                >
+                <input 
+                  v-if="!localEvent.allDay"
+                  v-model="localEvent.endTime" 
+                  id="editEndTime" 
+                  type="time"
+                  class="time-input"
+                >
               </div>
             </div>
-            <input type="text" v-model="localEvent.title" id="editTitle" required placeholder="Enter event title">
           </div>
+
+          <!-- Description -->
           <div class="form-group">
-            <label for="editDescription">Description</label>
-            <textarea v-model="localEvent.description" id="editDescription" class="description-textarea" placeholder="Enter event description"></textarea>
+            <div class="input-with-icon">
+              <span class="input-icon">
+                <i class="fi fi-rr-document-signed"></i>
+              </span>
+              <textarea 
+                v-model="localEvent.description" 
+                id="editDescription" 
+                class="description-textarea" 
+                placeholder="Add description"
+              ></textarea>
+            </div>
           </div>
-          <div class="form-group">
-            <label for="editStart">Start Date</label>
-            <input v-model="localEvent.start" id="editStart" type="date" required>
+
+          <!-- Color Picker -->
+          <div class="form-group color-group">
+            <span class="input-icon">
+              <i class="fi fi-rr-palette"></i>
+            </span>
+            <input 
+              type="color" 
+              v-model="localEvent.color" 
+              id="editEventColor"
+              class="color-picker"
+            >
+            <label for="editEventColor">Event color</label>
+            <div class="all-day-toggle">
+              <input 
+                type="checkbox" 
+                v-model="localEvent.allDay" 
+                id="allDay"
+                class="all-day-checkbox"
+              >
+              <label for="allDay">All Day</label>
+            </div> 
           </div>
-          <div class="form-group" v-if="!localEvent.allDay">
-            <label for="editStartTime">Start Time</label>
-            <input v-model="localEvent.startTime" id="editStartTime" type="time" required>
-          </div>
-          <div class="form-group">
-            <label for="editEnd">End Date</label>
-            <input v-model="localEvent.end" id="editEnd" type="date">
-          </div>
-          <div class="form-group" v-if="!localEvent.allDay">
-            <label for="editEndTime">End Time</label>
-            <input v-model="localEvent.endTime" id="editEndTime" type="time">
-          </div>
-          <div class="form-group">
-            <label for="editEventColor">Event Color</label>
-            <input type="color" v-model="localEvent.color" id="editEventColor">
-          </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="popup-footer">
           <div class="button-group">
-            <button type="submit" class="btn btn-primary">Update Event</button>
-            <button type="button" @click="$emit('delete')" class="btn btn-danger">Delete Event</button>
-            <button type="button" @click="$emit('close')" class="btn btn-secondary">Cancel</button>
+            <button 
+              type="button" 
+              @click="$emit('delete')" 
+              class="btn btn-text btn-danger"
+            > Delete
+            </button>
+            <button 
+              type="button" 
+              @click="$emit('close')" 
+              class="btn btn-text"
+            >
+              Cancel
+            </button>
+            <button 
+              type="submit" 
+              class="btn btn-primary"
+            >
+              Save
+            </button>
           </div>
-        </form>
-      </div>
+        </div>
+      </form>
     </div>
-  </template>
+  </div>
+</template>
   
 <script>
+import '../../../node_modules/@flaticon/flaticon-uicons/css/regular/all.css';
 import { ref } from 'vue'
 
 export default {

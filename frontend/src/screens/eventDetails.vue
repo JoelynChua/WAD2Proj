@@ -5,101 +5,122 @@
             <p>Loading...</p>
         </div>
         <div v-else>
-            <div class="row event-hero-wrapper ">
-                        <div class="col-2"></div>
-                        <div class="col-8 ">
-                            <img :src="eventDetails.images[0].url" class="event-hero-image"
-                                alt="Event Image" aria/>
+            <!-- Custom event image handling -->
+            <div v-if="isOrganiserEvent" 
+                            class="custom-event-image" 
+                            :style="{ backgroundColor: eventDetails.colour || '#1a1a40' }">
+                            <img src="../assets/logo.png" alt="Event logo" class="event-logo" />
                         </div>
-                        <div class="col-2"></div>
+            <div class="row event-hero-wrapper v-else">
+                    <div class="col-2"></div>
+                    <div class="col-8 ">
+                        <!-- Ticketmaster event image -->
+                        <img 
+                            :src="eventDetails.images?.[0]?.url" 
+                            class="event-hero-image"
+                            alt="Event Image"/>
+                    </div>
+                    <div class="col-2"></div>
             </div>
-
-            <div class="row mt-5">
-                <div class="col-2"></div>
-                <div class="col-6">
-                    <div class="text-start">
-                        <div class="event-date">
-                            {{ eventDate }}
-                        </div>
-                        <div class="event-title">
-                            {{ eventDetails.name }}
-                        </div>
-                        <div class="event-description">
-                            {{ eventDetails.description }}
-                        </div>
-                        <div class="event-container">
-                            <div class="event-header">Date and Time</div>
-                            <i class="fi fi-rr-calendar-day" style="margin: 0px 8px;"></i>
-                            <span> {{ eventDetails.dates.start.localDate }} {{ eventDetails.dates.start.localTime }} {{ eventDetails.dates.timezone }}</span>
-                        </div>
-
-                        <div class="event-container">
-                            <div class="event-header">Location</div>
-                            <i class="fi fi-rs-marker" style="margin: 0px 8px;"></i>
-                            <span> {{ eventDetails._embedded.venues[0].name }}</span>
-                            <div style="margin: 0px 30px; color: grey;">{{ eventDetails._embedded.venues[0].address.line1 }}, {{ eventDetails._embedded.venues[0].postalCode }}</div>
-
-                            <a href="#" @click.prevent="toggleMap" class="toggle-map-link">{{ showMap ? 'Hide map' : 'Show map' }}</a>
-                            <div v-if="showMap" id="map" style="width: 100%; height: 400px; border-radius: 10px; border: 1px solid black"></div>
-
-                        </div>
-                        <div class="event-container">
-                            <div class="event-header">
-                                Price Range:
+             <!-- Organiser Event specific details -->
+             <div v-if="isOrganiserEvent">
+                <!-- Common details -->
+                <h1>{{ isOrganiserEvent ? eventDetails.title : eventDetails.name }}</h1>
+                <p>Type: {{ isOrganiserEvent ? 'Organiser Event' : eventDetails.type }}</p>
+                <p>Date: {{ formatDate(eventDetails.start) }}</p>
+                <p>Time: {{ formatTime(eventDetails.start) }}</p>
+                <p v-if="eventDetails.description">Description: {{ eventDetails.description }}</p>
+                <p v-if="eventDetails.location">Location: {{ eventDetails.location }}</p>
+            </div>
+            <div class="event-details" v-else>
+                <div class="row mt-5">
+                    <div class="col-2"></div>
+                    <div class="col-6">
+                        <div class="text-start">
+                            <div class="event-date">
+                                {{ eventDate }}
                             </div>
-                            <i class="fi fi-rr-dollar" style="margin: 0px 8px;"></i>
-                            <span>
-                                {{ eventDetails.priceRanges[0].min }}{{ eventDetails.priceRanges[0].currency}} 
-                                - 
-                                {{ eventDetails.priceRanges[0].max }}{{ eventDetails.priceRanges[0].currency }}
-                            </span>
+                            <div class="event-title">
+                                {{ eventDetails.name }}
+                            </div>
+                            <div class="event-description">
+                                {{ eventDetails.description }}
+                            </div>
+                            <div class="event-container">
+                                <div class="event-header">Date and Time</div>
+                                <i class="fi fi-rr-calendar-day" style="margin: 0px 8px;"></i>
+                                <span> {{ eventDetails.dates.start.localDate }} {{ eventDetails.dates.start.localTime }} {{ eventDetails.dates.timezone }}</span>
+                            </div>
+
+                            <div class="event-container">
+                                <div class="event-header">Location</div>
+                                <i class="fi fi-rs-marker" style="margin: 0px 8px;"></i>
+                                <span> {{ eventDetails._embedded.venues[0].name }}</span>
+                                <div style="margin: 0px 30px; color: grey;">{{ eventDetails._embedded.venues[0].address.line1 }}, {{ eventDetails._embedded.venues[0].postalCode }}</div>
+
+                                <a href="#" @click.prevent="toggleMap" class="toggle-map-link">{{ showMap ? 'Hide map' : 'Show map' }}</a>
+                                <div v-if="showMap" id="map" style="width: 100%; height: 400px; border-radius: 10px; border: 1px solid black"></div>
+
+                            </div>
+                            <div class="event-container">
+                                <div class="event-header">
+                                    Price Range:
+                                </div>
+                                <i class="fi fi-rr-dollar" style="margin: 0px 8px;"></i>
+                                <span>
+                                    {{ eventDetails.priceRanges[0].min }}{{ eventDetails.priceRanges[0].currency}} 
+                                    - 
+                                    {{ eventDetails.priceRanges[0].max }}{{ eventDetails.priceRanges[0].currency }}
+                                </span>
+                            </div>
                         </div>
+
+
+                        <!-- <div class="location-section mb-4">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-2">Location</h3>
+                        <p class="text-gray-600">{{ eventDetails.place.name }}</p>
+                        <p class="text-gray-600">{{ eventDetails.place.address.line1 }}, {{ eventDetails.place.address.city }}, {{ eventDetails.place.address.postalCode }}</p>
+                        </div>
+
+                        <div class="refund-policy">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-2">Refund Policy</h3>
+                        <p class="text-gray-600">{{ eventDetails.refundPolicy || 'No Refunds' }}</p>
+                        </div> -->
+
+
+                        <!-- <h1>{{ eventDetails.name }}</h1>
+                        <p>Type: {{ eventDetails.type }}</p>
+                        <p>Date: {{ eventDetails.dates.start.localDate }}</p>
+                        <p>Time: {{ eventDetails.dates.start.localTime }}</p>
+                        <p>Timezone: {{ eventDetails.dates.timezone }}</p>
+                        <p>Status: {{ eventDetails.dates.status.code }}</p>
+                        <hr />
+                        <div v-if="eventDetails.sales">
+                            <h3>Sales:</h3>
+                            <p>Start date: {{ eventDetails.sales.public?.startDateTime }}</p>
+                            <p>End date: {{ eventDetails.sales.public?.endDateTime }}</p>
+                        </div>
+                        <p v-if="eventDetails.priceRanges?.length">
+                            Price range:
+                            {{ `${eventDetails.priceRanges[0].min || 'N/A'} to ${eventDetails.priceRanges[0].max || 'N/A'}
+                            ${eventDetails.priceRanges[0].currency || ''}` }}
+                        </p> -->
                     </div>
-
-
-                    <!-- <div class="location-section mb-4">
-                    <h3 class="text-xl font-semibold text-gray-800 mb-2">Location</h3>
-                    <p class="text-gray-600">{{ eventDetails.place.name }}</p>
-                    <p class="text-gray-600">{{ eventDetails.place.address.line1 }}, {{ eventDetails.place.address.city }}, {{ eventDetails.place.address.postalCode }}</p>
-                    </div>
-
-                    <div class="refund-policy">
-                    <h3 class="text-xl font-semibold text-gray-800 mb-2">Refund Policy</h3>
-                    <p class="text-gray-600">{{ eventDetails.refundPolicy || 'No Refunds' }}</p>
-                    </div> -->
-
-
-                    <!-- <h1>{{ eventDetails.name }}</h1>
-                    <p>Type: {{ eventDetails.type }}</p>
-                    <p>Date: {{ eventDetails.dates.start.localDate }}</p>
-                    <p>Time: {{ eventDetails.dates.start.localTime }}</p>
-                    <p>Timezone: {{ eventDetails.dates.timezone }}</p>
-                    <p>Status: {{ eventDetails.dates.status.code }}</p>
-                    <hr />
-                    <h3>Sales:</h3>
-                    <p>Start date:
-                        {{ eventDetails.sales.public.startDateTime }}</p>
-                    <p>End date: {{ eventDetails.sales.public.endDateTime }}
-                    </p>
-                    <p>
-                        Price range:
-                        {{ `${eventDetails.priceRanges[0].min || 'N/A'} to ${eventDetails.priceRanges[0].max || 'N/A'}
-                        ${eventDetails.priceRanges[0].currency || ''}` }}
-                    </p> -->
                 </div>
             </div>
-        </div>
-        <EventNaviBar :event="eventDetails"></EventNaviBar>
-    </div>      
+        <EventNaviBar :event="eventDetails" :isOrganiserEvent="isOrganiserEvent"></EventNaviBar>
+    </div> 
+</div>     
 </template>
 
 
     
 
 <script>
-import eventService from "../services/eventService"; // Adjust the import to your event service
-import 'bootstrap/dist/css/bootstrap.min.css'; // Import Bootstrap CSS
-import 'bootstrap'; // Import Bootstrap JS
+import eventService from "../services/eventService";
+import organiserEventService from "../services/organiserEventService";
+import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap';
 import EventNaviBar from "../components/EventDetails_navibar.vue"
 import { Loader } from "@googlemaps/js-api-loader"
 import { getGoogleClientId } from '../services/getGoogleClientId'
@@ -109,8 +130,9 @@ import { getGoogleClientId } from '../services/getGoogleClientId'
 export default {
     data() {
         return {
-            eventDetails: {}, // Initialize as an empty object
+            eventDetails: {},
             loading: true,
+            isOrganiserEvent: false,
             map: null,
             showMap: false
         };
@@ -130,9 +152,7 @@ export default {
         },
         
     },
-    // Created hook -- lifecycle method
     async created() {
-        // ensure that the data loading happens immediately and does not require the user to click a button or perform another action first.
         this.fetchEventDetails();
     },
     async mounted() {
@@ -181,16 +201,53 @@ export default {
         },
         async fetchEventDetails() {
             const id = this.$route.params.id;
+            console.log('Fetching event details for ID:', id);
             try {
                 this.loading = true;
-                this.eventDetails = await eventService.goToEventDetails(id);
+                
+                // Try to fetch from organiser events first
+                try {
+                    const organiserEvent = await organiserEventService.getEventById(id);
+                    if (organiserEvent) {
+                        this.eventDetails = organiserEvent;
+                        this.isOrganiserEvent = true;
+                        return;
+                    }
+                } catch (error) {
+                    console.log('Not an organiser event, trying Ticketmaster...');
+                }
+                
+                // If not found in organiser events, try Ticketmaster
+                const ticketmasterEvent = await eventService.goToEventDetails(id);
+                if (ticketmasterEvent) {
+                    this.eventDetails = ticketmasterEvent;
+                    this.isOrganiserEvent = false;
+                } else {
+                    throw new Error('Event not found');
+                }
+                
             } catch (error) {
                 console.error("Failed to fetch event details:", error);
+                // You might want to show an error message to the user here
             } finally {
                 this.loading = false;
             }
         },
-        
+            
+        formatDate(dateString) {
+            return new Date(dateString).toLocaleDateString('en-US', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+        },
+        formatTime(dateString) {
+            return new Date(dateString).toLocaleTimeString('en-US', {
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
     }
 };
 </script>
@@ -203,32 +260,58 @@ export default {
         transform: translateY(0);
     }
     50% {
-        transform: translateY(-10px); /* Adjust the height as needed */
+        transform: translateY(-10px);
     }
 }
+
 .loading {
-    width: 50px; /* Adjust the size as needed */
+    width: 50px;
     animation: bob 1.5s ease-in-out infinite;
-    display: block;
-    margin: 50px auto; 
     display: flex;
-    align-items: center
+    align-items: center;
+    margin: 50px auto;
 }
+
 .loading p {
     margin: 0 auto;
 }
+
 .loading-image {
     width: 100%
+}
+.custom-event-image {
+    max-width: 800px;
+    height: auto;
+    margin: 20px auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    max-height: 450px;
+    height: auto; 
+    border-radius: 20px;
+    overflow: hidden;
+
 }
 .event-hero-wrapper {
     display: flex;
     align-items: center;
     justify-content: center;
     width: 100%;
+    /* max-width: 800px; */
     max-height: 450px;
-    /* height: auto;  */
+    /* height: auto; */
     border-radius: 20px;
     overflow: hidden;
+    /* margin: 20px auto; */
+    /* display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    max-height: 450px;
+    height: auto; 
+    border-radius: 20px;
+    overflow: hidden; */
 }
 .event-hero-image {
   width: 100%;
