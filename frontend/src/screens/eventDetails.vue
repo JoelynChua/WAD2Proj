@@ -5,17 +5,71 @@
             <p>Loading...</p>
         </div>
         <div v-else>
-            <div class="d-flex justify-content-center">
-                <div class="col-8 container-fluid">
-                        <div ref="topFocusElement" tabindex="-1"></div>
-                        <div class="event-hero-wrapper">
+            <div class="row event-hero-wrapper ">
+                        <div class="col-2"></div>
+                        <div class="col-8 ">
                             <img :src="eventDetails.images[0].url" class="event-hero-image"
                                 alt="Event Image" aria/>
                         </div>
-                </div>
+                        <div class="col-2"></div>
             </div>
-            <div class="event-details">
-                <h1>{{ eventDetails.name }}</h1>
+
+            <div class="row mt-5">
+                <div class="col-2"></div>
+                <div class="col-6">
+                    <div class="text-start">
+                        <div class="event-date">
+                            {{ eventDate }}
+                        </div>
+                        <div class="event-title">
+                            {{ eventDetails.name }}
+                        </div>
+                        <div class="event-description">
+                            {{ eventDetails.description }}
+                        </div>
+                        <div class="event-container">
+                            <div class="event-header">Date and Time</div>
+                            <i class="fi fi-rr-calendar-day" style="margin: 0px 8px;"></i>
+                            <span> {{ eventDetails.dates.start.localDate }} {{ eventDetails.dates.start.localTime }} {{ eventDetails.dates.timezone }}</span>
+                        </div>
+
+                        <div class="event-container">
+                            <div class="event-header">Location</div>
+                            <i class="fi fi-rs-marker" style="margin: 0px 8px;"></i>
+                            <span> {{ eventDetails._embedded.venues[0].name }}</span>
+                            <div style="margin: 0px 30px; color: grey;">{{ eventDetails._embedded.venues[0].address.line1 }}, {{ eventDetails._embedded.venues[0].postalCode }}</div>
+
+                            <a href="#" @click.prevent="toggleMap" class="toggle-map-link">{{ showMap ? 'Hide map' : 'Show map' }}</a>
+                            <div v-if="showMap" id="map" style="width: 100%; height: 400px; border-radius: 10px; border: 1px solid black"></div>
+
+                        </div>
+                        <div class="event-container">
+                            <div class="event-header">
+                                Price Range:
+                            </div>
+                            <i class="fi fi-rr-dollar" style="margin: 0px 8px;"></i>
+                            <span>
+                                {{ eventDetails.priceRanges[0].min }}{{ eventDetails.priceRanges[0].currency}} 
+                                - 
+                                {{ eventDetails.priceRanges[0].max }}{{ eventDetails.priceRanges[0].currency }}
+                            </span>
+                        </div>
+                    </div>
+
+
+                    <!-- <div class="location-section mb-4">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-2">Location</h3>
+                    <p class="text-gray-600">{{ eventDetails.place.name }}</p>
+                    <p class="text-gray-600">{{ eventDetails.place.address.line1 }}, {{ eventDetails.place.address.city }}, {{ eventDetails.place.address.postalCode }}</p>
+                    </div>
+
+                    <div class="refund-policy">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-2">Refund Policy</h3>
+                    <p class="text-gray-600">{{ eventDetails.refundPolicy || 'No Refunds' }}</p>
+                    </div> -->
+
+
+                    <!-- <h1>{{ eventDetails.name }}</h1>
                     <p>Type: {{ eventDetails.type }}</p>
                     <p>Date: {{ eventDetails.dates.start.localDate }}</p>
                     <p>Time: {{ eventDetails.dates.start.localTime }}</p>
@@ -31,7 +85,8 @@
                         Price range:
                         {{ `${eventDetails.priceRanges[0].min || 'N/A'} to ${eventDetails.priceRanges[0].max || 'N/A'}
                         ${eventDetails.priceRanges[0].currency || ''}` }}
-                    </p>
+                    </p> -->
+                </div>
             </div>
         </div>
         <EventNaviBar :event="eventDetails"></EventNaviBar>
@@ -39,45 +94,110 @@
 </template>
 
 
+    
+
 <script>
 import eventService from "../services/eventService"; // Adjust the import to your event service
 import 'bootstrap/dist/css/bootstrap.min.css'; // Import Bootstrap CSS
 import 'bootstrap'; // Import Bootstrap JS
 import EventNaviBar from "../components/EventDetails_navibar.vue"
+import { Loader } from "@googlemaps/js-api-loader"
+import { getGoogleClientId } from '../services/getGoogleClientId'
+
+
 
 export default {
     data() {
         return {
             eventDetails: {}, // Initialize as an empty object
             loading: true,
+            map: null,
+            showMap: false
         };
     },
     components: {
         EventNaviBar,
+    },
+    computed: {
+        eventDate () {
+            const date = new Date(this.eventDetails.dates.start.localDate)
+            const formattedDate = date.toLocaleDateString(undefined, {
+                weekday: 'long',  // e.g., "Sunday"
+                month: 'long',    // e.g., "December"
+                day: 'numeric'    // e.g., "8"
+            });
+            return formattedDate
+        },
+        
     },
     // Created hook -- lifecycle method
     async created() {
         // ensure that the data loading happens immediately and does not require the user to click a button or perform another action first.
         this.fetchEventDetails();
     },
+    async mounted() {
+        // Load Google Maps script and initialize map after the component is mounted
+        await this.loadGoogleMapsScript(); // Ensures Google Maps script is loaded
+        if (this.eventDetails._embedded && this.eventDetails._embedded.venues) {
+            this.initializeMap(); // Initializes map with venue location data
+        }
+    },
     methods: {
+        async loadGoogleMapsScript() {
+            // Fetch API Key dynamically if required
+            const data = await getGoogleClientId(); // Assuming this function returns an object with apiKey
+            const apiKey = data.clientSecret;
+
+            // Create a Loader instance with the API key
+            const loader = new Loader({
+                apiKey: apiKey,
+                version: "weekly",
+            });
+
+            await loader.load();
+        },
+        async initializeMap() {
+            const { latitude, longitude } = this.eventDetails._embedded.venues[0].location;
+            console.log(latitude, longitude)
+
+            /* global google */
+            const { Map } = await google.maps.importLibrary("maps");
+            console.log(document.getElementById("map"))
+            this.map = new Map(document.getElementById("map"), {
+                center: { lat: parseFloat(latitude), lng: parseFloat(longitude) },
+                zoom: 15,
+            });
+
+            new google.maps.Marker({
+                position: { lat: parseFloat(latitude), lng: parseFloat(longitude) },
+                map: this.map,
+            });
+        },
+        toggleMap() {
+            this.showMap = !this.showMap;
+            if (this.showMap && !this.map) {
+                this.initializeMap(); // Initialize map when toggling to show it
+            }
+        },
         async fetchEventDetails() {
-            const id = this.$route.params.id; // Get the id from the route parameters
-            console.log(id)
+            const id = this.$route.params.id;
             try {
                 this.loading = true;
-                this.eventDetails = await eventService.goToEventDetails(id); // Fetch event details
+                this.eventDetails = await eventService.goToEventDetails(id);
             } catch (error) {
                 console.error("Failed to fetch event details:", error);
             } finally {
-                this.loading = false; // Set loading to false after data is fetched
+                this.loading = false;
             }
         },
-    },
+        
+    }
 };
 </script>
 
-<style>
+
+
+<style scoped>
 @keyframes bob {
     0%, 100% {
         transform: translateY(0);
@@ -100,24 +220,67 @@ export default {
 .loading-image {
     width: 100%
 }
-
 .event-hero-wrapper {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  max-width: 800px; 
-  max-height: 400px;
-  height: auto; 
-  border-radius: 20px;
-  overflow: hidden;
-  margin: 20px auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    max-height: 450px;
+    /* height: auto;  */
+    border-radius: 20px;
+    overflow: hidden;
 }
-
 .event-hero-image {
   width: 100%;
-  height: auto;
+  max-height: 450px;
+
+  height: 100%;
   object-fit: cover;
   border-radius: 8px;
+  object-position: center;
 }
+.event-container {
+    margin: 80px 0px;
+}
+.event-header {
+    color: #39364f;
+    font-size: 30px;
+    font-weight: bold;
+}
+.event-date {
+    font-size: 25px;
+}
+.event-title {
+    margin: 20px 0px;
+    color: #39364f;
+    text-transform: uppercase;
+    font-size: 60px;
+    font-weight: 900;
+    line-height: 1; 
+}
+.toggle-map-link {
+  color: #1a73e8; /* Set to your preferred blue color */
+  cursor: pointer;
+  text-decoration: none;
+  font-weight: bold;
+  position: relative;
+  margin: 0px 30px
+}
+
+.toggle-map-link::after {
+  content: '▼'; /* Downward arrow */
+  font-size: 0.8em;
+  margin-left: 5px;
+  transform: rotate(0deg);
+  transition: transform 0.3s;
+}
+
+.toggle-map-link:hover::after {
+  transform: rotate(180deg); /* Rotate for 'Hide map' */
+}
+
+.toggle-map-link:hover {
+  color: #125bb5; /* Darker blue on hover */
+}
+
 </style>

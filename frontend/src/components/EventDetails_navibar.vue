@@ -177,10 +177,11 @@ export default {
 @media (max-width: 650px) {
     .navbar {
         flex-direction: column; /* Change layout to vertical */
-        padding: 10px; /* Adjust padding for vertical layout */
-        left: 10px; /* Position on the left */
-        transform: translateY(-50%); /* Center vertically */
-        transform: translateX(10%);
+        padding: 11px; /* Adjust padding for vertical layout */
+        transform: translateX(100%);
+        top: 50%;
+        bottom: 30%;
+        right: 30%;
     }
 
     .back{
@@ -193,6 +194,7 @@ export default {
 
     .navbar-item {
         padding: 6px 12px;
+        padding-right: 0px;
         font-size: 10px;
         width: 100%; /* Full width for vertical layout */
         text-align: left; /* Align text to the left */
