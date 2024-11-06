@@ -141,6 +141,7 @@ export default {
             }
         },
 
+
         async handleSubmit() {
             console.log(this.formData, "FORMDATA");
 
@@ -150,23 +151,25 @@ export default {
                 .map(collaborator => collaborator.trim()); // Trim any excess spaces
 
             // Initialize the collaborators object with the current user's UID and email
-            const collaboratorsObj = { [this.uid]: this.email }; // Start with the current user's UID and email
+            let collaboratorsObj = { [this.uid]: this.email }; // Use let so we can modify the object
 
-            // Retrieve UIDs for each collaborator email
-            const uidPromises = collaboratorsArray.map(async (email) => {
-                if (email) {
-                    const uid = await this.getUIDByEmail(email); // Get UID by email
-                    if (uid) {
-                        // If UID exists, add the UID and email to the collaborators object
-                        collaboratorsObj[uid] = email;
-                    } else {
-                        // If no UID, just add the email as a value
-                        collaboratorsObj[email] = email; // This will use the email as both the key and value
-                    }
+            // Function to sanitize email by replacing '@' with '_' and other potential issues
+            const sanitizeEmail = (email) => {
+                // You can add more sanitization if needed (like removing dots or other special chars)
+                return email.replace(/[@.]/g, '_'); // Replaces '@' and '.' with '_'
+            };
+
+            // Add the typed email as a key-value pair if it's provided and it's not the current user's email
+            if (this.formData.typedEmail && this.formData.typedEmail !== this.email) {
+                collaboratorsObj[sanitizeEmail(this.formData.typedEmail)] = this.formData.typedEmail;
+            }
+
+            // Add each collaborator email to the object if it's not the current user's email
+            collaboratorsArray.forEach(email => {
+                if (email && email !== this.email) {
+                    collaboratorsObj[sanitizeEmail(email)] = email; // Add sanitized email as key-value pair
                 }
             });
-
-            await Promise.all(uidPromises); // Wait for all the UID promises to resolve
 
             console.log(collaboratorsObj, "Collaborators Object");
 
@@ -180,7 +183,7 @@ export default {
             const dataToSubmit = {
                 ...this.formData,
                 budget: Number(this.formData.budget),
-                collaborators: collaboratorsObj, // Save the key-value object of UIDs and emails
+                collaborators: collaboratorsObj, // Save the sanitized key-value object of emails
                 events: eventsArray, // Replace events object with eventsArray
             };
             console.log(dataToSubmit);
@@ -195,6 +198,9 @@ export default {
                 console.error('Error adding itinerary:', error);
             }
         },
+
+
+
 
 
         generateHours() {

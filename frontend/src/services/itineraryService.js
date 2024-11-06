@@ -40,16 +40,38 @@ async function getItineraryByUserID(userID) {
     }
 }
 
+
+// itineraryService.js
 async function getItineraryByUserEmail(userEmail) {
     try {
-        const res = await axiosInstance.get(`${finalURL}/api/itinerary/user/${userEmail}`);
+        // Fetch itineraries for all users (using userEmail as part of the filter)
+        const res = await axiosInstance.get(`${finalURL}/api/itinerary`);
         console.log(res);
-        return res.data;
+
+        const itineraries = res.data;
+        if (!itineraries || itineraries.length === 0) {
+            throw new Error(`No itineraries found for user with email: ${userEmail}`);
+        }
+
+        // Filter itineraries where the email exists as a value in the collaborators' object
+        const filteredItineraries = itineraries.filter(itinerary =>
+            itinerary.collaborators && Object.values(itinerary.collaborators).includes(userEmail)
+        );
+
+        if (filteredItineraries.length === 0) {
+            throw new Error(`No itineraries found for user with email: ${userEmail}`);
+        }
+
+        return filteredItineraries;
     } catch (error) {
-        console.error("Error fetching itineraries:", error); // Log updated for fetching itineraries
+        console.error("Error fetching itinerary by email:", error);
         throw error;
     }
 }
+
+
+
+
 
 
 async function postItinerary(newItinerary) {
@@ -63,9 +85,9 @@ async function postItinerary(newItinerary) {
     }
 }
 
-async function updateItinerary(itineraryID,updatedData) {
+async function updateItinerary(itineraryID, updatedData) {
     try {
-        const res = await axiosInstance.put(`${finalURL}/api/updateItinerary/${itineraryID}`,updatedData);
+        const res = await axiosInstance.put(`${finalURL}/api/updateItinerary/${itineraryID}`, updatedData);
         console.log(res)
         return res.data;
     } catch (error) {
