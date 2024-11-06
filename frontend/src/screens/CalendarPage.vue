@@ -22,5 +22,6 @@ export default {
     padding-right: 20px;
     height: calc(100vh); 
     overflow-y: auto;
+    background-color: #f9f9f9; 
 }
 </style>
