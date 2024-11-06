@@ -17,6 +17,10 @@ export default {
 
 <style scoped>
 .calendar-page {
-    padding: 20px;
+    padding-top: 10px;
+    padding-left: 20px;
+    padding-right: 20px;
+    height: calc(100vh); 
+    overflow-y: auto;
 }
 </style>
