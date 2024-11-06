@@ -39,7 +39,7 @@ export default {
     data() {
         return {
             fullPageRoutes: ['/login-for-users', '/signup', '/login-for-organisers'],
-            noBuffer: ['/'],
+            noBuffer: ['/', "/organizers"],
         };
     },
     name: 'App',

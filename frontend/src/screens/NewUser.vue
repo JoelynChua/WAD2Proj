@@ -9,14 +9,8 @@
     </video>
   </div>
 
-  <!-- Back Button -->
-  <RouterLink v-if="isVideoLoaded" to="/" class="back-button">
-    &lt; Back
-  </RouterLink>
-
   <!-- Overlay for the signup form -->
   <div v-if="videoLoaded || mobileBrowser" class="login-container p-4 shadow col-4">
-    <RouterLink v-if="videoLoaded" to="/" class="back-button">&lt; Back</RouterLink>
     <div class="login-item">
       <div class="mb-5"><img src="../assets/activity.ai.png" width="200px" height="auto"></div>
       <h5 class="text-start">Sign up for a new account</h5>
@@ -113,6 +107,8 @@ export default {
         if (error.message == "Firebase: Error (auth/email-already-in-use).") {
           this.emailinuse = true;
 
+        }  else if (error.message === 'Firebase: Error (auth/popup-closed-by-user).') {
+          console.log(error.message);
         } else {
           console.error('Error signing up:', error.message);
           alert(error.message);
@@ -167,17 +163,6 @@ export default {
 .login-item {
   width: 40%;
   min-width: 350px;
-}
-
-.back-button {
-  position: absolute;
-  color: rgb(44, 62, 80);
-  top: 30px;
-  left: 30px;
-  z-index: 10;
-  text-decoration: none;
-  font-size: 24px;
-  font-family: 'Roboto', sans-serif;
 }
 
 .form-control {

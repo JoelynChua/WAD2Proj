@@ -19,7 +19,7 @@
           <h2 class="slide-right" style="margin-top: 250px;">Las Vegas Sphere now presents: <br>Hamilton</h2>
           <p class="fade-in mt-5">Proudly casted by Lay Foo and Mok Ngee HeHe</p>
           <button @click="findActivities" class="section1_buttons pulse mt-4 p-3" style="border-radius: 50px; font-size: 16px; height: 40px">Find Activities</button>
-          <a href="#aboutUs"><button class="section1_buttons pulse p-3" style="border-radius: 50px; font-size: 16px; height: 40px">About Us</button></a>
+          <a href="#aboutUs"><button class="section1_buttons pulse p-3 ms-5" style="border-radius: 50px; font-size: 16px; height: 40px">About Us</button></a>
         </section>
 
         <!-- Pause Button -->
@@ -262,7 +262,7 @@ export default {
 
 .section1_buttons {
   animation: pulse 2s infinite;
-  background: linear-gradient(90deg, #667eea, #764ba2);
+  background: linear-gradient(90deg, rgb(160, 188, 232), rgb(111, 149, 209));
   color: white;
   border: none;
   padding: 1rem 2rem;
