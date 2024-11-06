@@ -59,7 +59,10 @@
                                 <div style="margin: 0px 30px; color: grey;">{{ eventDetails._embedded.venues[0].address.line1 }}, {{ eventDetails._embedded.venues[0].postalCode }}</div>
 
                                 <a href="#" @click.prevent="toggleMap" class="toggle-map-link">{{ showMap ? 'Hide map' : 'Show map' }}</a>
-                                <div v-if="showMap" id="map" style="width: 100%; height: 400px; border-radius: 10px; border: 1px solid black"></div>
+                                <div 
+                                    id="map" 
+                                    :style="{ display: showMap ? 'block' : 'none' }">
+                                </div>
 
                             </div>
                             <div class="event-container">
@@ -167,6 +170,7 @@ export default {
             // Fetch API Key dynamically if required
             const data = await getGoogleClientId(); // Assuming this function returns an object with apiKey
             const apiKey = data.clientSecret;
+            console.log(apiKey)
 
             // Create a Loader instance with the API key
             const loader = new Loader({
@@ -195,8 +199,18 @@ export default {
         },
         toggleMap() {
             this.showMap = !this.showMap;
-            if (this.showMap && !this.map) {
-                this.initializeMap(); // Initialize map when toggling to show it
+
+            if (this.showMap) {
+                // Delay to ensure display change is applied before resizing
+                this.$nextTick(() => {
+                    if (this.map) {
+                        google.maps.event.trigger(this.map, 'resize'); // Trigger a resize event for the map
+                        const { latitude, longitude } = this.eventDetails._embedded.venues[0].location;
+                        this.map.setCenter({ lat: parseFloat(latitude), lng: parseFloat(longitude) });
+                    } else {
+                        this.initializeMap(); // Initialize map if it doesn't exist
+                    }
+                });
             }
         },
         async fetchEventDetails() {
@@ -364,6 +378,14 @@ export default {
 
 .toggle-map-link:hover {
   color: #125bb5; /* Darker blue on hover */
+}
+#map {
+    width: 100%;
+    height: 400px;
+    border-radius: 10px;
+    border: 1px solid black;
+    margin: 0px 30px;
+
 }
 
 </style>
