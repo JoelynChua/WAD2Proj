@@ -40,6 +40,18 @@ async function getItineraryByUserID(userID) {
     }
 }
 
+async function getItineraryByUserEmail(userEmail) {
+    try {
+        const res = await axiosInstance.get(`${finalURL}/api/itinerary/user/${userEmail}`);
+        console.log(res);
+        return res.data;
+    } catch (error) {
+        console.error("Error fetching itineraries:", error); // Log updated for fetching itineraries
+        throw error;
+    }
+}
+
+
 async function postItinerary(newItinerary) {
     try {
         const res = await axiosInstance.post(`${finalURL}/api/postItinerary`, newItinerary);
@@ -115,6 +127,7 @@ export default {
     getAllItinerary,
     getItineraryByID,
     getItineraryByUserID,
+    getItineraryByUserEmail,
     postItinerary,
     updateItinerary,
     deleteItinerary,

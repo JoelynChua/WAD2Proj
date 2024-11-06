@@ -39,6 +39,24 @@ exports.getItineraryByUserID = async (req, res) => {
     }
 };
 
+// Get itineraries by userEmail
+exports.getItineraryByUserEmail = async (req, res) => {
+    try {
+        const userEmail = req.params.userEmail; // Assuming the email is in the route parameter
+        const itineraries = await itineraryService.getItineraryByUserEmail(userEmail); // Adjusted for consistency
+        console.log(userEmail); // Log the userEmail
+
+        if (itineraries.length === 0) {
+            return res.status(404).send("No itineraries found for this user");
+        }
+
+        res.json(itineraries);
+    } catch (err) {
+        res.status(500).send(err.message);
+    }
+};
+
+
 // Add a new itinerary
 exports.postItinerary = async (req, res) => {
     try {

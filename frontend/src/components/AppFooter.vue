@@ -119,8 +119,8 @@ export default {
 }
 
 .footer-links a {
-  color: rgb(139, 5, 5);
-  text-decoration: none;
+  color: rgb(176, 176, 179);
+  text-decoration: underline;
 }
 
 .footer-links a:hover {

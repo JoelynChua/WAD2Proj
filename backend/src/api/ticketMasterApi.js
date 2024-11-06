@@ -71,14 +71,15 @@ async function searchEventsByName(req, res) {
     }
 
     try {
+        console.log(eventName, "EVENTNAME BACK");
         // Fetch the specific events by keyword
-        const eventResponse = await axios.get(`https://app.ticketmaster.com/discovery/v2/events.json?keyword=${eventName}&countryCode=US&apikey=${apiKey}`);
+        const eventResponse = await axios.get(`https://app.ticketmaster.com/discovery/v2/suggest?keyword=${eventName}&countryCode=US&apikey=${apiKey}`);
 
         // Log the event details
         console.log(eventResponse.data); // Log the event details
 
         // Filter the events to include only those present in the global eventObjectsArray
-        const filteredEvents = eventResponse.data._embedded.events.filter(event => 
+        const filteredEvents = eventResponse.data._embedded.events.filter(event =>
             eventObjectsArray.some(globalEvent => globalEvent.id === event.id)
         );
 
@@ -183,7 +184,7 @@ async function getEventByIdItinerary(req, res) {
 
     try {
         // Fetch event details for each ID in the array
-        const eventPromises = eventIDs.map(eventID => 
+        const eventPromises = eventIDs.map(eventID =>
             axios.get(`https://app.ticketmaster.com/discovery/v2/events/${eventID}.json?apikey=${apiKey}`)
         );
 
@@ -211,5 +212,7 @@ async function getEventByIdItinerary(req, res) {
 
 
 
-module.exports = { displayEvents, displayAttractions, getEventById, getAttractionsById, 
-    getAttractionByIdItinerary, getEventByIdItinerary, searchEventsByName };  // Ensure that you are exporting it this way
+module.exports = {
+    displayEvents, displayAttractions, getEventById, getAttractionsById,
+    getAttractionByIdItinerary, getEventByIdItinerary, searchEventsByName
+};  // Ensure that you are exporting it this way

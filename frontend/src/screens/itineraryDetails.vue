@@ -120,14 +120,17 @@
             </div>
 
             <!-- Jumbotron (Wishlist) -->
-            <div class="col-md-3">
-                <div class="text-dark p-3"
-                    style="position: absolute; top: 300px; right: 0; height: auto; width: 25%; background-color: #edefec">
+            <div class="sidebar-container">
+                <font-awesome-icon :icon="['fas', 'bars']" @click="toggleExpand" class="expand-icon"
+                    :class="{ 'icon-expanded': isExpanded }" />
+                <div class="wishlist-sidebar" :class="{ expanded: isExpanded }">
                     <h3 style="text-decoration: underline;">Wishlist</h3>
+
                     <ul v-if="wishlists.length">
                         <li v-for="wishlist in wishlists" :key="wishlist.id" :draggable="true"
                             @dragstart="onDragStart($event, wishlist)" class="draggable-item"
                             style="border: 1px solid; margin: 5px; border-radius: 5px; padding: 10px;">
+
                             <template v-if="eventDetails[wishlist.eventID]">
                                 {{ eventDetails[wishlist.eventID].name }}
                             </template>
@@ -142,6 +145,10 @@
                     <p v-else>No items in wishlist.</p>
                 </div>
             </div>
+
+
+
+
         </div>
     </div>
 </template>
@@ -158,7 +165,7 @@ import attractionService from "../services/attractionService"; // Import attract
 import { debounce } from "lodash";
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
-import { faMinus } from '@fortawesome/free-solid-svg-icons'; // Import the icon you want to use
+import { faMinus, faBars } from '@fortawesome/free-solid-svg-icons'; // Import the icon you want to use
 import { getAuth } from "firebase/auth";
 // import { Graphics } from 'pixi.js';
 import * as PIXI from 'pixi.js'
@@ -166,7 +173,7 @@ import * as PIXI from 'pixi.js'
 import GoogleCalendarAPI from "../components/GoogleCalendar.vue"
 
 // Add the icon to the library
-library.add(faMinus);
+library.add(faMinus, faBars);
 
 
 export default {
@@ -188,6 +195,8 @@ export default {
             updateError: null,   // Initialize the error message
             wishlists: [], // Initialize wishlist as an empty array
             userID: null,
+
+            isExpanded: false,
 
             app: null,
             circle: null
@@ -258,6 +267,7 @@ export default {
                 }
             });
         },
+
         async fetchWishlist() {
             console.log(this.userID, "FETCHWISHLIST")
             // Directly use the uid from currentUser already set in authListener
@@ -452,6 +462,27 @@ export default {
         },
 
 
+         // Toggle sidebar expansion
+         toggleExpand() {
+            this.isExpanded = !this.isExpanded;
+            this.reapplyListenersOnSidebarToggle(); // Reapply listeners when sidebar is toggled
+        },
+
+        // Function to reattach drag and drop listeners
+        reattachDragListeners() {
+            const rows = document.querySelectorAll('.event-row');
+            rows.forEach(row => {
+                row.addEventListener('dragover', this.allowDrop);  // `this` makes sure you're calling the correct method
+                row.addEventListener('drop', this.onDrop);          // `this` makes sure you're calling the correct method
+            });
+        },
+
+        // Method to handle reattaching listeners when sidebar is toggled
+        reapplyListenersOnSidebarToggle() {
+            this.reattachDragListeners();       // Reattach drag listeners
+        },
+
+
         // Methods for drag and drop of wishlist item into events table
         // Method to handle the drag start event
         onDragStart(event, draggedItemData) {
@@ -462,44 +493,57 @@ export default {
 
 
         async onDrop(event) {
-            event.preventDefault(); // Prevent default behavior
+    event.preventDefault(); // Prevent default behavior
 
-            // Get the dragged item data
-            const wishlistItem = JSON.parse(event.dataTransfer.getData('text/plain'));
-            console.log(wishlistItem, "EVENT DRAGGED");
+    // Get the dragged item data
+    const wishlistItem = JSON.parse(event.dataTransfer.getData('text/plain'));
+    console.log(wishlistItem, "EVENT DRAGGED");
 
-            // Find the closest row element that is the target for the drop
-            const droppedRow = event.target.closest('tr');
+    // Find the closest row element that is the target for the drop
+    const droppedRow = event.target.closest('tr');
 
-            if (droppedRow) {
-                const time = droppedRow.querySelector('td:first-child').textContent; // Get the timing from the first cell
+    if (droppedRow) {
+        const time = droppedRow.querySelector('td:first-child').textContent; // Get the timing from the first cell
 
-                console.log("Dropped row:", droppedRow);
-                console.log("Time:", time);
-                console.log("Wishlist Item:", wishlistItem);
+        console.log("Dropped row:", droppedRow);
+        console.log("Time:", time);
+        console.log("Wishlist Item:", wishlistItem);
 
-                const eventID = wishlistItem.eventID || wishlistItem.attractionID;
+        const eventID = wishlistItem.eventID || wishlistItem.attractionID;
 
-                // Check the length of the dragged item data to determine the source
-                if (eventID) {
-                    if (Object.keys(wishlistItem).length === 2) {
-                        // If length is 2, treat it as coming from the table
-                        console.log("Dragging within the table, updating event timing.");
-                        await this.updateEventTiming(wishlistItem.eventID, time); // Await here
-                        location.reload(); // Reload after timing update
-                    } else {
-                        // Otherwise, treat it as coming from the wishlist
-                        console.log("Dragging from the wishlist, adding to event.");
-                        await this.addToEvent(wishlistItem, { eventID, time }); // Await here
-                        location.reload();
-                    }
-                } else {
-                    console.error("Wishlist item does not have a valid eventID or attractionID.");
-                }
+        // Check the length of the dragged item data to determine the source
+        if (eventID) {
+            if (Object.keys(wishlistItem).length === 2) {
+                // If length is 2, treat it as coming from the table
+                console.log("Dragging within the table, updating event timing.");
+                // You can call the updateEventTiming function here
+                // await this.updateEventTiming(wishlistItem.eventID, time); // Await here
             } else {
-                console.error("Dropped event does not have a valid row.");
+                // Otherwise, treat it as coming from the wishlist
+                console.log("Dragging from the wishlist, adding to event.");
+                await this.addToEvent(wishlistItem, { eventID, time });
+
+                // Remove the item from the wishlist after adding it to the event
+                this.removeFromWishlist(wishlistItem);
             }
-        },
+        } else {
+            console.error("Wishlist item does not have a valid eventID or attractionID.");
+        }
+    } else {
+        console.error("Dropped event does not have a valid row.");
+    }
+},
+
+// Method to remove item from the wishlist
+removeFromWishlist(wishlistItem) {
+    const index = this.wishlists.findIndex(item => item.id === wishlistItem.id);
+    if (index !== -1) {
+        this.wishlists.splice(index, 1); // Remove the item from the wishlists array
+    } else {
+        console.error("Wishlist item not found.");
+    }
+},
+
 
 
 
@@ -564,6 +608,7 @@ export default {
                 // Optionally handle the error (e.g., show an error message)
             }
         },
+
 
         // Cursor trial with pixi.js
         initializeTrail() {
@@ -635,6 +680,77 @@ export default {
 
 
 <style scoped>
+/* Jumbotron -- wishlist */
+.sidebar-container {
+    position: relative;
+    z-index: 10;
+}
+
+.wishlist-sidebar {
+    position: fixed;
+    top: 150px;
+    left: -250px;
+    height: calc(100% - 20px);
+    width: 250px;
+    background-color: #edefec;
+    padding: 1rem;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    transition: left 0.3s ease;
+    overflow-y: auto;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+}
+
+.wishlist-sidebar.expanded {
+    left: 0;
+}
+
+.expand-icon {
+    position: fixed;
+    top: 150px;
+    left: 10px;
+    /* Default position when sidebar is hidden */
+    font-size: 24px;
+    color: #000;
+    cursor: pointer;
+    transition: left 0.3s ease;
+    z-index: 1100;
+    /* Ensure icon stays above sidebar */
+}
+
+.expand-icon.icon-expanded {
+    left: 260px;
+    /* Moves icon to the right when sidebar is expanded */
+}
+
+tr.drag-over {
+    background-color: rgba(0, 0, 0, 0.1);
+    /* Light gray */
+    border: 1px dashed #000;
+    /* Optional dashed border */
+}
+
+/* Ensure the table rows are above the sidebar */
+.table-row {
+    position: relative;
+    z-index: 10;
+}
+
+/* Ensure the sidebar doesn't block drop events */
+.sidebar {
+    z-index: 5;
+    position: relative;
+}
+
+/* Add other styles as needed */
+
+
+
+
+
+
+
 .event-box {
     border: 1px solid #ccc;
     border-radius: 5px;
@@ -787,32 +903,45 @@ canvas {
 @media (max-width: 768px) {
     .popNotif {
         margin-top: 100px;
-        /* Space for navi bar */
+        /* Space for navigation bar */
         margin: 0;
-        left: 0;
-        right: 0;
+        /* Margin for notifications */
+        position: fixed;
+        /* Keep notifications in fixed position */
+        left: 10px;
+        /* Space from the left edge */
+        right: 10px;
+        /* Space from the right edge */
         bottom: auto;
-        width: 100vw;
-        /* Full viewport width */
+        /* Reset bottom */
+        width: calc(100% - 20px);
+        /* Full width minus left and right margins */
         max-width: none;
+        /* Remove max-width */
         border-radius: 0;
         /* Remove border radius for flush look */
         box-sizing: border-box;
+        /* Include padding in width calculation */
     }
 
     /* Success and Error Notification Styles on smaller screens */
     .popNotif.success {
-        background-color: #28a745;
-        /* Green background for success */
-        border-left-color: transparent;
-        /* Remove left border accent */
+        background-color: #F9F9F9;
+        /* Background color */
+        border: 2px solid green;
+        /* Green border for success */
+        border-radius: 10px;
+        /* Rounded corners */
     }
 
     .popNotif.error {
-        background-color: #dc3545;
-        /* Red background for error */
-        border-left-color: transparent;
-        /* Remove left border accent */
+        background-color: #F9F9F9;
+        /* Background color */
+        border: 2px solid red;
+        /* Red border for error */
+        border-radius: 3%;
+        /* Slightly rounded corners */
     }
+
 }
 </style>

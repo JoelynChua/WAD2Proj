@@ -73,6 +73,44 @@ exports.getItineraryByUserID = async (userID) => {
     return filteredItineraries;
 };
 
+
+// Get itinerary by userEmail
+exports.getItineraryByUserEmail = async (userEmail) => {
+    // Assuming you have a way to get the user ID from email
+    const userID = await getUIDByEmail(userEmail); // Replace with your method to get UID from email
+
+    const snapshot = await db.ref("itinerary").once("value");
+    const itineraries = snapshot.val();
+
+    if (!itineraries) {
+        throw new Error("No itineraries found");
+    }
+
+    const filteredItineraries = Object.keys(itineraries)
+        .filter(key => {
+            const itinerary = itineraries[key];
+            return itinerary.collaborators &&
+                Array.isArray(itinerary.collaborators) &&
+                itinerary.collaborators.includes(userID); // Compare using the userID
+        })
+        .map(key => new Itinerary(
+            key,  // Itinerary ID
+            itineraries[key].title,
+            itineraries[key].date,
+            itineraries[key].budget || null, // Include budget from DB
+            itineraries[key].totalCost || null, // Allow totalCost to be null
+            itineraries[key].collaborators || [], // Default to empty array if not provided
+            itineraries[key].events || []           // Default to empty array if not provided
+        ));
+
+    if (filteredItineraries.length === 0) {
+        throw new Error(`No itineraries found for user with email: ${userEmail}`);
+    }
+
+    return filteredItineraries;
+};
+
+
 // POST
 exports.addItinerary = async (newItinerary) => {
     const itineraryRef = db.ref('itinerary').push(); // Generates a new key

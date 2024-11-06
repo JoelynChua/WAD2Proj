@@ -59,6 +59,7 @@ router.get("/itinerary/:id", itineraryController.getItineraryByID);
 
 // Get itineraries by userID (where the user is a collaborator)
 router.get("/itinerary/user/:userID", itineraryController.getItineraryByUserID);
+router.get("/itinerary/user/:userEmail", itineraryController.getItineraryByUserEmail);
 
 // Post a new itinerary
 router.post('/PostItinerary', itineraryController.postItinerary);

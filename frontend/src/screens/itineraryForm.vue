@@ -22,7 +22,7 @@
             <div class="mb-3">
                 <label for="collaborators" class="form-label">Collaborators</label>
                 <input type="text" class="form-control" id="collaborators" v-model="formData.collaborators"
-                    placeholder="Comma-separated collaborator names" />
+                    placeholder="Comma-separated collaborator emails" />
             </div>
 
             <h3>Timetable</h3>
@@ -67,7 +67,7 @@ export default {
                 budget: 0,
                 totalCost: null,
                 date: '',
-                collaborators: '', // Will be populated with uid
+                collaborators: '', // Will be populated with email addresses
                 events: {}, // Initialize as an empty object
             },
             uid: null,
@@ -77,7 +77,7 @@ export default {
     },
     created() {
         this.authListener();
-        
+
         this.hours = this.generateHours();
         this.formData.events = this.initializeTimetable();
 
@@ -101,29 +101,74 @@ export default {
                 if (user) {
                     // User is signed in
                     this.uid = user.uid; // Get the user ID
-                    this.formData.collaborators = this.uid; // Set collaborators to user's UID
+                    this.fetchUserEmail(); // Fetch and set the user's email
                     console.log(this.uid, "UID");
                 } else {
                     // User is signed out
                     console.log("User is signed out");
-                    // Optionally redirect to login page or handle sign-out logic here
                     this.$router.push("/login-for-users");
                 }
             });
         },
+
+        // Fetch user email using UID
+        async fetchUserEmail() {
+            if (this.uid) {
+                try {
+                    const user = auth.currentUser; // Get the currently signed-in user
+                    if (user) {
+                        this.email = user.email; // Get the user's email directly from Firebase Auth
+                        console.log("User Email:", this.email);
+
+                        // Initialize the collaborators field with the user's email
+                        this.formData.collaborators = this.email;
+                    } else {
+                        console.log("No user is currently signed in.");
+                    }
+                } catch (error) {
+                    console.error("Error fetching user email:", error);
+                }
+            }
+        },
+
+        async getUIDByEmail(email) {
+            try {
+                const userRecord = await auth.getUserByEmail(email); // Fetch user by email
+                return userRecord.uid; // Return the UID
+            } catch (error) {
+                console.error("Error fetching UID by email:", error);
+                return null;
+            }
+        },
+
         async handleSubmit() {
             console.log(this.formData, "FORMDATA");
 
-            // Split the collaborators string into an array if needed
+            // Split the collaborators string into an array of emails
             const collaboratorsArray = this.formData.collaborators
                 .split(',')
-                .map(collaborator => collaborator.trim()); // Ensure you trim any excess spaces
-            
-            // Ensure that the user's UID is included in the collaborators array
-            if (!collaboratorsArray.includes(this.uid)) {
-                collaboratorsArray.push(this.uid); // Include the user's UID
-            }
-            console.log(collaboratorsArray, "Collaborators Array");
+                .map(collaborator => collaborator.trim()); // Trim any excess spaces
+
+            // Initialize the collaborators object with the current user's UID and email
+            const collaboratorsObj = { [this.uid]: this.email }; // Start with the current user's UID and email
+
+            // Retrieve UIDs for each collaborator email
+            const uidPromises = collaboratorsArray.map(async (email) => {
+                if (email) {
+                    const uid = await this.getUIDByEmail(email); // Get UID by email
+                    if (uid) {
+                        // If UID exists, add the UID and email to the collaborators object
+                        collaboratorsObj[uid] = email;
+                    } else {
+                        // If no UID, just add the email as a value
+                        collaboratorsObj[email] = email; // This will use the email as both the key and value
+                    }
+                }
+            });
+
+            await Promise.all(uidPromises); // Wait for all the UID promises to resolve
+
+            console.log(collaboratorsObj, "Collaborators Object");
 
             // Transform events object into an array of objects with "time" and "eventID"
             const eventsArray = Object.keys(this.formData.events).map(hour => ({
@@ -131,11 +176,11 @@ export default {
                 eventID: this.formData.events[hour],
             }));
 
-            // Update formData to include the collaborators array and events array
+            // Update formData to include the collaborators object and events array
             const dataToSubmit = {
                 ...this.formData,
                 budget: Number(this.formData.budget),
-                collaborators: collaboratorsArray, // Replace the string with an array
+                collaborators: collaboratorsObj, // Save the key-value object of UIDs and emails
                 events: eventsArray, // Replace events object with eventsArray
             };
             console.log(dataToSubmit);
@@ -146,12 +191,11 @@ export default {
 
                 // Redirect to the itinerary details page using the ID from the response
                 this.$router.push(`/ItineraryDetails/${response.id}`); // Use the appropriate key for ID in the response
-
-                // this.resetForm();
             } catch (error) {
                 console.error('Error adding itinerary:', error);
             }
         },
+
 
         generateHours() {
             const hours = [];
@@ -173,13 +217,15 @@ export default {
                 budget: null,
                 totalCost: null,
                 date: '',
-                collaborators: this.uid || '', // Reset to the user's UID
+                collaborators: '', // Reset to empty string
                 events: this.initializeTimetable(),
             };
         }
     }
 };
 </script>
+
+
 
 <style scoped>
 .table {

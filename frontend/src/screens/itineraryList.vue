@@ -4,8 +4,8 @@
 
     <div style="margin: 60px;">
       <!-- Add itinerary -->
-      <button v-if="!loginMessage" style="margin-bottom: 20px; display: block; background-color: #c8e0ea" @click="toItineraryForm()"
-        class="btn btn">
+      <button v-if="!loginMessage" style="margin-bottom: 20px; display: block; background-color: #c8e0ea"
+        @click="toItineraryForm()" class="btn btn">
         <span class="plus-sign">New Itinerary +</span>
       </button>
 
@@ -13,7 +13,7 @@
       <div v-if="loginMessage">
         <p>
           {{ loginMessage }}
-          <RouterLink  to="/login-for-users">Log in </RouterLink>
+          <RouterLink to="/login-for-users">Log in </RouterLink>
         </p>
       </div>
 
@@ -69,6 +69,7 @@ export default {
     return {
       itineraries: [], // Initialize itineraries as an empty array
       uid: null,
+      uEmail: null,
       loginMessage: "", // Message displayed when user is not logged in
     };
   },
@@ -116,28 +117,49 @@ export default {
         // Optionally, show an error message
       }
     },
-
     authListener() {
       // Listen to the authentication state
       auth.onAuthStateChanged(async (user) => {
         if (user) {
           // User is signed in
           this.uid = user.uid; // Get the user ID
+          this.uEmail = user.email; // Get the user email
+          console.log(user.email);
+
           try {
             // Fetch itineraries using the UID
-            this.itineraries = await itineraryService.getItineraryByUserID(this.uid);
+            let itineraries = await itineraryService.getItineraryByUserID(this.uid);
+
+            // If no itineraries are found for the user, try fetching by user email
+            if (itineraries.length === 0) {
+              console.log("No itineraries found, attempting to fetch by email...");
+              itineraries = await itineraryService.getItineraryByUserEmail(this.uEmail);
+            }
+
+            // Store itineraries in the component state
+            this.itineraries = itineraries;
             console.log(this.itineraries);
+
           } catch (error) {
-            console.error("Failed to fetch itineraries:", error);
+            console.error("Error fetching itineraries by UID:", error);
+
+            // If the error is a server issue (500), fallback to fetching by email
+            if (error.response && error.response.status === 500) {
+              console.log("500 error occurred. Attempting to fetch itineraries by email...");
+              try {
+                let itinerariesByEmail = await itineraryService.getItineraryByUserEmail(this.uEmail);
+                this.itineraries = itinerariesByEmail;
+                console.log(this.itineraries);
+              } catch (emailError) {
+                console.error("Failed to fetch itineraries by email:", emailError);
+              }
+            }
           }
         } else {
           // User is signed out
           console.log('User is signed out');
-          // Optionally redirect to login page or handle sign-out logic here
-          // this.$router.push('/login');
-          // Display a message with a link to the login page
-          this.itineraries = []; // Reset itineraries to an empty array instead of null
-          this.loginMessage = "Please log in to view your itineraries. ";
+          this.itineraries = []; // Reset itineraries to an empty array
+          this.loginMessage = "Please log in to view your itineraries.";
         }
       });
     },
