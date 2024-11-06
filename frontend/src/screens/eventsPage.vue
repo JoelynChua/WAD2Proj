@@ -2,7 +2,7 @@
     <div class="homepage">
         <div class="hero-section">
             <video ref="backgroundVideo" autoplay muted loop playsinline id="background-video">
-                <source src="https://media.graphassets.com/iX5mzzTaQAeFQrC4MvPZ" type="video/mp4" />
+                <source src="https://videos.pexels.com/video-files/4916813/4916813-hd_1920_1080_30fps.mp4" type="video/mp4" />
                 Your browser does not support the video tag.
             </video>
             <div class="hero-content">                
@@ -478,7 +478,7 @@ export default {
 }
 .navy-box {
     position: absolute;
-    bottom: -40px;
+    bottom: -30px;
     width: 70%;
     max-width: 1000px;
     background-color: #1a1a40;

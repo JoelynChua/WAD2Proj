@@ -3,7 +3,7 @@
         <h1 class="mt-3">Check out the popular events</h1>
         <swiper
           :slidesPerView="4"
-          
+          :centeredSlides="true"
           :spaceBetween="50"
           :grabCursor="true"
           :pagination="{
