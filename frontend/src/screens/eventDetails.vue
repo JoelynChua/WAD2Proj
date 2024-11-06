@@ -43,13 +43,10 @@
                             <div class="event-title">
                                 {{ eventDetails.name }}
                             </div>
-                            <div class="event-description">
-                                {{ eventDetails.description }}
-                            </div>
                             <div class="event-container">
                                 <div class="event-header">Date and Time</div>
                                 <i class="fi fi-rr-calendar-day" style="margin: 0px 8px;"></i>
-                                <span> {{ eventDetails.dates.start.localDate }} {{ eventDetails.dates.start.localTime }} {{ eventDetails.dates.timezone }}</span>
+                                <span> {{ eventDetails.dates.start.localDate }} {{ eventDetails.dates.start.localTime.slice(0,5) }} {{ eventDetails.dates.timezone }}</span>
                             </div>
 
                             <div class="event-container">
@@ -66,9 +63,7 @@
 
                             </div>
                             <div class="event-container">
-                                <div class="event-header">
-                                    Price Range:
-                                </div>
+                                <div class="event-header">Price Range</div>
                                 <i class="fi fi-rr-dollar" style="margin: 0px 8px;"></i>
                                 <span>
                                     {{ eventDetails.priceRanges[0].min }}{{ eventDetails.priceRanges[0].currency}} 
@@ -76,38 +71,14 @@
                                     {{ eventDetails.priceRanges[0].max }}{{ eventDetails.priceRanges[0].currency }}
                                 </span>
                             </div>
+
+                            <div class="event-container">
+                                <div class="event-header">Ticket Sales</div>
+                                <div class="d-inline-block"> {{ formatDateTime(eventDetails.sales.public.startDateTime) }} </div>
+                                <div class="d-inline-block">&nbsp;&nbsp; - &nbsp;&nbsp; </div>
+                                <div class="d-inline-block"> {{ formatDateTime(eventDetails.sales.public.endDateTime) }} </div> 
+                            </div>
                         </div>
-
-
-                        <!-- <div class="location-section mb-4">
-                        <h3 class="text-xl font-semibold text-gray-800 mb-2">Location</h3>
-                        <p class="text-gray-600">{{ eventDetails.place.name }}</p>
-                        <p class="text-gray-600">{{ eventDetails.place.address.line1 }}, {{ eventDetails.place.address.city }}, {{ eventDetails.place.address.postalCode }}</p>
-                        </div>
-
-                        <div class="refund-policy">
-                        <h3 class="text-xl font-semibold text-gray-800 mb-2">Refund Policy</h3>
-                        <p class="text-gray-600">{{ eventDetails.refundPolicy || 'No Refunds' }}</p>
-                        </div> -->
-
-
-                        <!-- <h1>{{ eventDetails.name }}</h1>
-                        <p>Type: {{ eventDetails.type }}</p>
-                        <p>Date: {{ eventDetails.dates.start.localDate }}</p>
-                        <p>Time: {{ eventDetails.dates.start.localTime }}</p>
-                        <p>Timezone: {{ eventDetails.dates.timezone }}</p>
-                        <p>Status: {{ eventDetails.dates.status.code }}</p>
-                        <hr />
-                        <div v-if="eventDetails.sales">
-                            <h3>Sales:</h3>
-                            <p>Start date: {{ eventDetails.sales.public?.startDateTime }}</p>
-                            <p>End date: {{ eventDetails.sales.public?.endDateTime }}</p>
-                        </div>
-                        <p v-if="eventDetails.priceRanges?.length">
-                            Price range:
-                            {{ `${eventDetails.priceRanges[0].min || 'N/A'} to ${eventDetails.priceRanges[0].max || 'N/A'}
-                            ${eventDetails.priceRanges[0].currency || ''}` }}
-                        </p> -->
                     </div>
                 </div>
             </div>
@@ -258,6 +229,15 @@ export default {
         },
         formatTime(dateString) {
             return new Date(dateString).toLocaleTimeString('en-US', {
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        },
+        formatDateTime(dateString) {
+            return new Date(dateString).toLocaleTimeString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
                 hour: '2-digit',
                 minute: '2-digit'
             });
