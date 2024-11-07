@@ -6,9 +6,9 @@
     }" style="background-color: white">
         <div class="container-fluid">
             <div class="d-flex align-items-center w-100 w-lg-auto" :class="{ 'custom-max-width': isLargeScreen }">
-                <RouterLink class="navbar-brand" to="/">
+                <a class="navbar-brand" href="/">
                     <img width="180px" src="../assets/activity.ai.png" />
-                </RouterLink>
+                </a>
 
                 <div class="ms-auto">
                     <button class="navbar-toggler me-2" type="button" :class="{ 'navbar-icon-small': isSmall }"
@@ -27,62 +27,62 @@
 
                 <ul class="navbar-nav mx-auto" v-if="isCustomer">
                     <li class="nav-item">
-                        <RouterLink class="nav-link" :class="{ active: $route.path === '/events' }" aria-current="page"
-                            to="/events">events</RouterLink>
+                        <a class="nav-link" :class="{ active: $route.path === '/events' }" aria-current="page"
+                            href="/events">events</a>
                     </li>
                     <li class="nav-item">
-                        <RouterLink class="nav-link" :class="{ active: $route.path === '/attractionsList' }"
-                            to="/attractionsList">attractions</RouterLink>
+                        <a class="nav-link" :class="{ active: $route.path === '/attractionsList' }"
+                            href="/attractionsList">attractions</a>
                     </li>
                     <li class="nav-item" v-if="isCustomer">
-                        <RouterLink class="nav-link" :class="{ active: $route.path === '/itineraryList' }"
-                            to="/itineraryList">itinerary</RouterLink>
+                        <a class="nav-link" :class="{ active: $route.path === '/itineraryList' }"
+                            href="/itineraryList">itinerary</a>
                     </li>
                     <li class="nav-item" v-if="isCustomer">
-                        <RouterLink class="nav-link" :class="{ active: $route.path === '/ExpensePage' }"
-                            to="/ExpensePage">expense</RouterLink>
+                        <a class="nav-link" :class="{ active: $route.path === '/ExpensePage' }"
+                            href="/ExpensePage">expense</a>
                     </li>
 
                 </ul>
 
                 <ul class="navbar-nav mx-auto" v-if="isOrganiser">
                     <li class="nav-item">
-                        <RouterLink class="nav-link" :class="{ active: $route.path === '/events' }" aria-current="page"
-                            to="/events">events</RouterLink>
+                        <a class="nav-link" :class="{ active: $route.path === '/events' }" aria-current="page"
+                            href="/events">events</a>
                     </li>
                     <li class="nav-item">
-                        <RouterLink class="nav-link" :class="{ active: $route.path === '/attractionsList' }"
-                            to="/attractionsList">attractions</RouterLink>
+                        <a class="nav-link" :class="{ active: $route.path === '/attractionsList' }"
+                            href="/attractionsList">attractions</a>
                     </li>
 
                     <!-- Organizer-specific links -->
                     <li class="nav-item" v-if="isOrganiser">
-                        <RouterLink class="nav-link" :class="{ active: $route.path === '/calendar' }" to="/calendar">
-                            calendar</RouterLink>
+                        <a class="nav-link" :class="{ active: $route.path === '/calendar' }" href="/calendar">
+                            calendar</a>
                     </li>
                     <li class="nav-item" v-if="isOrganiser">
-                        <RouterLink class="nav-link" :class="{ active: $route.path === '/organizer-dashboard' }"
-                            to="/organizer-dashboard">dashboard</RouterLink>
+                        <a class="nav-link" :class="{ active: $route.path === '/organizer-dashboard' }"
+                            href="/organizer-dashboard">dashboard</a>
                     </li>
                 </ul>
 
                 <ul class="navbar-nav mx-auto" v-if="!isCustomer && !isOrganiser">
                     <li class="nav-item">
-                        <RouterLink class="nav-link" :class="{ active: $route.path === '/' }" aria-current="page"
-                            to="/">home</RouterLink>
+                        <a class="nav-link" :class="{ active: $route.path === '/' }" aria-current="page"
+                            href="/">home</a>
                     </li>
                     <li class="nav-item">
-                        <RouterLink class="nav-link" :class="{ active: $route.path === '/events' }"
-                            to="/events">events</RouterLink>
+                        <a class="nav-link" :class="{ active: $route.path === '/events' }"
+                            href="/events">events</a>
                     </li>
                     <li class="nav-item">
-                        <RouterLink class="nav-link" :class="{ active: $route.path === '/attractionsList' }"
-                            to="/attractionsList">attractions</RouterLink>
+                        <a class="nav-link" :class="{ active: $route.path === '/attractionsList' }"
+                            href="/attractionsList">attractions</a>
                     </li>
 
                     <li class="nav-item" v-if="!isAuthenticated">
-                        <RouterLink class="nav-link" :class="{ active: $route.path === '/organizers' }"
-                            to="/organizers">partner with us</RouterLink>
+                        <a class="nav-link" :class="{ active: $route.path === '/organizers' }"
+                            href="/organizers">partner with us</a>
                     </li>
 
                 </ul>
@@ -91,8 +91,8 @@
 
                 <ul class="navbar-nav">
                     <li id="last-item" class="nav-item" v-if="!isAuthenticated">
-                        <RouterLink class="nav-link mt-3 mb-3 text-nowrap" to="/login-for-users">login / sign up
-                        </RouterLink>
+                        <a class="nav-link mt-3 mb-3 text-nowrap" href="/login-for-users">login / sign up
+                        </a>
                     </li>
                     <li class="nav-item dropdown" v-else>
                         <a class="nav-link dropdown-toggle mt-3 mb-3" href="#" id="navbarDropdown" role="button"
@@ -103,7 +103,7 @@
                         <ul class="dropdown-menu dropdown-menu-end mb-3" :class="{ hidden: isHidden }"
                             aria-labelledby="navbarDropdown">
                             <li>
-                                <RouterLink class="dropdown-item text-center" to="/dashboard">Profile</RouterLink>
+                                <a class="dropdown-item text-center" href="/dashboard">Profile</a>
                             </li>
                             <li>
                                 <a class="dropdown-item text-center" href="#" @click.prevent="signOut">Sign Out</a>
@@ -119,7 +119,7 @@
 <script>
 import { auth, database } from '../firebase/firebaseClientConfig';
 import { onAuthStateChanged, signOut as firebaseSignOut } from 'firebase/auth';
-import { ref as firebaseRef, get } from 'firebase/database'; // Rename `ref` from Firebase to `firebaseRef`
+import { ref as firebaseRef, get } from 'firebase/database'; // Rename `ref` from Firebase href `firebaseRef`
 import EventBus from '../utils/eventBus.js';
 // computed
 import { ref, onMounted, onBeforeUnmount } from 'vue';
@@ -224,7 +224,7 @@ export default {
 
         updateNavbarBasedOnRoute(path) {
             if (path === '/') {
-                console.log('Navigated to ExpensePage');
+                console.log('Navigated href ExpensePage');
             }
         },
     },

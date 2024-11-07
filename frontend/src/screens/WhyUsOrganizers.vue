@@ -1,44 +1,34 @@
 <template>
     <section>
         <div class="container">
-            <img src="../assets/organizer_background.png" height="100%">
-            <div>HOST YOUR</div>
-            <Typical class="typer" :steps="['> EVENTS', 2000, '> PARTY', 2000, '> TOUR', 2000]" :loop="Infinity"
-                wrapper="span" />
-            <span>WITH US</span>
-            <button onclick="window.location.href='mailto:wad2proj@gmail.com'">Email Us</button>
-
-        </div>
-    </section>
-
-    <section>
-        <div class="data">
-            <div class="header">
-                <h1><b>YOU DON'T NEED A BUSINESS TO HOST EVENTS</b></h1>
-                <p>Without a high-performing website, you're not just losing clicks; you're losing opportunities to grow
-                    your business. Every visitor could be a potential customer, and without the right tools to capture
-                    and convert them, your marketing efforts are not fully capitalized. It’s essential to have an
-                    engaging, effective online presence to ensure you’re not leaving money on the table.</p>
+            <img src="../assets/organizer_background.jpg" height="100%" width="100%">
+            <div class="fade-in-text" style="z-index: 10; background-color: transparent;">
+                <div style="background-color: transparent;">HOST YOUR</div>
+                <Typical class="typer" :steps="['> EVENTS', 2000, '> PARTY', 2000, '> TOUR', 2000]" :loop="Infinity" wrapper="span" />
+                <div style="background-color: transparent;">WITH US</div>
+                <button onclick="window.location.href='mailto:wad2proj@gmail.com'">Contact Us</button>
             </div>
-            <div class="stats">
-                <div class="stat">
-                    <h2>MOBILE</h2>
-                    <p>54.8%</p>
-                    <p>Mobile devices generate 54.8% of global web traffic.</p>
-                </div>
-                <div class="stat">
-                    <h2>WEBSITE</h2>
-                    <p>42.0%</p>
-                    <p>42% of people will leave a website with poor functionality.</p>
-                </div>
-                <div class="stat">
-                    <h2>WEBSITE</h2>
-                    <p>88.5%</p>
-                    <p>88.5% of people will leave a slow loading website.</p>
-                </div>
-            </div> <button class="cta-button">Let's Get Started</button>
+            <img src="../assets/boat.gif" height="100px" style="position: absolute; right: 30%; top: 145px;">
+            <img src="../assets/boat2.gif" class="moving-boat" height="200px">
         </div>
-    </section>
+            <!-- <div class="stats">
+                <div class="stat">
+                    <h2><img src="../assets/money-bag.gif" width="80px"></h2>
+                    <h2><b>Earn Revenue</b></h2>
+                    <p>Be rewarded for doing what you love! Anybody can host events, anytime.</p>
+                </div>
+                <div class="stat">
+                    <h2><img src="../assets/social-media.gif" width="80px"></h2>
+                    <h2><b>Unlimited Outreach</b></h2>
+                    <p>Once it's up there, its' out there! Anybody can sign up, from anywhere.</p>
+                </div>
+                <div class="stat">
+                    <h2><img src="../assets/like.gif" width="80px"></h2>
+                    <h2><b>Be Rated </b></h2>
+                    <p>Participants can rate their favourite events. Gain more outreach by standing out!</p>
+                </div>
+            </div> -->
+        </section>
 </template>
 
 <script>
@@ -55,7 +45,6 @@ export default defineComponent({
 <style scoped>
 * {
     font-family: "BasementGrotesque-Black", sans-serif;
-
 }
 
 .container {
@@ -69,14 +58,35 @@ export default defineComponent({
     text-align: center;
     color: transparent;
     -webkit-text-stroke: 2px white;
-    font-size: 6rem;
+    font-size: 100px;
+    text-wrap: nowrap;
+
+}
+
+section {
+
+
 }
 
 .container img {
-    z-index: -5;
     position: absolute;
     padding: 0px;
     margin: 0px;
+
+}
+
+.fade-in-text {
+    animation: fadeIn 2s ease forwards;
+    opacity: 0;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
 }
 
 .typer {
@@ -89,16 +99,17 @@ export default defineComponent({
 
 button {
     background: linear-gradient(90deg, rgb(160, 188, 232), rgb(14, 61, 136));
-    font-weight: 0;
-    margin-top: 25px;
+    padding: 8px 3px;
+    font-weight: 100;
+    margin-top: 15px;
     width: 200px;
     color: white;
-    border: none;
+    border: 1px solid white;
     cursor: pointer;
     border-radius: 8px;
     font-size: 24px;
-    font-family: sans-serif;
-    text-align: center
+    font-family: cursive;
+    text-align: center;
 }
 
 @media (max-width: 450px) {
@@ -124,18 +135,23 @@ button {
 
 .stats {
     display: flex;
+    margin-top: 0 !important;
     justify-content: space-around;
-    margin-bottom: 40px;
     font-family: 'graphie';
+    padding: 50px;
+
 
 }
 
 .stat {
-    background-color: #000;
-    color: #fff;
+    background-image: url('../assets/mat.png');
+    background-size: 100%;
+    background-repeat: no-repeat;
+    color: #000000;
     padding: 20px;
-    border-radius: 10px;
-    width: 30%;
+    padding-top: 10%;
+    width: 250px;
+    height: 450px;
 }
 
 .stat h2 {
@@ -147,17 +163,18 @@ button {
     font-size: 1em;
 }
 
-.cta-button {
-    background-color: #ff7f50;
-    color: #fff;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
-    font-size: 1em;
-    cursor: pointer;
+@keyframes moveBoat {
+    0% {
+        left: -150px;
+    }
+    100% {
+        left: 100%;
+    }
 }
 
-.cta-button:hover {
-    background-color: #ff4500;
+.moving-boat {
+    position: absolute;
+    top: 175px;
+    animation: moveBoat 25s linear infinite;
 }
 </style>

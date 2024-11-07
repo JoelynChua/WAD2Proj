@@ -9,17 +9,17 @@
         </video>
 
         <section id="largeHomeScreen">
-          <h2 class="slide-right ms-4" style="margin-top: 250px;">Las Vegas Sphere now presents: <br>Hamilton</h2>
-          <p class="fade-in mt-5 ms-4">Proudly casted by Lay Foo and Mok Ngee HeHe</p>
-          <button @click="findActivities" class="section1_buttons pulse mt-4 p-3 ms-4" style="border-radius: 50px; font-size: 16px; height: 40px">Find Activities</button>
-          <a href="#aboutUs"><button class="section1_buttons pulse p-3 ms-5" style="border-radius: 50px; font-size: 16px; height: 40px">About Us</button></a>
+          <h2 class="slide-right" style="margin-top: 250px; margin-left: 150px; font-size: 64px;">Party Now Like Never<br>Before</h2>
+          <p class="fade-in mt-5" style="margin-left: 150px;">Find activities in Singapore and worldwide</p>
+          <button @click="findActivities" class="section1_buttons pulse mt-4 p-3" style="font-size: 16px; height: 40px; margin-left: 150px;">Let's GO!</button>
+          <a href="#aboutUs"><button class="section1_buttons pulse p-3 ms-5" style="font-size: 16px; height: 40px">Learn More</button></a>
         </section>
 
         <section id="smallHomeScreen" class="text-center">
-          <h2 class="slide-right" style="margin-top: 250px;">Las Vegas Sphere now presents: <br>Hamilton</h2>
-          <p class="fade-in mt-5">Proudly casted by Lay Foo and Mok Ngee HeHe</p>
-          <button @click="findActivities" class="section1_buttons pulse mt-4 p-3" style="border-radius: 50px; font-size: 16px; height: 40px">Find Activities</button>
-          <a href="#aboutUs"><button class="section1_buttons pulse p-3 ms-5" style="border-radius: 50px; font-size: 16px; height: 40px">About Us</button></a>
+          <h2 class="slide-right" style="margin-top: 250px; font-size: 58px;">Party Now Like Never<br>Before</h2>
+          <p class="fade-in mt-5">Find activities in Singapore and worldwide</p>
+          <button @click="findActivities" class="section1_buttons pulse mt-4 p-3" style="border-radius: 50px; font-size: 16px; height: 40px">Let's GO!</button>
+          <a href="#aboutUs"><button class="section1_buttons pulse p-3 ms-5" style="border-radius: 50px; font-size: 16px; height: 40px">Learn More</button></a>
         </section>
 
         <!-- Pause Button -->
@@ -261,13 +261,12 @@ export default {
 }
 
 .section1_buttons {
-  animation: pulse 2s infinite;
   background: linear-gradient(90deg, rgb(160, 188, 232), rgb(111, 149, 209));
   color: white;
   border: none;
   padding: 1rem 2rem;
   cursor: pointer;
-  border-radius: 4px;
+  border-radius: 5px !important;
   font-size: 1.2rem;
   display: inline-flex;
   align-items: center;
@@ -313,8 +312,8 @@ footer {
 }
 
 @media (max-width: 768px) {
-  #largeHomeScreen {
-    display: none
+  #largeHomeScreen * {
+    display: none;
   }
 
   #smallHomeScreen, .hero h2, .hero p {

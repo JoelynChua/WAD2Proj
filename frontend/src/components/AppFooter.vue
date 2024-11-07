@@ -34,6 +34,7 @@
       <!-- Copyright -->
       <p>&copy; 2024 Activity.ai. All Rights Reserved.</p>
       <p>API from ticketMaster developer</p>
+      <a href="https://www.flaticon.com/free-animated-icons/finger" title="finger animated icons">Finger animated icons created by Freepik - Flaticon</a>
     </div>
   </footer>
 </template>
