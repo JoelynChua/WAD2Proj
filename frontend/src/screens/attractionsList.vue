@@ -2,23 +2,13 @@
     <div class="homepage">
         <h1>Upcoming Attractions</h1>
         <div class="attraction-container" v-if="attractions.length">
-            <div
-                class="attraction"
-                v-for="attraction in attractions"
-                :key="attraction.id"
-                @click="goToAttractionDetails(attraction.id)"
-                style="cursor: pointer; position: relative"
-            >
+            <div class="attraction" v-for="attraction in attractions" :key="attraction.id"
+                @click="goToAttractionDetails(attraction.id)" style="cursor: pointer; position: relative">
                 <!-- Bookmark Icon Positioned in the Top Right -->
-                <font-awesome-icon v-if="userID"
-                    :icon="
-                        isBookmarked(attraction.id)
-                            ? ['fas', 'bookmark']
-                            : ['far', 'bookmark']
-                    "
-                    class="bookmark-icon"
-                    @click.stop="toggleWishlist(attraction.id)"
-                />
+                <font-awesome-icon v-if="userID" :icon="isBookmarked(attraction.id)
+                    ? ['fas', 'bookmark']
+                    : ['far', 'bookmark']
+                    " class="bookmark-icon" @click.stop="toggleWishlist(attraction.id)" />
                 <h2>{{ attraction.name }}</h2>
                 <p>Type: {{ attraction.type }}</p>
                 <p>Genre: {{ attraction.classifications[0].genre?.name }}</p>
@@ -56,13 +46,12 @@ export default {
             this.attractions = await attractionService.displayAttractions();
             console.log(this.attractions);
         } catch (error) {
-            console.error('Failed to fetch attractions or wishlists:', error);
+            console.error('Failed to fetch attractions:', error);
         }
     },
 
-    async mounted() {
-         // Set up the authentication listener first
-         this.authListener();
+    mounted() {
+        this.authListener(); // Set up the authentication listener
         window.addEventListener('scroll', this.handleScroll);
     },
 
@@ -78,39 +67,28 @@ export default {
         },
 
         authListener() {
-            const auth = getAuth(); // Initialize Firebase auth here
-            // Listen to the authentication state
+            const auth = getAuth();
             auth.onAuthStateChanged(async (user) => {
                 if (user) {
-                    // User is signed in
-                    this.userID = user.uid; // Get the user ID
+                    this.userID = user.uid;
                     try {
-                        // Fetch itineraries using the UID
-                        this.itineraries =
-                            await itineraryService.getItineraryByUserID(
-                                this.userID
-                            );
-                        console.log(this.itineraries);
-                        await this.reloadWishlists(); // Reload wishlists after fetching itineraries
+                        await this.reloadWishlists();
                     } catch (error) {
-                        console.error('Failed to fetch itineraries:', error);
+                        console.error('Failed to fetch wishlists:', error);
                     }
                 } else {
-                    // User is signed out
-                    console.log('User is signed out');
-                    // Optionally redirect to login page or handle sign-out logic here
-                    // this.$router.push('/login');
+                    this.userID = null;
+                    this.wishlists = [];
                 }
             });
         },
 
         async reloadWishlists() {
+            if (!this.userID) return; // Ensure userID is set
             try {
-                if (this.userID) {
-                    this.wishlists = await itineraryService.getUserWishlist(
-                        this.userID
-                    ); // Fetch updated wishlists
-                }
+                const wishlists = await itineraryService.getUserWishlist(this.userID);
+                this.wishlists = [...wishlists]; // Spread operator to ensure reactivity
+                console.log('Wishlists reloaded:', this.wishlists);
             } catch (error) {
                 console.error('Failed to reload wishlists:', error);
             }
@@ -120,10 +98,7 @@ export default {
             const existingWishlist = this.wishlists.find(
                 (wishlist) => wishlist.attractionID === attractionID
             );
-            const wishlistID = existingWishlist ? existingWishlist.id : null; // Safely access id
-
-            console.log('Existing Wishlist:', existingWishlist); // Log existing wishlist
-            console.log('Wishlist ID:', wishlistID); // Log the wishlist ID
+            const wishlistID = existingWishlist ? existingWishlist.id : null;
 
             const newWishlist = {
                 userID: this.userID,
@@ -132,23 +107,16 @@ export default {
 
             try {
                 if (!wishlistID) {
-                    // If not found, add to wishlist
-                    await itineraryService.addWishlist(newWishlist);
-                    console.log('Wishlist added:', newWishlist);
-                    // Update wishlists array
-                    this.wishlists.push({ ...newWishlist, id: newWishlist.id }); // Assuming the response has the new ID
+                    // Add to wishlist and update wishlists array
+                    const addedWishlist = await itineraryService.addWishlist(newWishlist);
+                    this.wishlists = [...this.wishlists, addedWishlist]; // Spread to update reactivity
                 } else {
-                    // If found, delete from wishlist
+                    // Delete from wishlist and update wishlists array
                     await itineraryService.deleteWishlist(wishlistID);
-                    console.log('Wishlist deleted:', wishlistID);
-                    // Update wishlists by removing the deleted one
                     this.wishlists = this.wishlists.filter(
                         (wishlist) => wishlist.id !== wishlistID
                     );
                 }
-
-                // Reload the wishlists after adding or deleting
-                await this.reloadWishlists();
             } catch (error) {
                 console.error('Failed to update wishlist:', error);
             }
@@ -229,7 +197,8 @@ p {
 }
 
 .bookmark-icon.active {
-    color: #34495e; /* Active color when bookmarked */
+    color: #34495e;
+    /* Active color when bookmarked */
 }
 
 /* Responsive adjustments */

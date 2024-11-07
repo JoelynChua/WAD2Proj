@@ -2,10 +2,10 @@
     <div class="homepage">
         <div class="hero-section">
             <video ref="backgroundVideo" autoplay muted loop playsinline id="background-video">
-                    <source src="https://media.graphassets.com/iX5mzzTaQAeFQrC4MvPZ" type="video/mp4" />
-                    Your browser does not support the video tag.
-                </video>
-            <div class="hero-content">                
+                <source src="https://media.graphassets.com/iX5mzzTaQAeFQrC4MvPZ" type="video/mp4" />
+                Your browser does not support the video tag.
+            </video>
+            <div class="hero-content">
                 <div class="display-1 z-1">Find Your Event Today</div>
             </div>
 
@@ -41,26 +41,25 @@
         <div class="container mt-4" v-if="selectedFilter === 'wishlist' && filteredEvents.length">
             <div class="row">
                 <div class="col-lg-4 col-md-6 col-12 mb-4" v-for="event in filteredEvents" :key="event.id">
-                    <div class="card event" @click="goToEventDetails(event.id)" style="cursor: pointer; position: relative;">
+                    <div class="card event" @click="goToEventDetails(event.id)"
+                        style="cursor: pointer; position: relative;">
                         <!-- Event Image Section -->
-                        <div v-if="event.type === 'Organiser Event'" 
-                            class="custom-event-image" 
+                        <div v-if="event.type === 'Organiser Event'" class="custom-event-image"
                             :style="{ backgroundColor: event.colour || '#1a1a40' }">
                             <img src="../assets/logo.png" alt="Event logo" class="event-logo" />
                         </div>
-                        <img v-else
-                            :src="event.images[0].url"
-                            alt="Event image" 
-                            class="ticketmaster-image" />
+                        <img v-else :src="event.images[0].url" alt="Event image" class="ticketmaster-image" />
 
                         <!-- Bookmark Icon -->
                         <div class="icon-container" v-if="!isBookmarked(event.id)">
-                            <font-awesome-icon v-if="userID" :icon="isBookmarked(event.id) ? ['fas', 'bookmark'] : ['far', 'bookmark']"
-                            class="bookmark-icon" @click.stop="toggleWishlist(event.id)" />
+                            <font-awesome-icon v-if="userID"
+                                :icon="isBookmarked(event.id) ? ['fas', 'bookmark'] : ['far', 'bookmark']"
+                                class="bookmark-icon" @click.stop="toggleWishlist(event.id)" />
                         </div>
                         <div class="fixed-icon-container" v-else>
-                            <font-awesome-icon v-if="userID" :icon="isBookmarked(event.id) ? ['fas', 'bookmark'] : ['far', 'bookmark']"
-                            class="bookmark-icon" @click.stop="toggleWishlist(event.id)" />
+                            <font-awesome-icon v-if="userID"
+                                :icon="isBookmarked(event.id) ? ['fas', 'bookmark'] : ['far', 'bookmark']"
+                                class="bookmark-icon" @click.stop="toggleWishlist(event.id)" />
                         </div>
 
                         <!-- Event Details -->
@@ -87,26 +86,25 @@
         <div class="container mt-4" v-else>
             <div class="row" v-if="sortedEvents.length">
                 <div class="col-lg-4 col-md-6 col-12 mb-4" v-for="event in sortedEvents" :key="event.id">
-                    <div class="card event" @click="goToEventDetails(event.id)" style="cursor: pointer; position: relative;">
+                    <div class="card event" @click="goToEventDetails(event.id)"
+                        style="cursor: pointer; position: relative;">
                         <!-- Event Image Section -->
-                        <div v-if="event.type === 'Organiser Event'" 
-                            class="custom-event-image" 
+                        <div v-if="event.type === 'Organiser Event'" class="custom-event-image"
                             :style="{ backgroundColor: event.colour || '#1a1a40' }">
                             <img src="../assets/logo.png" alt="Event logo" class="event-logo" />
                         </div>
-                        <img v-else
-                            :src="event.images[0].url"
-                            alt="Event image" 
-                            class="ticketmaster-image" />
+                        <img v-else :src="event.images[0].url" alt="Event image" class="ticketmaster-image" />
 
                         <!-- Bookmark Icon -->
                         <div class="icon-container" v-if="!isBookmarked(event.id)">
-                            <font-awesome-icon v-if="userID" :icon="isBookmarked(event.id) ? ['fas', 'bookmark'] : ['far', 'bookmark']"
-                            class="bookmark-icon" @click.stop="toggleWishlist(event.id)" />
+                            <font-awesome-icon v-if="userID"
+                                :icon="isBookmarked(event.id) ? ['fas', 'bookmark'] : ['far', 'bookmark']"
+                                class="bookmark-icon" @click.stop="toggleWishlist(event.id)" />
                         </div>
                         <div class="fixed-icon-container" v-else>
-                            <font-awesome-icon v-if="userID" :icon="isBookmarked(event.id) ? ['fas', 'bookmark'] : ['far', 'bookmark']"
-                            class="bookmark-icon" @click.stop="toggleWishlist(event.id)" />
+                            <font-awesome-icon v-if="userID"
+                                :icon="isBookmarked(event.id) ? ['fas', 'bookmark'] : ['far', 'bookmark']"
+                                class="bookmark-icon" @click.stop="toggleWishlist(event.id)" />
                         </div>
 
                         <!-- Event Details -->
@@ -172,17 +170,17 @@ export default {
     },
 
     async created() {
-        this.authListener(); 
+        this.authListener();
         try {
             // Fetch both types of events
             const [ticketmasterEvents, organiserEvents] = await Promise.all([
                 eventService.displayEvents(),
                 organiserEventService.getAllEvents()
             ]);
-            
+
             this.events = ticketmasterEvents;
             this.organiserEvents = organiserEvents;
-            
+
             // Create the master date-sorted list
             this.eventDateMap = [
                 ...ticketmasterEvents.map(event => ({
@@ -238,11 +236,11 @@ export default {
         */
         sortedEvents() {
 
-            const eventsToUse = this.searchQuery ? 
+            const eventsToUse = this.searchQuery ?
                 {
                     ticketmaster: this.filteredTicketmasterEvents,
                     organiser: this.filteredOrganiserEvents
-                } : 
+                } :
                 {
                     ticketmaster: this.events,
                     organiser: this.organiserEvents
@@ -262,9 +260,9 @@ export default {
                         } : null;
                     }
                 })
-                .filter(Boolean); 
+                .filter(Boolean);
         },
-        
+
         filteredEvents() {
             if (this.userID && this.wishlists.length) {
                 return this.sortedEvents.filter(event =>
@@ -304,13 +302,12 @@ export default {
                     // User is signed in
                     this.userID = user.uid; // Get the user ID
                     try {
+                        await this.reloadWishlists();
+
                         // Fetch itineraries using the UID
-                        this.itineraries =
-                            await itineraryService.getItineraryByUserID(
-                                this.userID
-                            );
+                        this.itineraries = await itineraryService.getItineraryByUserID(this.userID);
                         console.log(this.itineraries);
-                        await this.reloadWishlists(); // Reload wishlists after fetching itineraries
+
                     } catch (error) {
                         console.error('Failed to fetch itineraries:', error);
                     }
@@ -337,37 +334,27 @@ export default {
             try {
                 if (!wishlistID) {
                     // If not bookmarked, add to wishlist
-                    const response = await itineraryService.addWishlist(
-                        newWishlist
-                    );
-                    console.log('Wishlist added:', response);
-                    // Update local state with the new wishlist ID
-                    this.wishlists.push({ ...newWishlist, id: response.id }); // Use response ID for new wishlist
+                    const addedWishlist = await itineraryService.addWishlist(newWishlist);
+                    this.wishlists = [...this.wishlists, addedWishlist];
                 } else {
                     // If already bookmarked, delete from wishlist
+                    // Delete from wishlist and update wishlists array
                     await itineraryService.deleteWishlist(wishlistID);
-                    console.log('Wishlist deleted:', wishlistID);
-                    // Update local state
                     this.wishlists = this.wishlists.filter(
                         (wishlist) => wishlist.id !== wishlistID
                     );
                 }
-
-                // Reload the wishlists after adding or deleting
-                await this.reloadWishlists();
-                console.log('Updated wishlists:', this.wishlists);
             } catch (error) {
                 console.error('Failed to update wishlist:', error);
             }
         },
 
         async reloadWishlists() {
+            if (!this.userID) return; // Ensure userID is set
             try {
-                if (this.userID) {
-                    this.wishlists = await itineraryService.getUserWishlist(
-                        this.userID
-                    ); // Fetch updated wishlists
-                }
+                const wishlists = await itineraryService.getUserWishlist(this.userID);
+                this.wishlists = [...wishlists]; // Spread operator to ensure reactivity
+                console.log('Wishlists reloaded:', this.wishlists);
             } catch (error) {
                 console.error('Failed to reload wishlists:', error);
             }
@@ -383,7 +370,7 @@ export default {
                     this.filteredTicketmasterEvents = await eventService.searchEventName(query);
 
                     // Search organizer events locally
-                    this.filteredOrganiserEvents = this.organiserEvents.filter(event => 
+                    this.filteredOrganiserEvents = this.organiserEvents.filter(event =>
                         event.title.toLowerCase().includes(query.toLowerCase()) ||
                         (event.description && event.description.toLowerCase().includes(query.toLowerCase()))
                     );
@@ -411,7 +398,7 @@ export default {
                 // Reset to original state when search query is empty
                 this.filteredTicketmasterEvents = [];
                 this.filteredOrganiserEvents = [];
-                
+
                 // Restore original eventDateMap
                 this.eventDateMap = [
                     ...this.events.map(event => ({
@@ -438,6 +425,7 @@ export default {
     background: #f9f9f9;
     color: #333;
 }
+
 .hero-section {
     position: relative;
     width: 100%;
@@ -452,37 +440,43 @@ export default {
     text-align: center;
     z-index: 1;
 }
+
 #background-video {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  z-index: -1;
-  filter: brightness(30%);
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: -1;
+    filter: brightness(30%);
 }
+
 .hero-content {
     position: relative;
     z-index: 1;
     color: white;
     text-align: center;
 }
+
 .hero-content .display-1 {
-  animation: scale-up 1.5s ease forwards;
-  transform-origin: center;
-  opacity: 0;
-}
-@keyframes scale-up {
-  0% {
+    animation: scale-up 1.5s ease forwards;
+    transform-origin: center;
     opacity: 0;
-    transform: scale(0.8); 
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1); 
-  }
 }
+
+@keyframes scale-up {
+    0% {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
 .navy-box {
     position: absolute;
     bottom: -20px;
@@ -499,15 +493,18 @@ export default {
     opacity: 0;
     transform: translateY(100%);
 }
+
 .navy-box.visible {
     opacity: 1;
     transform: translateY(0);
 }
+
 .search-container {
     position: relative;
     margin: auto;
     width: 90%;
 }
+
 .search-icon {
     position: absolute;
     left: 15px;
@@ -517,6 +514,7 @@ export default {
     color: #888;
     pointer-events: none;
 }
+
 .search-container input[type='text'] {
     padding: 10px 15px;
     padding-left: 40px;
@@ -529,16 +527,24 @@ export default {
     outline: none;
     transition: background-color 0.3s ease;
 }
+
 .search-container input[type='text']:hover {
     background-color: #e0e0e0;
 }
-.popular-event-slide-fade-enter-active, .popular-event-slide-fade-leave-active {
-    transition: opacity 0.5s ease, transform 0.5s ease; /* Adjust timing as needed */
+
+.popular-event-slide-fade-enter-active,
+.popular-event-slide-fade-leave-active {
+    transition: opacity 0.5s ease, transform 0.5s ease;
+    /* Adjust timing as needed */
 }
-.popular-event-slide-fade-enter, .popular-event-slide-fade-leave-to {
+
+.popular-event-slide-fade-enter,
+.popular-event-slide-fade-leave-to {
     opacity: 0;
-    transform: translateY(20px); /* Slide in from below */
+    transform: translateY(20px);
+    /* Slide in from below */
 }
+
 .filter-container {
     padding: 20px;
     margin: 0 auto;
@@ -548,16 +554,19 @@ export default {
     justify-content: space-between;
     max-width: 900px;
 }
+
 .filter-container h1 {
     font-size: 2em;
     color: #333;
     margin: 0;
     font-weight: bolder;
 }
+
 .dropdown-container {
     position: relative;
     display: inline-block;
 }
+
 .custom-dropdown {
     padding: 10px 40px 10px 20px;
     font-size: 1em;
@@ -571,6 +580,7 @@ export default {
     font-weight: bold;
     width: 150px;
 }
+
 .dropdown-icon {
     position: absolute;
     right: 15px;
@@ -580,9 +590,11 @@ export default {
     color: #888;
     pointer-events: none;
 }
+
 .custom-dropdown:hover {
     border-color: #bbb;
 }
+
 .event {
     position: relative;
     border: none;
@@ -637,12 +649,14 @@ export default {
 }
 
 /* Add some spacing between cards */
-.col-lg-4, .col-md-6, .col-12 {
+.col-lg-4,
+.col-md-6,
+.col-12 {
     padding: 1rem;
 }
 
 /* Optional: Add a subtle transition when cards appear */
-.row > div {
+.row>div {
     opacity: 0;
     animation: fadeIn 0.5s ease forwards;
 }
@@ -652,6 +666,7 @@ export default {
         opacity: 0;
         transform: translateY(10px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -660,7 +675,8 @@ export default {
 
 .ticketmaster-image {
     width: 100%;
-    height: 160px; /* Same height as custom-event-image */
+    height: 160px;
+    /* Same height as custom-event-image */
     object-fit: cover;
 }
 
@@ -668,9 +684,11 @@ export default {
     transform: scale(1.03);
     box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
 }
+
 .event:hover .icon-container {
     opacity: 1;
 }
+
 .event-image {
     width: 100%;
     height: auto;
@@ -678,6 +696,7 @@ export default {
     margin: 0 auto;
     object-fit: cover;
 }
+
 .icon-container {
     position: absolute;
     background-color: white;
@@ -686,11 +705,12 @@ export default {
     right: 15px;
     font-size: 25px;
     color: #34495e;
-    opacity: 0; 
+    opacity: 0;
     padding: 10px 10px;
     transition: opacity 0.3s ease;
     display: flex
 }
+
 .fixed-icon-container {
     position: absolute;
     border-radius: 50%;
@@ -703,10 +723,12 @@ export default {
     transition: opacity 0.3s ease;
     display: flex
 }
+
 .bookmark-icon {
-    opacity: 1; 
+    opacity: 1;
     transition: color 0.3 ease;
 }
+
 .bookmark-icon:hover {
     color: #e74c3c;
 }

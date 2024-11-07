@@ -261,7 +261,8 @@ export default {
 
         if (eventsTable) {
             eventsTable.addEventListener('dragover', this.handleDragOverTable);
-        } else {
+        }
+        else {
             console.error('eventsTable reference is missing');
         }
     },
@@ -289,13 +290,19 @@ export default {
     },
     watch: {
         itineraryDetails: {
-            handler(newValue) {
+            handler(newValue, oldValue) {
+                // Handle the update logic here
                 this.handleUpdate(); // Automatically call handleUpdate on change
+
+                // Log new and old values to track changes
                 console.log('Itinerary details updated:', newValue);
+                console.log('Previous itinerary details:', oldValue);
             },
-            deep: true,
+            deep: true, // Watch nested properties within itineraryDetails
         },
     },
+
+
     methods: {
         authListener() {
             const auth = getAuth(); // Initialize Firebase auth here
@@ -304,13 +311,18 @@ export default {
                 if (user) {
                     // User is signed in
                     this.userID = user.uid; // Get the user ID
-                    console.log(this.userID, "AUTHLISTERNER")
+                    console.log(this.userID, "AUTHLISTENER");
+
                     try {
+                        // Fetch the wishlist after the user ID is available
+                        await this.fetchWishlist();
+
                         // Fetch itineraries using the UID
                         this.itineraries = await itineraryService.getItineraryByUserID(this.userID);
-                        console.log(this.itineraries);
-                        this.fetchWishlist();
-                        // await this.reloadWishlists(); // Reload wishlists after fetching itineraries
+                        console.log("ITINERARIES", this.itineraries);
+
+
+
                     } catch (error) {
                         console.error("Failed to fetch itineraries:", error);
                     }
@@ -323,9 +335,11 @@ export default {
             });
         },
 
+
         async fetchWishlist() {
             console.log(this.userID, "FETCHWISHLIST");
-            // Directly use the uid from currentUser already set in authListener
+
+            // Ensure userID is available before proceeding
             if (!this.userID) {
                 console.error("User ID is not available. Make sure the user is authenticated.");
                 return; // Exit early if userID is not available
@@ -334,31 +348,36 @@ export default {
             console.log(this.userID, "WISHLISTID");
 
             try {
-                this.wishlists = await itineraryService.getUserWishlist(this.userID); // Fetch the wishlist
+                console.log("Entered fetchWishlist method");
+
+                // Fetch the wishlist
+                const wishlist = await itineraryService.getUserWishlist(this.userID);
+                this.wishlists = wishlist;
                 console.log("Fetched wishlist:", this.wishlists);
 
-                // Loop through the wishlist to fetch event or attraction details based on the eventID
+                // Loop through the wishlist to fetch event or attraction details
                 for (const wishlistItem of this.wishlists) {
+                    console.log("Processing wishlist item:", wishlistItem);
                     // Check if the item has eventID
                     if (wishlistItem.eventID) {
                         try {
-                            // Attempt to fetch event details from event service
                             let eventDetails = null;
+
+                            // Attempt to fetch event details from event service
                             try {
                                 eventDetails = await eventService.goToEventDetails(wishlistItem.eventID);
                                 console.log("Wishlist Event Details:", eventDetails);
-                                this.eventDetails[wishlistItem.eventID] = eventDetails; // Store event details
+                                this.eventDetails[wishlistItem.eventID] = eventDetails;
                             } catch (eventError) {
                                 console.log("Failed to fetch event details, skipping...:", eventError.message);
-                                // Skip event details error and try fetching organiser event details
                             }
 
-                            // If no event details, fall back to organiser event service
+                            // If no event details, fallback to organiser event service
                             if (!eventDetails) {
                                 try {
                                     const organiserEvent = await organiserEventService.getEventById(wishlistItem.eventID);
                                     console.log("Organiser Event Details:", organiserEvent);
-                                    this.eventDetails[wishlistItem.eventID] = organiserEvent; // Store organiser event details
+                                    this.eventDetails[wishlistItem.eventID] = organiserEvent;
                                     this.isOrganiserEvent = true; // Mark as organiser event
                                 } catch (organiserError) {
                                     console.log("Failed to fetch organiser event details:", organiserError.message);
@@ -447,6 +466,10 @@ export default {
                 console.log("Organiser Event Details:", organiserEventDetails);
                 this.organiserEventDetails[eventID] = organiserEventDetails; // Store organiser event details keyed by eventID
                 this.errorState = false; // Reset error state since organiser event details are found
+                // title will be updated once drop
+                this.$nextTick(() => {
+                    console.log("Updated organiser event details", this.organiserEventDetails);
+                });
                 return; // Stop further execution as we have found the organiser event details
             } catch (error) {
                 console.error("Failed to fetch organiser event details:", error);
@@ -742,14 +765,20 @@ export default {
                         // If length is 2, treat it as coming from the table
                         console.log("Dragging within the table, updating event timing.", wishlistItem.eventID, time);
                         await this.updateEventTiming(wishlistItem.eventID, time); // Await here
-                        //location.reload(); // Reload after timing update
-                    }
 
-                    else {
+                        // Instead of location.reload(), we can update the state and re-render the component
+                        this.$nextTick(() => {
+                            console.log("Event timing updated. DOM should reflect changes.");
+                        });
+                    } else {
                         // Otherwise, treat it as coming from the wishlist
                         console.log("Dragging from the wishlist, adding to event.", wishlistItem, { eventID, time });
                         await this.addToEvent(wishlistItem, { eventID, time }); // Await here
-                        // location.reload(); // Reload after adding to event
+
+                        // Optionally, update the state after adding to the event
+                        this.$nextTick(() => {
+                            console.log("Wishlist item added to event. DOM should reflect changes.");
+                        });
                     }
                 } else {
                     console.error("Wishlist item does not have a valid eventID or attractionID.");
