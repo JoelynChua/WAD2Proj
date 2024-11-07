@@ -26,7 +26,7 @@
         <div id="footerbuffer" v-if="!fullPageRoutes.includes($route.path) && !noBuffer.includes($route.path)"></div>
 
         <!-- Footer Component -->
-        <AppFooter v-if="!fullPageRoutes.includes($route.path)" />
+        <AppFooter id="#AppFooter" v-if="!fullPageRoutes.includes($route.path)" />
     </div>
 </template>
 
@@ -51,6 +51,11 @@ export default {
 </script>
 
 <style>
+#AppFooter {
+    position: relative;
+    bottom: 0;
+}
+
 #app {
     font-family: 'TT Commons', 'HelveticaNeueLTStd-Roman', 'Helvetica', 'Arial',
         sans-serif;

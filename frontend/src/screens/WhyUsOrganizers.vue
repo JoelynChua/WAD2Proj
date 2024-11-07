@@ -1,17 +1,17 @@
 <template>
     <section>
         <div class="container">
-            <img src="../assets/organizer_background.jpg" height="120%" width="100%">
-            <div class="fade-in-text" style="z-index: 10; background-color: transparent;">
-                <div style="background-color: transparent;">HOST YOUR</div>
+            <img src="../assets/organizer_background.jpg" class="background-img">
+            <div class="fade-in-text">
+                <div>HOST YOUR</div>
                 <Typical class="typer" :steps="['> EVENTS', 2000, '> PARTY', 2000, '> TOUR', 2000]" :loop="Infinity" wrapper="span" />
-                <div style="background-color: transparent;">WITH US</div>
+                <div>WITH US</div>
                 <button onclick="window.location.href='mailto:wad2proj@gmail.com'">Contact Us</button>
             </div>
-            <img src="../assets/boat.gif" height="100px" style="position: absolute; right: 30%; top: 145px;">
-            <img src="../assets/boat2.gif" class="moving-boat" height="200px">
+            <img src="../assets/boat.gif" class="boat-1">
+            <img src="../assets/boat2.gif" class="moving-boat">
         </div>
-        </section>
+    </section>
 </template>
 
 <script>
@@ -36,31 +36,29 @@ export default defineComponent({
     justify-content: center;
     flex-direction: column;
     width: 100%;
-    height: 120vh;
+    max-width: 100vw; /* Prevents overflow */
+    height: 120vh !important;
     font-weight: 900;
     text-align: center;
     color: transparent;
     -webkit-text-stroke: 2px white;
     font-size: 100px;
     text-wrap: nowrap;
-
+    overflow: hidden; /* Hides overflow */
+    position: relative;
 }
 
-section {
-
-
-}
-
-.container img {
+.background-img {
     position: absolute;
-    padding: 0px;
-    margin: 0px;
-
+    width: 100%;
+    height: 100%;
 }
 
 .fade-in-text {
+    z-index: 10;
     animation: fadeIn 2s ease forwards;
     opacity: 0;
+    background-color: transparent;
 }
 
 @keyframes fadeIn {
@@ -96,55 +94,18 @@ button {
     -webkit-text-stroke: 0px white;
 }
 
-@media (max-width: 450px) {
-    .container {
-        font-size: 3rem;
-    }
+.boat-1 {
+    height: 100px;
+    position: absolute;
+    right: 30%;
+    top: 145px;
 }
 
-.data {
-    text-align: center;
-    padding: 20px;
-}
-
-.header h1 {
-    font-size: 2em;
-    margin-bottom: 20px;
-}
-
-.header p {
-    font-size: 1em;
-    margin-bottom: 40px;
-}
-
-.stats {
-    display: flex;
-    margin-top: 0 !important;
-    justify-content: space-around;
-    font-family: 'graphie';
-    padding: 50px;
-
-
-}
-
-.stat {
-    background-image: url('../assets/mat.png');
-    background-size: 100%;
-    background-repeat: no-repeat;
-    color: #000000;
-    padding: 20px;
-    padding-top: 10%;
-    width: 250px;
-    height: 450px;
-}
-
-.stat h2 {
-    font-size: 1.2em;
-    margin-bottom: 10px;
-}
-
-.stat p {
-    font-size: 1em;
+.moving-boat {
+    height: 200px;
+    position: absolute;
+    top: 175px;
+    animation: moveBoat 12s linear infinite;
 }
 
 @keyframes moveBoat {
@@ -152,13 +113,13 @@ button {
         left: -150px;
     }
     100% {
-        left: 100%;
+        left: calc(100vw + 150px);
     }
 }
 
-.moving-boat {
-    position: absolute;
-    top: 175px;
-    animation: moveBoat 25s linear infinite;
+@media (max-width: 450px) {
+    .container {
+        font-size: 3rem;
+    }
 }
 </style>

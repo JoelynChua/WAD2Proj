@@ -18,7 +18,8 @@ exports.getAllEvents = async () => {
             events[key].start,
             events[key].end,
             events[key].allDay,
-            events[key].colour
+            events[key].colour,
+            events[key].price
         )
     );
 };
@@ -40,7 +41,8 @@ exports.getEventById = async (id) => {
         event.start,
         event.end,
         event.allDay,
-        event.colour
+        event.colour,
+        event.price
     );
 };
 
@@ -71,6 +73,7 @@ exports.addEvent = async (newEvent) => {
         title: newEvent.title,
         description: newEvent.description || '',
         organiserId: newEvent.organiserId,
+        price: newEvent.price,
         start: newEvent.start,
         end: newEvent.end,
         allDay: newEvent.allDay || false,
@@ -82,6 +85,7 @@ exports.addEvent = async (newEvent) => {
     return new Event(
         eventRef.key,
         eventData.title,
+        eventData.price,
         eventData.description,
         eventData.organiserId,
         eventData.start,
@@ -102,6 +106,7 @@ exports.updateEvent = async (id, updatedData) => {
 
     const updatedEvent = {
         title: updatedData.title,
+        price: updatedData.price,
         description: updatedData.description,
         organiserId: updatedData.organiserId,
         start: updatedData.start,

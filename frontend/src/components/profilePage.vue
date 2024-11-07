@@ -1,5 +1,5 @@
 <template>
-    <div class="container-fluid vh-100 d-flex flex-column">
+    <div class="container-fluid d-flex flex-column">
         <div class="row h-100 justify-content-center">
             <div id="profilenav" class="col-12 col-md-3 col-lg-2 mt-3 ms-md-3 p-3 pe-lg-0">
                 <div class="p-2">
@@ -15,13 +15,6 @@
                             aria-controls="main" aria-selected="true">
                                 <i class="fi fi-rs-user"></i>
                                 Profile
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" id="payment-tab" data-bs-toggle="pill" href="#wallet" role="tab"
-                                aria-controls="payment" aria-selected="false">
-                                <i class="fi fi-rr-wallet"></i>
-                                Wallet
                             </a>
                         </li>
                         <li class="nav-item">
@@ -79,7 +72,7 @@
 
                         <h5 class="mt-5 text-start">Communications</h5>
 
-                        <div class="mt-3 shadow p-3 bg-body hover-effect">
+                        <div id="webselector" class="mt-3 shadow p-3 bg-body hover-effect">
                             <h5 class="text-start p-2">Newsletter</h5>
                             <a-radio-group v-model:value="newsletter">
                                 <div class="d-flex justify-content-around p-2 gap-5">
@@ -106,21 +99,6 @@
 
                     <div class="tab-pane fade" id="booking" role="tabpanel" aria-labelledby="booking-tab">
                         <Bookings />
-                    </div>
-
-
-                    <div class="tab-pane fade" id="wallet" role="tabpanel" aria-labelledby="payment-tab">
-                        <div class="">
-                            <h5 class="text-start">Wallet</h5>
-                            <div class="shadow p-3 mt-4 hover-effect">
-                                <div v-if="!isFormVisible">
-                                    <p class="mt-4 text-start"><b>Balance</b></p>
-                                    <p class="fs-1 text-start">$ {{ balance }}</p>
-                                    <button class="btn btn-primary" @click="topup(1)">Top-up $1</button>
-                                    <button class="btn btn-primary ms-3" @click="topup(10)">Top-up $10</button>
-                                </div>
-                            </div>
-                        </div>
                     </div>
 
                     <div class="tab-pane fade" id="security" role="tabpanel" aria-labelledby="security-tab">
@@ -359,6 +337,10 @@ export default {
         /* Remove margin on small screens */
         margin-top: 0;
         /* Adjust margin on top for smaller devices */
+    }
+
+    #webselector {
+        display: none;
     }
 
     #profile {

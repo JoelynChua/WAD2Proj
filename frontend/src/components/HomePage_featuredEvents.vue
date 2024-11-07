@@ -31,7 +31,7 @@
       <swiper-slide v-for="event in events" :key="event.id" class="event-box" @click="goToEventDetails(event.id)"
         style="cursor: pointer; position: relative">
         <!-- Event Image Placeholder -->
-        <div class="event-image-container">
+        <div class="event-image-container" @click="navigateToLink(event.link)">
           <img :src="event.image || 'https://via.placeholder.com/300x200?text=Event+Image'" alt="Event image"
             class="event-image" />
         </div>
@@ -67,67 +67,75 @@ export default {
       events: [
         {
           image: require('@/assets/featuredEvents/1.jpg'),
-          date: '31 December 2024, 04:00PM',
-          name: 'Premier League Summer Series',
-          location: 'Singapore National Stadium',
-          price: '$5.99',
-          followers: '420'
+          date: '26 March 2025, 8:00PM',
+          name: 'keshi: REQUIEM TOUR in Singapore',
+          location: 'Singapore Indoor Stadium',
+          price: 'From S$128',
+          followers: '6833',
+          link: 'https://ticketmaster.sg/activity/detail/25sg_keshi',
         },
         {
           image: require('@/assets/featuredEvents/2.jpg'),
-          date: '1 October 2025, 8:00PM',
-          name: 'Olivia Rodrigo: Guts World Tour',
+          date: '8 February 2025, 8:00PM',
+          name: 'THE SCRIPT: Satellites World Tour 2025 Singapore',
           location: 'Singapore Indoor Stadium',
-          price: '$99.90',
-          followers: '50'
+          price: 'From S$115',
+          followers: '5882',
+          link: 'https://www.sistic.com.sg/events/scriptwt0225'
         },
         {
           image: require('@/assets/featuredEvents/3.jpg'),
-          date: '29 November 2025, All Day',
-          name: 'Gardens By The Bay: Carnival of Flowers',
-          location: 'Gardens By The Bay',
-          price: '$49.90',
-          followers: '993'
+          date: '3 February 2025, 8:00PM',
+          name: 'Cigarettes After Sex – Live in Singapore',
+          location: 'Singapore Indoor Stadium',
+          price: 'From S$98',
+          followers: '5328',
+          link: 'https://www.sistic.com.sg/events/cas0225',
         },
         {
           image: require('@/assets/featuredEvents/4.jpg'),
-          date: 'Today at 10:00pm',
-          name: 'AKON: The Superfan Tour 2025',
-          location: 'Arena @ Expo Hall 7',
-          price: 'Free',
-          followers: '310'
+          date: '7 June 2025, 7:30PM',
+          name: 'Symphony of Ink 《墨韵》 [G]',
+          location: 'Singapore Chinese Orchestra (SCO Conference Hall)',
+          price: 'From S$20',
+          followers: '3892',
+          link: 'https://www.sistic.com.sg/events/ink0625',
         },
         {
           image: require('@/assets/featuredEvents/5.jpg'),
-          date: '24 January 2025, 6:00PM',
-          name: 'Coldplay x Michael Jackson Singapore',
-          location: 'Singapore National Stadium',
-          price: '$49,90',
-          followers: '78326'
+          date: '11 February 2025, 8:00PM',
+          name: 'Russell Howard - Live in Singapore [Rating: TBA]',
+          location: 'Capitol Theatre',
+          price: 'From S$108',
+          followers: '3002',
+          link: 'https://www.sistic.com.sg/events/howard0225'
         },
         {
           image: require('@/assets/featuredEvents/6.jpg'),
-          date: '11 October 2024, 7:00PM',
-          name: 'Jay Chou: World Tour 2025 Singapore',
-          location: 'Singapore National Stadium',
-          price: '$129.90',
-          followers: '83127'
+          date: '18 January 2025, TBC',
+          name: 'BEAUTY AND THE BEAST IN CONCERT [G]',
+          location: 'Esplanade Theatre',
+          price: 'From S$38',
+          followers: '2112',
+          link : 'https://www.sistic.com.sg/events/beauty0125'
         },
         {
           image: require('@/assets/featuredEvents/7.jpg'),
-          date: '31 October 2025, 7:00PM',
-          name: 'Bruno Mars: Singapore World Tour 2025',
-          location: 'Singapore National Stadium',
-          price: '$100.00 - $190.00',
-          followers: '93821'
+          date: '18 February 2025, TBC',
+          name: 'Anna Akana - It Gets Darker! [Rating: TBA]',
+          location: 'Capitol Theatre',
+          price: 'From S$58',
+          followers: '1839',
+          link: 'https://www.sistic.com.sg/events/anna0225'
         },
         {
           image: require('@/assets/featuredEvents/8.jpg'),
-          date: '31 October 2025, 7:00PM',
-          name: 'NBL Finals: London Mets vs New York Nets',
-          location: 'Metro Center, DC',
-          price: '$100.00 - $190.00',
-          followers: '932821'
+          date: '13 February 2025, TBC',
+          name: 'The Way Back Home [G]',
+          location: 'Victoria Theatre',
+          price: 'From S$42',
+          followers: '1255',
+          link: 'https://www.sistic.com.sg/events/kidsfest0325b'
         },
       ],
       swiperInstance: null,
@@ -151,6 +159,11 @@ export default {
     };
   },
   methods: {
+    navigateToLink(link) {
+            if (link) {
+                window.location.href = link; // Navigates to the link directly
+            }
+        },
     goToEventDetails(event) {
       this.$emit('popevent', event)
     },
@@ -239,6 +252,7 @@ export default {
   padding-top: 10px;
   max-width: 1200px;
   overflow: hidden;
+  z-index: 10;
 }
 
 .swiper-slide {
@@ -256,6 +270,7 @@ export default {
   width: auto;
   flex-shrink: 0;
   height: 400px;
+  z-index: 10;
 }
 
 .swiper-slide:hover {

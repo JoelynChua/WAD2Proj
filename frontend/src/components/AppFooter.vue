@@ -52,8 +52,6 @@ export default {
   color: rgb(139, 5, 5);
   text-align: center;
   padding: 20px 0;
-  position: relative;
-  bottom: 0;
   width: 100%;
 
   /* shadow */

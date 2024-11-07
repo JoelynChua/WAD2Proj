@@ -29,7 +29,7 @@
 
       <div style="background-color: #f9f9f9;">
         <section id="featuredEvents" class="featured-activities" style='padding-bottom: 120px;'>
-          <featuredEvents />
+          <featuredEvents/>
         </section>
       </div>
     
@@ -108,6 +108,8 @@ export default {
 
 
 <style scoped>
+
+
 .pause-button {
   position: absolute;
   background: transparent;

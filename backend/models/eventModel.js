@@ -8,6 +8,7 @@ class Event {
         end,
         allDay = false,
         colour = '#fb00bc',
+        price,
     ) {
         this.id = id,
         this.title = title,
@@ -16,7 +17,8 @@ class Event {
         this.start = start,
         this.end = end,
         this.allDay = allDay,
-        this.colour = colour
+        this.colour = colour,
+        this.price = price
     }
 }
 module.exports = Event

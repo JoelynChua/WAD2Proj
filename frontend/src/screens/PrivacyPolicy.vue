@@ -95,7 +95,7 @@
         <p>You have certain rights regarding your personal information, including:</p>
         <ul>
           <li><strong>Access and Correction:</strong> You may request access to, correction of, or deletion of your
-            personal data held by us. Contact us at <a href="mailto:example@example.com">example@example.com</a> to
+            personal data held by us. Contact us at <a href="mailto:wad2proj@gmail.com">wad2proj@gmail.com</a> to
             exercise these rights.</li>
           <li><strong>Data Portability:</strong> In certain cases, you may have the right to obtain a copy of your
             personal information in a structured, commonly used, and machine-readable format.</li>
@@ -117,7 +117,7 @@
 
       <div class="text-center mt-5">
         <p>If you have any questions or concerns about our Privacy Policy, please contact us at <a
-            href="mailto:example@example.com">wad2proj@gmail.com</a>.</p>
+            href="mailto:wad2proj@gmail.com">wad2proj@gmail.com</a>.</p>
       </div>
     </div>
   </div>
