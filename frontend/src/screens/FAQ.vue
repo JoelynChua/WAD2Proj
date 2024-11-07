@@ -19,13 +19,11 @@ export default {
     return {
       activeIndex: null,
       faqs: [
-        { question: "What is Activity.ai?", answer: "Activity.ai is a platform..." },
-        { question: "How do I create an account?", answer: "Simply navigate to the Sign-Up page..." },
-        { question: "Is my personal information secure?", answer: "Yes, we take your privacy seriously..." },
-        { question: "Can I share my itinerary with others?", answer: "Absolutely! Once you’ve created an itinerary..." },
-        { question: "How do I track expenses for my outing?", answer: "[Project Name] provides a built-in expense tracking feature..." },
-        { question: "How do I get event recommendations?", answer: "After you’ve set up your profile and preferences..." },
-        { question: "What should I do if I encounter issues?", answer: "If you have any problems or questions..." }
+        { question: "What is Activity.ai?", answer: "Activity.ai is a platform for anyone to host their events on our site completely free-of-charge" },
+        { question: "How do I create an account?", answer: "Simply navigate to the Sign-Up page by clicking on the top right button" },
+        { question: "Is my personal information secure?", answer: "Yes, we take your privacy seriously. We use industry-standard Authentication and storage service provided by Google" },
+        { question: "Can I share my itinerary with others?", answer: "Absolutely! Once you’ve created an itinerary, just click on share and key in the email of your friend's account" },
+        { question: "What should I do if I encounter issues?", answer: "If you have any problems or questions, feel free to contact our customer service at wad2proj@gmail.com" }
       ]
     };
   },

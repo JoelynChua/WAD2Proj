@@ -117,7 +117,7 @@
 
       <div class="text-center mt-5">
         <p>If you have any questions or concerns about our Privacy Policy, please contact us at <a
-            href="mailto:example@example.com">example@example.com</a>.</p>
+            href="mailto:example@example.com">wad2proj@gmail.com</a>.</p>
       </div>
     </div>
   </div>
@@ -266,4 +266,13 @@ h1,h2{
   font-weight: 600;
 }
 
+@media (max-width: 1280px) {
+  #toc {
+    display: none;
+  }
+
+  button {
+    display: none;
+  }
+}
 </style>

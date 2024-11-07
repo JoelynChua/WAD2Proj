@@ -1,7 +1,7 @@
 <template>
     <section>
         <div class="container">
-            <img src="../assets/organizer_background.jpg" height="100%" width="100%">
+            <img src="../assets/organizer_background.jpg" height="120%" width="100%">
             <div class="fade-in-text" style="z-index: 10; background-color: transparent;">
                 <div style="background-color: transparent;">HOST YOUR</div>
                 <Typical class="typer" :steps="['> EVENTS', 2000, '> PARTY', 2000, '> TOUR', 2000]" :loop="Infinity" wrapper="span" />
@@ -11,23 +11,6 @@
             <img src="../assets/boat.gif" height="100px" style="position: absolute; right: 30%; top: 145px;">
             <img src="../assets/boat2.gif" class="moving-boat" height="200px">
         </div>
-            <!-- <div class="stats">
-                <div class="stat">
-                    <h2><img src="../assets/money-bag.gif" width="80px"></h2>
-                    <h2><b>Earn Revenue</b></h2>
-                    <p>Be rewarded for doing what you love! Anybody can host events, anytime.</p>
-                </div>
-                <div class="stat">
-                    <h2><img src="../assets/social-media.gif" width="80px"></h2>
-                    <h2><b>Unlimited Outreach</b></h2>
-                    <p>Once it's up there, its' out there! Anybody can sign up, from anywhere.</p>
-                </div>
-                <div class="stat">
-                    <h2><img src="../assets/like.gif" width="80px"></h2>
-                    <h2><b>Be Rated </b></h2>
-                    <p>Participants can rate their favourite events. Gain more outreach by standing out!</p>
-                </div>
-            </div> -->
         </section>
 </template>
 
@@ -53,7 +36,7 @@ export default defineComponent({
     justify-content: center;
     flex-direction: column;
     width: 100%;
-    height: 100vh;
+    height: 120vh;
     font-weight: 900;
     text-align: center;
     color: transparent;
@@ -110,6 +93,7 @@ button {
     font-size: 24px;
     font-family: cursive;
     text-align: center;
+    -webkit-text-stroke: 0px white;
 }
 
 @media (max-width: 450px) {

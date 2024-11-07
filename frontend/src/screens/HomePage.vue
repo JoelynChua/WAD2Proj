@@ -28,7 +28,7 @@
       </section>
 
       <div style="background-color: #f9f9f9;">
-        <section id="featuredEvents" class="featured-activities">
+        <section id="featuredEvents" class="featured-activities" style='padding-bottom: 120px;'>
           <featuredEvents />
         </section>
       </div>
@@ -40,7 +40,7 @@
       </div>
 
       <div style="background-color: #121212;">
-        <section id="gosomewhere" class="featured-activities">
+        <section id="gosomewhere" class="featured-activities" style='margin-top: 0px;'>
           <gosomewhere />
         </section>
       </div>
@@ -202,6 +202,10 @@ export default {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+}
+
+#featuredEvents{
+  border-bottom: 1px solid silver;
 }
 
 #app {

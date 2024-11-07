@@ -16,6 +16,7 @@ export const useCalendarEvents = (organiserId) => {
       return {
         id: event.id,
         title: event.title,
+        price: event.price,
         start: event.start,     // Don't convert, keep original format
         end: event.end,         // Don't convert, keep original format
         allDay: event.allDay || false,
@@ -44,6 +45,7 @@ export const useCalendarEvents = (organiserId) => {
           return {
             title: eventData.title,
             description: eventData.description || '',
+            price: eventData.price,
             organiserId: organiserId,
             // For all-day events, set consistent start and end times
             start: `${startDate}T00:00:00+08:00`,
@@ -55,6 +57,7 @@ export const useCalendarEvents = (organiserId) => {
           // For timed events
           return {
             title: eventData.title,
+            price: eventData.price,
             description: eventData.description || '',
             organiserId: organiserId,
             start: eventData.start.includes('+') ? eventData.start : `${eventData.start}+08:00`,

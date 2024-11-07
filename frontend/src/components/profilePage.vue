@@ -25,6 +25,13 @@
                             </a>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link" id="booking-tab" data-bs-toggle="pill" href="#booking" role="tab"
+                                aria-controls="security" aria-selected="false">
+                                <i class="fi fi-rs-reservation-smartphone"></i>
+                                Bookings
+                            </a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link" id="security-tab" data-bs-toggle="pill" href="#security" role="tab"
                                 aria-controls="security" aria-selected="false">
                                 <i class="fi fi-rr-shield-keyhole"></i>
@@ -97,6 +104,11 @@
                         </div>
                     </div>
 
+                    <div class="tab-pane fade" id="booking" role="tabpanel" aria-labelledby="booking-tab">
+                        <Bookings />
+                    </div>
+
+
                     <div class="tab-pane fade" id="wallet" role="tabpanel" aria-labelledby="payment-tab">
                         <div class="">
                             <h5 class="text-start">Wallet</h5>
@@ -125,6 +137,7 @@ import { getAuth } from "firebase/auth";
 import { getDatabase, ref, get, update } from "firebase/database";
 import { ref as vueRef } from 'vue';
 import passwordChange from "@/components/profilePassword.vue";
+import Bookings from '@/components/profileBookings.vue'
 
 
 export default {
@@ -151,7 +164,8 @@ export default {
         }
     },
     components: {
-        passwordChange
+        passwordChange,
+        Bookings
     },
     methods: {
         editName() {
@@ -195,7 +209,55 @@ export default {
 
             update(profileRef, { balance: this.balance })
 
+        },
+        updateNewsletter(value) {
+            const auth = getAuth();
+            const user = auth.currentUser;
+            if (user) {
+                const db = getDatabase();
+                const newsletterRef = ref(db, `users/${user.uid}/preferences`);
+
+                update(newsletterRef, { newsletter: value })
+                    .then(() => {
+                        console.log("Newsletter preference updated successfully!");
+                    })
+                    .catch((error) => {
+                        console.error("Failed to update newsletter preference:", error);
+                    });
+            }
+        },
+        updateReminders(value) {
+            const auth = getAuth();
+            const user = auth.currentUser;
+            if (user) {
+                const db = getDatabase();
+                const remindersRef = ref(db, `users/${user.uid}/preferences`);
+                update(remindersRef, { reminders: value })
+                    .then(() => {
+                        console.log("Reminders preference updated successfully!");
+                    })
+                    .catch((error) => {
+                        console.error("Failed to update reminders preference:", error);
+                    });
+            }
+        },
+
+        updatePromotions(value) {
+            const auth = getAuth();
+            const user = auth.currentUser;
+            if (user) {
+                const db = getDatabase();
+                const promotionsRef = ref(db, `users/${user.uid}/preferences`);
+                update(promotionsRef, { promotions: value })
+                    .then(() => {
+                        console.log("Promotions preference updated successfully!");
+                    })
+                    .catch((error) => {
+                        console.error("Failed to update promotions preference:", error);
+                    });
+            }
         }
+
     },
     mounted() {
         const auth = getAuth();
@@ -224,6 +286,9 @@ export default {
                     this.photoURL = data.photoURL || this.photoURL;
                     this.mobileNumber = data.mobileNumber
                     this.balance = data.balance
+                    this.newsletter = data.preferences.newsletter
+                    this.reminders = data.preferences.reminders
+                    this.promotions = data.preferences.promotions
                 } else {
                     // No profile data available
                     console.log("No profile data found for user.");
@@ -233,6 +298,17 @@ export default {
             console.log("No user is currently logged in."); // Log if no user is found
         }
     },
+    watch: {
+        newsletter(newVal) {
+            this.updateNewsletter(newVal);
+        },
+        reminders(newVal) {
+            this.updateReminders(newVal);
+        },
+        promotions(newVal) {
+            this.updatePromotions(newVal);
+        },
+    }
 }
 </script>
 

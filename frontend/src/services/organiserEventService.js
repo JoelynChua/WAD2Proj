@@ -1,5 +1,5 @@
 import axiosInstance from '../utils/axiosInstance'; // Import your axios instance, if you have one configured
-// const localURL = "http://localhost:8000";
+const localURL = "http://localhost:8000";
 const cloudURL = "https://wad-2-proj.vercel.app"
 const finalURL = cloudURL;
 
@@ -45,7 +45,7 @@ async function getEventsByOrganiserId(organiserId) {
 // Create new event
 async function createEvent(newEvent) {
     try {
-        const res = await axiosInstance.post(`${finalURL}/api/eventRoutes`, newEvent);
+        const res = await axiosInstance.post(`${localURL}/api/eventRoutes`, newEvent);
         console.log(res);
         return res.data;
     } catch (error) {
@@ -57,7 +57,7 @@ async function createEvent(newEvent) {
 // Update event
 async function updateEvent(eventId, updatedData) {
     try {
-        const res = await axiosInstance.put(`${finalURL}/api/eventRoutes/${eventId}`, updatedData);
+        const res = await axiosInstance.put(`${localURL}/api/eventRoutes/${eventId}`, updatedData);
         console.log(res);
         return res.data;
     } catch (error) {

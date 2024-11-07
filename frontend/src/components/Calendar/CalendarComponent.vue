@@ -92,6 +92,7 @@ export default {
       newEvent.value = {
         title: '',
         description: '',
+        price: '',
         start: formatDate(startStr),
         end: formatDate(endStr),
         startTime: selectInfo.allDay ? '' : selectInfo.startStr.split('T')[1]?.slice(0, 5) || '',
@@ -134,6 +135,7 @@ export default {
         editingEvent.value = {
             id: event.id,
             title: event.title,
+            price: event.price,
             description: event.extendedProps.description || '',
             start: formatDate(startDate),
             end: formatDate(endDate),
@@ -180,6 +182,7 @@ export default {
         const updatedEvent = {
           id: event.id,
           title: event.title,
+          price: event.price,
           description: event.extendedProps?.description || '',
           start: event.startStr, // Use startStr and endStr directly
           end: event.endStr,
@@ -205,6 +208,7 @@ export default {
         const updatedEvent = {
           id: event.id,
           title: event.title,
+          price: event.price,
           description: event.extendedProps?.description || '',
           start: event.startStr, // Use startStr and endStr directly
           end: event.endStr,
@@ -250,6 +254,7 @@ export default {
             newEvent.value = {
               title: '',
               description: '',
+              price: '',
               start: formattedDate,
               end: formattedDate,
               startTime: '',

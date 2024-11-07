@@ -26,9 +26,9 @@
 
       <!-- Footer Links -->
       <ul class="footer-links">
-        <li><router-link to="/about-us">About Us</router-link></li>
-        <li><router-link to="/faq">FAQ</router-link></li>
-        <li><router-link to="/privacy-policy">Privacy Policy</router-link></li>
+        <li><a href="/about-us">About Us</a></li>
+        <li><a href="/faq">FAQ</a></li>
+        <li><a href="/privacy-policy">Privacy Policy</a></li>
       </ul>
 
       <!-- Copyright -->

@@ -16,14 +16,8 @@
               <span class="input-icon">
                 <i class="fi fi-rr-edit"></i>
               </span>
-              <input 
-                type="text" 
-                v-model="localEvent.title" 
-                id="title" 
-                required 
-                placeholder="Add title and time"
-                class="title-input"
-              >
+              <input type="text" v-model="localEvent.title" id="title" required placeholder="Add title and time"
+                class="title-input">
             </div>
           </div>
 
@@ -34,36 +28,14 @@
             </div>
             <div class="datetime-inputs">
               <div class="date-row above-date-row">
-                <input 
-                  v-model="localEvent.start" 
-                  id="editStart" 
-                  type="date" 
-                  required
-                  class="date-input"
-                >
-                <input 
-                  v-if="!localEvent.allDay"
-                  v-model="localEvent.startTime" 
-                  id="editStartTime" 
-                  type="time" 
-                  required
-                  class="time-input"
-                >
+                <input v-model="localEvent.start" id="editStart" type="date" required class="date-input">
+                <input v-if="!localEvent.allDay" v-model="localEvent.startTime" id="editStartTime" type="time" required
+                  class="time-input">
               </div>
               <div class="date-row">
-                <input 
-                  v-model="localEvent.end" 
-                  id="editEnd" 
-                  type="date"
-                  class="date-input"
-                >
-                <input 
-                  v-if="!localEvent.allDay"
-                  v-model="localEvent.endTime" 
-                  id="editEndTime" 
-                  type="time"
-                  class="time-input"
-                >
+                <input v-model="localEvent.end" id="editEnd" type="date" class="date-input">
+                <input v-if="!localEvent.allDay" v-model="localEvent.endTime" id="editEndTime" type="time"
+                  class="time-input">
               </div>
             </div>
           </div>
@@ -74,12 +46,18 @@
               <span class="input-icon">
                 <i class="fi fi-rr-document-signed"></i>
               </span>
-              <textarea 
-                v-model="localEvent.description" 
-                id="editDescription" 
-                class="description-textarea" 
-                placeholder="Add description"
-              ></textarea>
+              <textarea v-model="localEvent.description" id="editDescription" class="description-textarea"
+                placeholder="Add description"></textarea>
+            </div>
+          </div>
+
+          <!-- Price -->
+          <div class="form-group">
+            <div class="input-with-icon">
+              <span class="input-icon">
+                <i class="fi fi-rr-usd-circle"></i>
+              </span>
+              <input type="text" v-model="localEvent.price" id="price" class="title-input" placeholder="Price">
             </div>
           </div>
 
@@ -88,45 +66,24 @@
             <span class="input-icon">
               <i class="fi fi-rr-palette"></i>
             </span>
-            <input 
-              type="color" 
-              v-model="localEvent.color" 
-              id="editEventColor"
-              class="color-picker"
-            >
+            <input type="color" v-model="localEvent.color" id="editEventColor" class="color-picker">
             <label for="editEventColor">Event color</label>
             <div class="all-day-toggle">
-              <input 
-                type="checkbox" 
-                v-model="localEvent.allDay" 
-                id="allDay"
-                class="all-day-checkbox"
-              >
+              <input type="checkbox" v-model="localEvent.allDay" id="allDay" class="all-day-checkbox">
               <label for="allDay">All Day</label>
-            </div> 
+            </div>
           </div>
         </div>
 
         <!-- Footer -->
         <div class="popup-footer">
           <div class="button-group">
-            <button 
-              type="button" 
-              @click="$emit('delete')" 
-              class="btn btn-text btn-danger"
-            > Delete
+            <button type="button" @click="$emit('delete')" class="btn btn-text btn-danger"> Delete
             </button>
-            <button 
-              type="button" 
-              @click="$emit('close')" 
-              class="btn btn-text"
-            >
+            <button type="button" @click="$emit('close')" class="btn btn-text">
               Cancel
             </button>
-            <button 
-              type="submit" 
-              class="btn btn-primary"
-            >
+            <button type="submit" class="btn btn-primary">
               Save
             </button>
           </div>
@@ -135,7 +92,7 @@
     </div>
   </div>
 </template>
-  
+
 <script>
 import '../../../node_modules/@flaticon/flaticon-uicons/css/regular/all.css';
 import { ref } from 'vue'
@@ -148,12 +105,13 @@ export default {
     }
   },
   emits: ['update', 'delete', 'close'],
-  
+
   setup(props, { emit }) {
     // Create a local copy of the event
     const localEvent = ref({
       id: props.editingEvent.id,
       title: props.editingEvent.title,
+      price: props.editingEvent.price,
       description: props.editingEvent.description,
       start: props.editingEvent.start,
       end: props.editingEvent.end,
@@ -162,33 +120,34 @@ export default {
       allDay: props.editingEvent.allDay,
       color: props.editingEvent.color
     })
-  const handleSubmit = () => {
-    console.log('Submitting with values:', localEvent.value);
-    
-    const formattedEvent = {
-      id: localEvent.value.id,
-      title: localEvent.value.title,
-      description: localEvent.value.description,
-      allDay: localEvent.value.allDay,
-      color: localEvent.value.color
+    const handleSubmit = () => {
+      console.log('Submitting with values:', localEvent.value);
+
+      const formattedEvent = {
+        id: localEvent.value.id,
+        title: localEvent.value.title,
+        price: localEvent.value.price,
+        description: localEvent.value.description,
+        allDay: localEvent.value.allDay,
+        color: localEvent.value.color
+      }
+
+      if (localEvent.value.allDay) {
+        formattedEvent.start = `${localEvent.value.start}T00:00:00+08:00`
+        formattedEvent.end = `${localEvent.value.end || localEvent.value.start}T23:59:59+08:00`
+      } else {
+        // Ensure we have valid times
+        const startTime = localEvent.value.startTime || '00:00'
+        const endTime = localEvent.value.endTime || startTime
+
+        // Add timezone information to the dates
+        formattedEvent.start = `${localEvent.value.start}T${startTime}:00+08:00`
+        formattedEvent.end = `${localEvent.value.end || localEvent.value.start}T${endTime}:00+08:00`
+      }
+
+      console.log('Formatted event for update:', formattedEvent);
+      emit('update', formattedEvent)
     }
-
-    if (localEvent.value.allDay) {
-      formattedEvent.start = `${localEvent.value.start}T00:00:00+08:00`
-      formattedEvent.end = `${localEvent.value.end || localEvent.value.start}T23:59:59+08:00`
-    } else {
-      // Ensure we have valid times
-      const startTime = localEvent.value.startTime || '00:00'
-      const endTime = localEvent.value.endTime || startTime
-
-      // Add timezone information to the dates
-      formattedEvent.start = `${localEvent.value.start}T${startTime}:00+08:00`
-      formattedEvent.end = `${localEvent.value.end || localEvent.value.start}T${endTime}:00+08:00`
-    }
-
-    console.log('Formatted event for update:', formattedEvent);
-    emit('update', formattedEvent)
-  }
 
     return {
       localEvent,
@@ -197,5 +156,4 @@ export default {
   }
 }
 </script>
-<style scoped src="./CalendarStyles.css">
-</style>
+<style scoped src="./CalendarStyles.css"></style>
