@@ -108,7 +108,7 @@
                     </div>
                 </div>
             </div>
-        <EventNaviBar :event="eventDetails" :isOrganiserEvent="isOrganiserEvent"></EventNaviBar>
+        <EventNaviBar v-if="isCustomer" :event="eventDetails" :isOrganiserEvent="isOrganiserEvent"></EventNaviBar>
     </div> 
 </div>     
 </template>
@@ -124,8 +124,8 @@ import 'bootstrap';
 import EventNaviBar from "../components/EventDetails_navibar.vue"
 import { Loader } from "@googlemaps/js-api-loader"
 import { getGoogleClientId } from '../services/getGoogleClientId'
-
-
+import { getAuth } from 'firebase/auth';
+import { ref as dbRef, getDatabase, get } from 'firebase/database';
 
 export default {
     data() {
@@ -134,7 +134,8 @@ export default {
             loading: true,
             isOrganiserEvent: false,
             map: null,
-            showMap: false
+            showMap: false,
+            isCustomer: false
         };
     },
     components: {
@@ -153,6 +154,7 @@ export default {
         
     },
     async created() {
+        await this.checkUserType();
         this.fetchEventDetails();
     },
     async mounted() {
@@ -162,7 +164,25 @@ export default {
             this.initializeMap(); // Initializes map with venue location data
         }
     },
+
     methods: {
+        async checkUserType() {
+            const auth = getAuth();
+            const user = auth.currentUser;
+            
+            if (user) {
+                const db = getDatabase();
+                const userRef = dbRef(db, `users/${user.uid}`);
+                try {
+                    const snapshot = await get(userRef);
+                    if (snapshot.exists()) {
+                        this.isCustomer = snapshot.val().userType === 'customer';
+                    }
+                } catch (error) {
+                    console.error("Error checking user type:", error);
+                }
+            }
+        },
         async loadGoogleMapsScript() {
             // Fetch API Key dynamically if required
             const data = await getGoogleClientId(); // Assuming this function returns an object with apiKey

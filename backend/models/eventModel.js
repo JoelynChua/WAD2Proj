@@ -10,14 +10,14 @@ class Event {
         colour = '#fb00bc',
         price,
     ) {
-        this.id = id,
-        this.title = title,
-        this.description = description,
-        this.organiserId = organiserId,
-        this.start = start,
-        this.end = end,
-        this.allDay = allDay,
-        this.colour = colour,
+        this.id = id;
+        this.title = title;
+        this.description = description;
+        this.organiserId = organiserId;
+        this.start = start;
+        this.end = end;
+        this.allDay = allDay;
+        this.colour = colour;
         this.price = price
     }
 }

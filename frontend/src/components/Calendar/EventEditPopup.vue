@@ -95,7 +95,7 @@
 
 <script>
 import '../../../node_modules/@flaticon/flaticon-uicons/css/regular/all.css';
-import { ref } from 'vue'
+import { ref} from 'vue'
 
 export default {
   props: {
@@ -108,6 +108,8 @@ export default {
 
   setup(props, { emit }) {
     // Create a local copy of the event
+    console.log('Raw editingEvent:', props.editingEvent);
+    console.log('Price from editingEvent:', props.editingEvent.price);
     const localEvent = ref({
       id: props.editingEvent.id,
       title: props.editingEvent.title,

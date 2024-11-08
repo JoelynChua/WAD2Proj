@@ -25,7 +25,11 @@ export const useCalendarEvents = (organiserId) => {
         description: event.description || '',
         organiserId: event.organiserId,
         editable: true,
-        display: 'block'
+        display: 'block',
+        extendedProps: {
+          price: event.price,
+          description: event.description || ''
+        }
       }
     }
     
@@ -117,11 +121,15 @@ export const useCalendarEvents = (organiserId) => {
   
       try {
         const backendEvent = formatEventForBackend(eventData)
+        console.log('Sending to backend:', backendEvent)
         const response = await organiserEventService.createEvent(backendEvent)
+        console.log('Received from backend:', response)
         const newEvent = formatEventForCalendar(response)
-  
+        console.log('Formatted for calendar:', newEvent)
+        
         if (newEvent) {
           events.value = [...events.value, newEvent]
+          console.log('Updated events array:', events.value)
         }
   
         return newEvent

@@ -51,25 +51,83 @@
             </div>
         </div>
     </div>
+    <TicketPopup 
+    :show="showTicketPopup"
+    :title="ticketPopupTitle"
+    :message="ticketPopupMessage"
+    @close="showTicketPopup = false"
+    />
 </template>
 
 <script>
 
 import { Modal } from "bootstrap";
+import { getAuth } from 'firebase/auth';
+import { ref, getDatabase, update, get } from 'firebase/database';
+import TicketPopup from './EventDetails_ticketpopup.vue';
 
 export default {
     name: 'EventNavibar',
-    props: ['event'],
+    props: {
+        event: Object,
+        isOrganiserEvent: {
+            type: Boolean,
+            required: true
+        }
+    },
+    components: {
+    TicketPopup
+    },
     data () {
         return {
             showModal: false,
             copySuccess: false,
+            showTicketPopup: false,
+            ticketPopupMessage: '',
+            ticketPopupTitle: ''
         }
     },
     methods: {
-        openTickets() {
-            console.log(this.event)
-            window.open(this.event.url, '_blank');
+        async openTickets() {
+            console.log(this.isOrganiserEvent);
+            if (this.isOrganiserEvent) {
+                const auth = getAuth();
+                const user = auth.currentUser;
+                
+                if (!user) {
+                    this.ticketPopupTitle = 'Login Required';
+                    this.ticketPopupMessage = 'Please log in to register for this event';
+                    this.showTicketPopup = true;
+                    return;
+                }
+
+                const db = getDatabase();
+                const eventRef = ref(db, `events/${this.event.id}`);
+                
+                try {
+                    const eventSnapshot = await get(eventRef);
+                    const eventData = eventSnapshot.val();
+                    
+                    if (eventData.signups && eventData.signups[user.uid]) {
+                        this.ticketPopupTitle = 'Already Registered';
+                        this.ticketPopupMessage = 'You are already registered for this event';
+                        this.showTicketPopup = true;
+                        return;
+                    }
+                    await update(eventRef, {
+                        [`signups/${user.uid}`]: true
+                    });
+                    this.ticketPopupTitle = 'Success';
+                    this.ticketPopupMessage = 'Successfully registered for the event!';
+                    this.showTicketPopup = true;
+                } catch (error) {
+                    this.ticketPopupTitle = 'Error';
+                    this.ticketPopupMessage = 'Failed to register for the event';
+                    this.showTicketPopup = true;
+                }
+            } else {
+                window.open(this.event.url, '_blank');
+            }
         },
         goToEventsPage() {
             this.$router.back();

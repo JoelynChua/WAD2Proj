@@ -83,15 +83,15 @@ exports.addEvent = async (newEvent) => {
     await eventRef.set(eventData);
 
     return new Event(
-        eventRef.key,
-        eventData.title,
-        eventData.price,
-        eventData.description,
-        eventData.organiserId,
-        eventData.start,
-        eventData.end,
-        eventData.allDay,
-        eventData.colour
+        eventRef.key,          // id
+        eventData.title,       // title
+        eventData.description, // description
+        eventData.organiserId, // organiserId
+        eventData.start,       // start
+        eventData.end,         // end
+        eventData.allDay,      // allDay
+        eventData.colour,      // colour
+        eventData.price        // price
     );
 };
 
@@ -106,9 +106,9 @@ exports.updateEvent = async (id, updatedData) => {
 
     const updatedEvent = {
         title: updatedData.title,
-        price: updatedData.price,
-        description: updatedData.description,
+        description: updatedData.description || '',
         organiserId: updatedData.organiserId,
+        price: updatedData.price,
         start: updatedData.start,
         end: updatedData.end,
         allDay: updatedData.allDay || false,
@@ -116,7 +116,12 @@ exports.updateEvent = async (id, updatedData) => {
     };
 
     await eventRef.update(updatedEvent);
-    return { id, ...updatedEvent, message: 'Event updated successfully' };
+    
+    // Return the event in the correct format
+    return {
+        id,
+        ...updatedEvent
+    };
 };
 
 // Delete
