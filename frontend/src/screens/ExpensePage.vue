@@ -9,7 +9,7 @@
     <div class="expense_table">
       <div v-if="bookings.length > 0">
         <div class="mt-3 shadow p-3 bg-body hover-effect">
-          <h5 class="text-start">Upcoming</h5>
+          <h5 class="text-start">Registered Events</h5>
           <table class="table mt-3">
             <thead>
               <tr>
@@ -74,8 +74,12 @@ export default {
     } else {
       console.log('No user is currently logged in.');
     }
-  }
-  ,
+
+    window.addEventListener('resize', this.handleResize);
+  },
+  beforeUnmount() {
+    window.removeEventListener('resize', this.handleResize);
+  },
   methods: {
     plotChart() {
       if (!this.bookings.length) {
@@ -119,17 +123,29 @@ export default {
       ];
 
       const layout = {
-        title: { text: 'Monthly Activity Expense' }, 
+        title: { text: 'Monthly Activity Expense' },
         xaxis: { title: { text: 'Month' } },
         yaxis: { title: { text: 'Monthly Spending (S$)' } },
-        
+        responsive: true,
+        autolayout: true,
+      };
+
+      const config = {
+        displayModeBar: false,
+        scrollZoom: false,
+        displaylogo: false,
+        editable: false,
+        showTips: false,
+        staticPlot: true,
       };
 
       // Render chart in the chart-container div
-      Plotly.newPlot(this.$refs.chartContainer, data, layout);
+      Plotly.newPlot(this.$refs.chartContainer, data, layout, config);
+    },
+
+    handleResize() {
+      this.plotChart();
     }
-
-
   },
 };
 </script>
