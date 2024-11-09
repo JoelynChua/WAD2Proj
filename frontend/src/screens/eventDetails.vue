@@ -295,6 +295,7 @@ export default {
 .loading-image {
     width: 100%
 }
+
 .custom-event-image {
     max-width: 800px;
     height: auto;

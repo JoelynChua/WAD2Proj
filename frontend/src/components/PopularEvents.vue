@@ -1,6 +1,7 @@
 <template>
     <div class="pop-events">
-        <h1 class="mt-3">Check out the popular events</h1>
+        <h1 v-if="event_attraction" class="mt-3">Check out these popular events</h1>
+        <h1 v-else class="mt-3">Check out these popular Attractions</h1>
         <swiper
           :slidesPerView="4"
           :centeredSlides="true"
@@ -72,7 +73,7 @@ export default {
         Swiper,
         SwiperSlide,
     },
-    props: ['events'],
+    props: ['events', 'event_attraction'],
     setup() {
         const onSlideClick = (category) => {
             console.log(`${category} clicked`);

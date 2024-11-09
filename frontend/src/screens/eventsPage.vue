@@ -22,7 +22,7 @@
         </div>
 
         <transition name="popular-event-slide-fade">
-            <PopularEvents v-if="!searchQuery" :events="pop_events" />
+            <PopularEvents v-if="!searchQuery" :events="pop_events" :event_attraction="true"/>
         </transition>
 
         <!-- Events filter -->
@@ -35,6 +35,9 @@
                     <option value="wishlist">My Wishlist</option>
                 </select>
             </div>
+        </div>
+        <div v-else style="padding-top: 135px;">
+            <h1>Upcoming Events</h1>
         </div>
 
         <!-- Wishlist Filtered Events -->
@@ -63,7 +66,7 @@
                         </div>
 
                         <!-- Event Details -->
-                        <div class="card-body">
+                        <div class="card-body text-start">
                             <h5 class="card-title">{{ event.name }}</h5>
                             <p class="card-text">Type: {{ event.type }}</p>
                             <p class="card-text">
