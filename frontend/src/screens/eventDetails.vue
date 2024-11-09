@@ -44,13 +44,10 @@
                             <div class="event-title">
                                 {{ eventDetails.name }}
                             </div>
-                            <div class="event-description">
-                                {{ eventDetails.description }}
-                            </div>
                             <div class="event-container">
                                 <div class="event-header">Date and Time</div>
                                 <i class="fi fi-rr-calendar-day" style="margin: 0px 8px;"></i>
-                                <span> {{ eventDetails.dates.start.localDate }} {{ eventDetails.dates.start.localTime }} {{ eventDetails.dates.timezone }}</span>
+                                <span> {{ eventDetails.dates.start.localDate }} {{ eventDetails.dates.start.localTime.slice(0,5) }} {{ eventDetails.dates.timezone }}</span>
                             </div>
 
                             <div class="event-container">
@@ -60,13 +57,14 @@
                                 <div style="margin: 0px 30px; color: grey;">{{ eventDetails._embedded.venues[0].address.line1 }}, {{ eventDetails._embedded.venues[0].postalCode }}</div>
 
                                 <a href="#" @click.prevent="toggleMap" class="toggle-map-link">{{ showMap ? 'Hide map' : 'Show map' }}</a>
-                                <div v-if="showMap" id="map" style="width: 100%; height: 400px; border-radius: 10px; border: 1px solid black"></div>
+                                <div 
+                                    id="map" 
+                                    :style="{ display: showMap ? 'block' : 'none' }">
+                                </div>
 
                             </div>
                             <div class="event-container">
-                                <div class="event-header">
-                                    Price Range:
-                                </div>
+                                <div class="event-header">Price Range</div>
                                 <i class="fi fi-rr-dollar" style="margin: 0px 8px;"></i>
                                 <span>
                                     {{ eventDetails.priceRanges[0].min }}{{ eventDetails.priceRanges[0].currency}} 
@@ -74,38 +72,14 @@
                                     {{ eventDetails.priceRanges[0].max }}{{ eventDetails.priceRanges[0].currency }}
                                 </span>
                             </div>
+
+                            <div class="event-container">
+                                <div class="event-header">Ticket Sales</div>
+                                <div class="d-inline-block"> {{ formatDateTime(eventDetails.sales.public.startDateTime) }} </div>
+                                <div class="d-inline-block">&nbsp;&nbsp; - &nbsp;&nbsp; </div>
+                                <div class="d-inline-block"> {{ formatDateTime(eventDetails.sales.public.endDateTime) }} </div> 
+                            </div>
                         </div>
-
-
-                        <!-- <div class="location-section mb-4">
-                        <h3 class="text-xl font-semibold text-gray-800 mb-2">Location</h3>
-                        <p class="text-gray-600">{{ eventDetails.place.name }}</p>
-                        <p class="text-gray-600">{{ eventDetails.place.address.line1 }}, {{ eventDetails.place.address.city }}, {{ eventDetails.place.address.postalCode }}</p>
-                        </div>
-
-                        <div class="refund-policy">
-                        <h3 class="text-xl font-semibold text-gray-800 mb-2">Refund Policy</h3>
-                        <p class="text-gray-600">{{ eventDetails.refundPolicy || 'No Refunds' }}</p>
-                        </div> -->
-
-
-                        <!-- <h1>{{ eventDetails.name }}</h1>
-                        <p>Type: {{ eventDetails.type }}</p>
-                        <p>Date: {{ eventDetails.dates.start.localDate }}</p>
-                        <p>Time: {{ eventDetails.dates.start.localTime }}</p>
-                        <p>Timezone: {{ eventDetails.dates.timezone }}</p>
-                        <p>Status: {{ eventDetails.dates.status.code }}</p>
-                        <hr />
-                        <div v-if="eventDetails.sales">
-                            <h3>Sales:</h3>
-                            <p>Start date: {{ eventDetails.sales.public?.startDateTime }}</p>
-                            <p>End date: {{ eventDetails.sales.public?.endDateTime }}</p>
-                        </div>
-                        <p v-if="eventDetails.priceRanges?.length">
-                            Price range:
-                            {{ `${eventDetails.priceRanges[0].min || 'N/A'} to ${eventDetails.priceRanges[0].max || 'N/A'}
-                            ${eventDetails.priceRanges[0].currency || ''}` }}
-                        </p> -->
                     </div>
                 </div>
             </div>
@@ -189,6 +163,7 @@ export default {
             // Fetch API Key dynamically if required
             const data = await getGoogleClientId(); // Assuming this function returns an object with apiKey
             const apiKey = data.clientSecret;
+            console.log(apiKey)
 
             // Create a Loader instance with the API key
             const loader = new Loader({
@@ -217,8 +192,18 @@ export default {
         },
         toggleMap() {
             this.showMap = !this.showMap;
-            if (this.showMap && !this.map) {
-                this.initializeMap(); // Initialize map when toggling to show it
+
+            if (this.showMap) {
+                // Delay to ensure display change is applied before resizing
+                this.$nextTick(() => {
+                    if (this.map) {
+                        google.maps.event.trigger(this.map, 'resize'); // Trigger a resize event for the map
+                        const { latitude, longitude } = this.eventDetails._embedded.venues[0].location;
+                        this.map.setCenter({ lat: parseFloat(latitude), lng: parseFloat(longitude) });
+                    } else {
+                        this.initializeMap(); // Initialize map if it doesn't exist
+                    }
+                });
             }
         },
         async fetchEventDetails() {
@@ -269,6 +254,15 @@ export default {
                 hour: '2-digit',
                 minute: '2-digit'
             });
+        },
+        formatDateTime(dateString) {
+            return new Date(dateString).toLocaleTimeString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
         }
     }
 };
@@ -301,6 +295,7 @@ export default {
 .loading-image {
     width: 100%
 }
+
 .custom-event-image {
     max-width: 800px;
     height: auto;
@@ -386,6 +381,14 @@ export default {
 
 .toggle-map-link:hover {
   color: #125bb5; /* Darker blue on hover */
+}
+#map {
+    width: 100%;
+    height: 400px;
+    border-radius: 10px;
+    border: 1px solid black;
+    margin: 0px 30px;
+
 }
 
 </style>

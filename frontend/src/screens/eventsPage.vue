@@ -2,10 +2,10 @@
     <div class="homepage">
         <div class="hero-section">
             <video ref="backgroundVideo" autoplay muted loop playsinline id="background-video">
-                <source src="https://media.graphassets.com/iX5mzzTaQAeFQrC4MvPZ" type="video/mp4" />
+                <source src="https://videos.pexels.com/video-files/4916813/4916813-hd_1920_1080_30fps.mp4" type="video/mp4" />
                 Your browser does not support the video tag.
             </video>
-            <div class="hero-content">
+            <div class="hero-content">                
                 <div class="display-1 z-1">Find Your Event Today</div>
             </div>
 
@@ -22,7 +22,7 @@
         </div>
 
         <transition name="popular-event-slide-fade">
-            <PopularEvents v-if="!searchQuery" :events="pop_events" />
+            <PopularEvents v-if="!searchQuery" :events="pop_events" :event_attraction="true"/>
         </transition>
 
         <!-- Events filter -->
@@ -35,6 +35,9 @@
                     <option value="wishlist">My Wishlist</option>
                 </select>
             </div>
+        </div>
+        <div v-else style="padding-top: 135px;">
+            <h1>Upcoming Events</h1>
         </div>
 
         <!-- Wishlist Filtered Events -->
@@ -63,7 +66,7 @@
                         </div>
 
                         <!-- Event Details -->
-                        <div class="card-body">
+                        <div class="card-body text-start">
                             <h5 class="card-title">{{ event.name }}</h5>
                             <p class="card-text">Type: {{ event.type }}</p>
                             <p class="card-text">
@@ -108,9 +111,8 @@
                         </div>
 
                         <!-- Event Details -->
-                        <div class="card-body">
-                            <h5 class="card-title">{{ event.name }}</h5>
-                            <p class="card-text">Type: {{ event.type }}</p>
+                        <div class="card-body text-start">
+                            <h5 class="card-title fs-4">{{ event.name }}</h5>
                             <p class="card-text">
                                 {{ new Date(event.dates?.start?.dateTime || event.start).toLocaleDateString('en-US', {
                                     weekday: 'short',
@@ -121,6 +123,7 @@
                                     minute: '2-digit'
                                 }) }}
                             </p>
+                            <p class="card-text">Type: {{ event.classifications && event.classifications[0] ? event.classifications[0].genre.name : event.type }}</p>
                         </div>
                     </div>
                 </div>
@@ -147,7 +150,6 @@ import PopularEvents from '../components/PopularEvents.vue';
 library.add(faBookmark, farBookmark); // Add the icons to the library
 
 export default {
-    name: 'HomePage',
     components: {
         FontAwesomeIcon,
         PopularEvents,
@@ -211,12 +213,12 @@ export default {
             // Fetch events only after the user state has been set
             if (this.userID) {
                 this.events = await eventService.displayEvents();
-                console.log(this.events);
+                console.log("events: ",this.events);
                 this.wishlists = await itineraryService.getUserWishlist(this.userID); // Fetch wishlists if userID exists
             } else {
                 // If userID is not available yet, you might want to fetch events without wishlists
                 this.events = await eventService.displayEvents();
-                console.log(this.events);
+                console.log("Events, without userID: ",this.events);
             }
         } catch (error) {
             console.error('Failed to fetch events or wishlists:', error);
@@ -225,15 +227,6 @@ export default {
         window.addEventListener('scroll', this.handleScroll);
     },
     computed: {
-        /*
-        computed property will automatically re-evaluate and return the updated result. This behavior is ideal for scenarios 
-        where you want to display derived state based on existing reactive data.
-
-        This means that if you reference a computed property multiple times in your template, Vue only recalculates its value 
-        once and reuses the cached result, enhancing performance.
-
-        Method only perfor again when its called
-        */
         sortedEvents() {
 
             const eventsToUse = this.searchQuery ?
@@ -276,7 +269,7 @@ export default {
 
     methods: {
         handleScroll() {
-            if (window.scrollY > 120) {
+            if (window.scrollY > 80) {
                 this.showSearchBar = true;
             } else {
                 this.showSearchBar = false;
@@ -424,12 +417,13 @@ export default {
     text-align: center;
     background: #f9f9f9;
     color: #333;
+    padding-top: 135px;
 }
 
 .hero-section {
     position: relative;
-    width: 100%;
-    height: 100vh;
+    width: 80%;
+    height: 600px;
     background-size: cover;
     background-position: center;
     display: flex;
@@ -439,6 +433,7 @@ export default {
     color: white;
     text-align: center;
     z-index: 1;
+    margin: auto;
 }
 
 #background-video {
@@ -479,7 +474,7 @@ export default {
 
 .navy-box {
     position: absolute;
-    bottom: -20px;
+    bottom: -30px;
     width: 70%;
     max-width: 1000px;
     background-color: #1a1a40;
@@ -491,7 +486,7 @@ export default {
     transition: all 0.5s ease-in-out;
     z-index: 2;
     opacity: 0;
-    transform: translateY(100%);
+    transform: translateY(50%);
 }
 
 .navy-box.visible {
@@ -531,11 +526,8 @@ export default {
 .search-container input[type='text']:hover {
     background-color: #e0e0e0;
 }
-
-.popular-event-slide-fade-enter-active,
-.popular-event-slide-fade-leave-active {
-    transition: opacity 0.5s ease, transform 0.5s ease;
-    /* Adjust timing as needed */
+.popular-event-slide-fade-enter-active, .popular-event-slide-fade-leave-active {
+    transition: opacity 0.3s ease, transform 0.3s ease; /* Adjust timing as needed */
 }
 
 .popular-event-slide-fade-enter,
