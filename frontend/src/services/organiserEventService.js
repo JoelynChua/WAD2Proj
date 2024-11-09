@@ -19,7 +19,7 @@ async function getAllEvents() {
 // Get event by ID
 async function getEventById(eventId) {
     try {
-        const res = await axiosInstance.get(`${finalURL}/api/eventRoutes/${eventId}`);
+        const res = await axiosInstance.get(`${localURL}/api/eventRoutes/${eventId}`);
         console.log(res);
         return res.data;
     } catch (error) {

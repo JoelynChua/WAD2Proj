@@ -87,9 +87,22 @@ export default {
             ticketPopupTitle: ''
         }
     },
+    computed: {
+        eventPrice() {
+            if (this.isOrganiserEvent) {
+                return this.event.price || 'Free';
+            } else {
+                if (this.event.priceRanges && this.event.priceRanges.length > 0) {
+                    return `${this.event.priceRanges[0].min} ${this.event.priceRanges[0].currency}`;
+                }
+                return 'Price not available';
+            }
+        }
+    },
     methods: {
         async openTickets() {
             console.log(this.isOrganiserEvent);
+            console.log(this.event);
             if (this.isOrganiserEvent) {
                 const auth = getAuth();
                 const user = auth.currentUser;
@@ -101,6 +114,7 @@ export default {
                     return;
                 }
 
+                this.isLoading = true;
                 const db = getDatabase();
                 const eventRef = ref(db, `events/${this.event.id}`);
                 
@@ -114,16 +128,49 @@ export default {
                         this.showTicketPopup = true;
                         return;
                     }
-                    await update(eventRef, {
-                        [`signups/${user.uid}`]: true
-                    });
+
+                    // Check existing bookings
+                    const userRef = ref(db, `users/${user.uid}/bookings`);
+                    const bookingsSnapshot = await get(userRef);
+                    let nextBookingNumber = 1;
+                    
+                    if (bookingsSnapshot.exists()) {
+                        // Get the number of existing bookings
+                        const existingBookings = bookingsSnapshot.val();
+                        nextBookingNumber = Object.keys(existingBookings).length + 1;
+                    }
+
+                    // Create booking object
+                    const booking = {
+                        eventId: this.event.id || '',
+                        title: this.event.title || 'Untitled Event',
+                        date: this.formatDate(this.event.start) || 'TBD',  
+                        time: this.formatTime(this.event.start) || 'TBD',  
+                        price: this.event.price ? `$${this.event.price}` : 'Free'  
+                    };
+
+                    // Create updates object
+                    const updates = {};
+                    
+                    // Add event signup
+                    updates[`events/${this.event.id}/signups/${user.uid}`] = true;
+                    
+                    // Add booking to user's bookings with next number
+                    updates[`users/${user.uid}/bookings/${nextBookingNumber}`] = booking;
+
+                    // Update database
+                    await update(ref(db), updates);
+
                     this.ticketPopupTitle = 'Success';
                     this.ticketPopupMessage = 'Successfully registered for the event!';
                     this.showTicketPopup = true;
                 } catch (error) {
+                    console.error('Error registering:', error);
                     this.ticketPopupTitle = 'Error';
                     this.ticketPopupMessage = 'Failed to register for the event';
                     this.showTicketPopup = true;
+                } finally {
+                    this.isLoading = false;
                 }
             } else {
                 window.open(this.event.url, '_blank');
@@ -149,6 +196,22 @@ export default {
                 this.copySuccess = false;
             }, 2000);
         },
+        formatDate(dateString) {
+        if (!dateString) return 'TBD';
+        return new Date(dateString).toLocaleDateString('en-US', {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+        },
+        formatTime(dateString) {
+            if (!dateString) return 'TBD';
+            return new Date(dateString).toLocaleTimeString('en-US', {
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
     }
 };
 </script>

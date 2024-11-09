@@ -11,7 +11,7 @@
                             :style="{ backgroundColor: eventDetails.colour || '#1a1a40' }">
                             <img src="../assets/logo.png" alt="Event logo" class="event-logo" />
                         </div>
-            <div class="row event-hero-wrapper v-else">
+            <div v-else class="row event-hero-wrapper v-else">
                     <div class="col-2"></div>
                     <div class="col-8 ">
                         <!-- Ticketmaster event image -->
@@ -31,6 +31,7 @@
                 <p>Time: {{ formatTime(eventDetails.start) }}</p>
                 <p v-if="eventDetails.description">Description: {{ eventDetails.description }}</p>
                 <p v-if="eventDetails.location">Location: {{ eventDetails.location }}</p>
+                <p v-if="eventDetails.price">Price: ${{ eventDetails.price }}</p>
             </div>
             <div class="event-details" v-else>
                 <div class="row mt-5">
@@ -151,6 +152,7 @@ export default {
             });
             return formattedDate
         },
+        
         
     },
     async created() {
