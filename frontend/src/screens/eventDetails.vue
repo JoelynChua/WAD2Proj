@@ -81,6 +81,13 @@
                             </div>
                         </div>
                     </div>
+                    <div class="col-2" v-if="isCustomer">
+                        <div class="fixed-icon-container">
+                            <font-awesome-icon v-if="userID"
+                                :icon="isBookmarked(eventDetails.id) ? ['fas', 'bookmark'] : ['far', 'bookmark']"
+                                class="bookmark-icon fs-1 mt-5" @click.stop="toggleWishlist(eventDetails.id)" />
+                        </div>
+                    </div>
                 </div>
             </div>
         <EventNaviBar v-if="isCustomer" :event="eventDetails" :isOrganiserEvent="isOrganiserEvent"></EventNaviBar>
@@ -102,6 +109,8 @@ import { getGoogleClientId } from '../services/getGoogleClientId'
 import { getAuth } from 'firebase/auth';
 import { ref as dbRef, getDatabase, get } from 'firebase/database';
 
+import itineraryService from '../services/itineraryService';
+
 export default {
     data() {
         return {
@@ -110,7 +119,9 @@ export default {
             isOrganiserEvent: false,
             map: null,
             showMap: false,
-            isCustomer: false
+            isCustomer: false,
+            wishlists: [],
+            userID: null,
         };
     },
     components: {
@@ -144,6 +155,19 @@ export default {
     methods: {
         async checkUserType() {
             const auth = getAuth();
+            auth.onAuthStateChanged(async (user) => {
+                if (user) {
+                    this.userID = user.uid;
+                    try {
+                        await this.reloadWishlists();
+                    } catch (error) {
+                        console.error('Failed to fetch wishlists:', error);
+                    }
+                } else {
+                    this.userID = null;
+                    this.wishlists = [];
+                }
+            });
             const user = auth.currentUser;
             
             if (user) {
@@ -159,6 +183,52 @@ export default {
                 }
             }
         },
+        isBookmarked(eventID) {
+            return this.wishlists.some(
+                (wishlist) => wishlist.eventID === eventID
+            );
+        },
+        async toggleWishlist(eventID) {
+            const existingWishlist = this.wishlists.find(
+                (wishlist) => wishlist.eventID === eventID
+            );
+            const wishlistID = existingWishlist ? existingWishlist.id : null;
+
+            const newWishlist = {
+                userID: this.userID,
+                eventID,
+            };
+
+            try {
+                if (!wishlistID) {
+                    // If not bookmarked, add to wishlist
+                    const addedWishlist = await itineraryService.addWishlist(newWishlist);
+                    this.wishlists = [...this.wishlists, addedWishlist];
+                } else {
+                    // If already bookmarked, remove from wishlist
+                    await itineraryService.deleteWishlist(wishlistID);
+                    this.wishlists = this.wishlists.filter(
+                        (wishlist) => wishlist.id !== wishlistID
+                    );
+                }
+            } catch (error) {
+                console.error('Failed to update wishlist:', error);
+            }
+        },
+
+        // Reload wishlist items for the user
+        async reloadWishlists() {
+            if (!this.userID) return;
+            try {
+                const wishlists = await itineraryService.getUserWishlist(this.userID);
+                this.wishlists = [...wishlists];
+                console.log('Wishlists reloaded:', this.wishlists);
+            } catch (error) {
+                console.error('Failed to reload wishlists:', error);
+            }
+        },
+
+
         async loadGoogleMapsScript() {
             // Fetch API Key dynamically if required
             const data = await getGoogleClientId(); // Assuming this function returns an object with apiKey
@@ -315,20 +385,10 @@ export default {
     align-items: center;
     justify-content: center;
     width: 100%;
-    /* max-width: 800px; */
     max-height: 450px;
-    /* height: auto; */
     border-radius: 20px;
     overflow: hidden;
-    /* margin: 20px auto; */
-    /* display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    max-height: 450px;
-    height: auto; 
-    border-radius: 20px;
-    overflow: hidden; */
+
 }
 .event-hero-image {
   width: 100%;
@@ -389,6 +449,16 @@ export default {
     border: 1px solid black;
     margin: 0px 30px;
 
+}
+
+.bookmark-icon {
+    opacity: 1;
+    transition: color 0.3 ease;
+}
+
+.bookmark-icon:hover {
+    color: #e74c3c;
+    
 }
 
 </style>

@@ -3,11 +3,11 @@
 
         <div class="hero-section">
             <video ref="backgroundVideo" autoplay muted loop playsinline id="background-video">
-                <source src="https://videos.pexels.com/video-files/4916813/4916813-hd_1920_1080_30fps.mp4" type="video/mp4" />
+                <source src="https://videos.pexels.com/video-files/3116906/3116906-hd_1920_1080_25fps.mp4" type="video/mp4" />
                 Your browser does not support the video tag.
             </video>
             <div class="hero-content">                
-                <div class="display-1 z-1">Find Attractions Around You</div>
+                <div class="display-1 z-1">Find Your <span style="color: red">Attraction</span></div>
             </div>
 
             <!-- Navy Blue Box -->
@@ -23,12 +23,12 @@
         </div>
 
         <transition name="popular-event-slide-fade">
-            <PopularEvents v-if="!searchQuery" :events="pop_events" :event_attraction="false" />
+            <PopularEvents v-if="!searchQuery" :events="pop_events" :isEvent="false" />
         </transition>
 
          <!-- Events filter -->
          <div v-if="userID" class="filter-container">
-            <h1>Attractions</h1>
+            <h1>Upcoming Attractions</h1>
             <div class="dropdown-container">
                 <i class="fi fi-rr-angle-small-down dropdown-icon"></i>
                 <select id="event-filter" class="custom-dropdown" v-model="selectedFilter">

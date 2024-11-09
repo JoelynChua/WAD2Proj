@@ -1,6 +1,6 @@
 <template>
     <div class="pop-events">
-        <h1 v-if="event_attraction" class="mt-3">Check out these popular events</h1>
+        <h1 v-if="isEvent" class="mt-3">Check out these popular Events</h1>
         <h1 v-else class="mt-3">Check out these popular Attractions</h1>
         <swiper
           :slidesPerView="4"
@@ -73,7 +73,7 @@ export default {
         Swiper,
         SwiperSlide,
     },
-    props: ['events', 'event_attraction'],
+    props: ['events', 'isEvent'],
     setup() {
         const onSlideClick = (category) => {
             console.log(`${category} clicked`);
@@ -86,7 +86,12 @@ export default {
     },
     methods: {
         goToEventDetails(id) {
-            this.$router.push({ name: 'EventDetails', params: { id } });
+            if (this.isEvent) {
+                this.$router.push({ name: 'EventDetails', params: { id } });
+            } else {
+                this.$router.push({ name: 'AttractionDetails', params: { id } });
+
+            }
         },
     }
 };
@@ -140,6 +145,7 @@ export default {
 
 .event-details p {
     font-size: 1.1rem;
+    font-weight: bold;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;

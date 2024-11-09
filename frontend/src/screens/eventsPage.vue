@@ -6,7 +6,7 @@
                 Your browser does not support the video tag.
             </video>
             <div class="hero-content">                
-                <div class="display-1 z-1">Find Your Event Today</div>
+                <div class="display-1 z-1">Find Your <span style="color: red">Event</span></div>
             </div>
 
             <!-- Navy Blue Box -->
@@ -22,7 +22,7 @@
         </div>
 
         <transition name="popular-event-slide-fade">
-            <PopularEvents v-if="!searchQuery" :events="pop_events" :event_attraction="true"/>
+            <PopularEvents v-if="!searchQuery" :events="pop_events" :isEvent="true"/>
         </transition>
 
         <!-- Events filter -->

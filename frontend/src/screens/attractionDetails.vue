@@ -1,108 +1,285 @@
 <template>
-    <div class="container d-flex justify-content-center align-items-center">
-        <div class="row justify-content-center">
-            <div class="col-md-12 text-center">
-                <!-- Attraction Details -->
-                <div class="d-flex align-items-start">
-                    <img v-if="attractionDetails.images?.length" :src="attractionDetails.images[1].url" class="img-fluid me-3"
-                    alt="Attraction Image" style="margin: 30px; width: 500px; height: 300px" />
+    <div>
+        <div v-if="loading" class="loading">
+            <img class="loading-image" src="../assets/logo.png"/>
+            <p>Loading...</p>
+        </div>
+        <div v-else>
+            <div class="row event-hero-wrapper">
+                <div class="col-2"></div>
+                <div class="col-8 ">
+                    <!-- Ticketmaster event image -->
+                    <img 
+                        :src="attractionDetails.images?.[0]?.url" 
+                        class="event-hero-image"
+                        alt="Event Image"/>
+                </div>
+                <div class="col-2"></div>
+            </div>
 
-                    <!-- Ticket Box -->
-                    <div class="col-auto ticket-box text-center container-fluid">
-                        <p class="ticket-title">Learn More</p>
-                        <button class="btn btn-danger get-tickets-btn" @click="openTickets">TicketMaster</button>
+            <div class="event-details">
+                <div class="row mt-5">
+                    <div class="col-2"></div>
+                    <div class="col-6 text-start">
+                        <div class="event-title">
+                            {{ attractionDetails.name }}
+                        </div>
+                        <div class="event-container">
+                            <div class="event-header">Genre</div>
+                            {{ attractionDetails.classifications?.[0]?.segment.name }}, 
+                            {{ attractionDetails.classifications?.[0]?.genre.name }} ({{ attractionDetails.classifications?.[0]?.subGenre.name }})
+                        </div>
+
+                        <div class="event-container" v-if="attractionDetails.externalLinks?.homepage?.[0]?.url?.length">
+                            <div class="event-header">Check Out {{ attractionDetails.name }}'s Website</div>
+                            <i class="fi fi-rr-globe"></i>
+                            <a :href="attractionDetails.externalLinks?.homepage?.[0]?.url" target="_blank" style="text-decoration: none; font-size: large; margin: 0px 8px; ">{{ attractionDetails.externalLinks?.homepage?.[0]?.url }}</a>
+                        </div>
+                        <div class="event-container">
+                            <div class="event-header">Socials</div>
+                            <div>
+                                <a v-if="attractionDetails.externalLinks?.facebook?.length"
+                                    :href="attractionDetails.externalLinks.facebook[0].url" target="_blank"
+                                    rel="noopener noreferrer">
+                                    <font-awesome-icon :icon="['fab', 'facebook']" class="fa-2x"
+                                        style="margin: 10px; color: #1877F2;" />
+                                </a>
+            
+                                <a v-if="attractionDetails.externalLinks?.instagram?.length"
+                                    :href="attractionDetails.externalLinks.instagram[0].url" target="_blank"
+                                    rel="noopener noreferrer">
+                                    <font-awesome-icon :icon="['fab', 'instagram']" class="fa-2x instagram"
+                                        style="margin: 10px; color: #000000" />
+            
+                                </a>
+            
+                                <a v-if="attractionDetails.externalLinks?.twitter?.length"
+                                    :href="attractionDetails.externalLinks.twitter[0].url" target="_blank"
+                                    rel="noopener noreferrer">
+                                    <font-awesome-icon :icon="['fab', 'x-twitter']" class="fa-2x"
+                                        style="margin: 10px; color: #000000;" />
+                                </a>
+            
+                                <a v-if="attractionDetails.externalLinks?.youtube?.length"
+                                    :href="attractionDetails.externalLinks.youtube[0].url" target="_blank"
+                                    rel="noopener noreferrer">
+                                    <font-awesome-icon :icon="['fab', 'youtube']" class="fa-2x"
+                                        style="margin: 10px; color: #FF0000;" />
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-2" v-if="isCustomer">
+                        <div class="fixed-icon-container">
+                            <font-awesome-icon v-if="userID"
+                                :icon="isBookmarked(attractionDetails.id) ? ['fas', 'bookmark'] : ['far', 'bookmark']"
+                                class="bookmark-icon fs-1 mt-5" @click.stop="toggleWishlist(attractionDetails.id)" />
+                        </div>
                     </div>
                 </div>
-
-                
-
-                <h1 v-if="attractionDetails.name">{{ attractionDetails.name }}</h1>
-                <p v-if="attractionDetails.type">Type: {{ attractionDetails.type }}</p>
-                <p v-if="attractionDetails.classifications?.[0]?.genre?.name">Genre: {{
-                    attractionDetails.classifications[0].genre.name }}</p>
-                <hr />
-                <h3>Socials:</h3>
-                <div>
-                    <!--rel="noopener noreferrer": protects your site's users against having the site you've linked to potentially hijacking the browser (via rogue JS). -->
-                    <a v-if="attractionDetails.externalLinks?.facebook?.length"
-                        :href="attractionDetails.externalLinks.facebook[0].url" target="_blank"
-                        rel="noopener noreferrer">
-                        <font-awesome-icon :icon="['fab', 'facebook']" class="fa-2x"
-                            style="margin: 10px; color: #1877F2;" />
-                    </a>
-
-                    <a v-if="attractionDetails.externalLinks?.instagram?.length"
-                        :href="attractionDetails.externalLinks.instagram[0].url" target="_blank"
-                        rel="noopener noreferrer">
-                        <font-awesome-icon :icon="['fab', 'instagram']" class="fa-2x instagram"
-                            style="margin: 10px; color: #000000" />
-
-                    </a>
-
-                    <a v-if="attractionDetails.externalLinks?.twitter?.length"
-                        :href="attractionDetails.externalLinks.twitter[0].url" target="_blank"
-                        rel="noopener noreferrer">
-                        <font-awesome-icon :icon="['fab', 'x-twitter']" class="fa-2x"
-                            style="margin: 10px; color: #000000;" />
-                    </a>
-
-                    <a v-if="attractionDetails.externalLinks?.youtube?.length"
-                        :href="attractionDetails.externalLinks.youtube[0].url" target="_blank"
-                        rel="noopener noreferrer">
-                        <font-awesome-icon :icon="['fab', 'youtube']" class="fa-2x"
-                            style="margin: 10px; color: #FF0000;" />
-                    </a>
-                </div>
-
-
             </div>
+            <AttractionNaviBar v-if="isCustomer" :event="attractionDetails"></AttractionNaviBar>
         </div>
-
     </div>
 </template>
 
 <script>
-import attractionService from "../services/attractionService"; // Update to your attraction service
-import 'bootstrap/dist/css/bootstrap.min.css'; // Import Bootstrap CSS
-import 'bootstrap'; // Import Bootstrap JS
-import { library } from '@fortawesome/fontawesome-svg-core'; // FontAwesome core
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'; // Vue component for FontAwesome
-import { faFacebook, faInstagram, faXTwitter, faYoutube } from '@fortawesome/free-brands-svg-icons'; // Icons
+import attractionService from "../services/attractionService"; 
+import itineraryService from '../services/itineraryService';
 
-// Add icons to the library
+import 'bootstrap/dist/css/bootstrap.min.css'; 
+import 'bootstrap'; 
+import { library } from '@fortawesome/fontawesome-svg-core'; 
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'; 
+import { faFacebook, faInstagram, faXTwitter, faYoutube } from '@fortawesome/free-brands-svg-icons';
+import AttractionNaviBar from "../components/AttractionDetails_navibar.vue"
+import { ref as dbRef, getDatabase, get } from 'firebase/database';
+import { getAuth } from 'firebase/auth';
+
 library.add(faFacebook, faInstagram, faXTwitter, faYoutube);
 
 
 export default {
     components: {
-        FontAwesomeIcon, // Register FontAwesome component
+        FontAwesomeIcon,
+        AttractionNaviBar,
     },
     data() {
         return {
             attractionDetails: {}, // Initialize as an empty object
+            loading: true,
+            isCustomer: false,
+            isOrganiserEvent: true,
+            wishlists: [],
+            userID: null,
         };
     },
-    created() {
-        // Fetch attraction details immediately upon creation
+    
+    async created() {
+        await this.checkUserType();
         this.fetchAttractionDetails();
     },
     methods: {
+        async checkUserType() {
+            const auth = getAuth();
+            const user = auth.currentUser;
+
+            auth.onAuthStateChanged(async (user) => {
+                if (user) {
+                    this.userID = user.uid;
+                    try {
+                        await this.reloadWishlists();
+                    } catch (error) {
+                        console.error('Failed to fetch wishlists:', error);
+                    }
+                } else {
+                    this.userID = null;
+                    this.wishlists = [];
+                }
+            });
+            
+            if (user) {
+                const db = getDatabase();
+                const userRef = dbRef(db, `users/${user.uid}`);
+                try {
+                    const snapshot = await get(userRef);
+                    if (snapshot.exists()) {
+                        this.isCustomer = snapshot.val().userType === 'customer';
+                    }
+                } catch (error) {
+                    console.error("Error checking user type:", error);
+                }
+            }
+        },
+
+        isBookmarked(attractionID) {
+            // console.log(this.wishlist.eventID)
+        
+            return this.wishlists.some(
+                (wishlist) => wishlist.attractionID === attractionID
+            );
+        },
+        async toggleWishlist(attractionID) {
+            const existingWishlist = this.wishlists.find(
+                (wishlist) => wishlist.attractionID === attractionID
+            );
+            const wishlistID = existingWishlist ? existingWishlist.id : null;
+
+            const newWishlist = {
+                userID: this.userID,
+                attractionID,
+            };
+
+            try {
+                if (!wishlistID) {
+                    // If not bookmarked, add to wishlist
+                    const addedWishlist = await itineraryService.addWishlist(newWishlist);
+                    this.wishlists = [...this.wishlists, addedWishlist];
+                } else {
+                    // If already bookmarked, remove from wishlist
+                    await itineraryService.deleteWishlist(wishlistID);
+                    this.wishlists = this.wishlists.filter(
+                        (wishlist) => wishlist.id !== wishlistID
+                    );
+                }
+            } catch (error) {
+                console.error('Failed to update wishlist:', error);
+            }
+        },
+
+        // Reload wishlist items for the user
+        async reloadWishlists() {
+            if (!this.userID) return;
+            try {
+                const wishlists = await itineraryService.getUserWishlist(this.userID);
+                this.wishlists = [...wishlists];
+                console.log('Wishlists reloaded:', this.wishlists);
+            } catch (error) {
+                console.error('Failed to reload wishlists:', error);
+            }
+        },
+        
         async fetchAttractionDetails() {
             const id = this.$route.params.id; // Get the id from the route parameters
             try {
+                this.loading = true;
                 this.attractionDetails = await attractionService.goToAttractionDetails(id); // Fetch attraction details
             } catch (error) {
                 console.error("Failed to fetch attraction details:", error);
             }
-        },
-        openTickets() {
-            window.open(this.attractionDetails.url, '_blank');
+            finally {
+                this.loading = false;
+            }
         },
     },
 };
 </script>
 
 <style scoped>
+@keyframes bob {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+.loading {
+    width: 50px;
+    animation: bob 1.5s ease-in-out infinite;
+    display: flex;
+    align-items: center;
+    margin: 50px auto;
+}
+
+.loading p {
+    margin: 0 auto;
+}
+
+.loading-image {
+    width: 100%
+}
+
+.event-hero-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    max-height: 450px;
+    border-radius: 20px;
+    overflow: hidden;
+
+}
+.event-hero-image {
+  width: 100%;
+  max-height: 450px;
+
+  height: 100%;
+  object-fit: cover;
+  border-radius: 8px;
+  object-position: center;
+}
+.event-container {
+    margin: 80px 0px;
+}
+.event-header {
+    color: #39364f;
+    font-size: 30px;
+    font-weight: bold;
+}
+.event-date {
+    font-size: 25px;
+}
+.event-title {
+    margin: 20px 0px;
+    color: #39364f;
+    text-transform: uppercase;
+    font-size: 60px;
+    font-weight: 900;
+    line-height: 1; 
+}
+
 .aligned {
     text-align: center;
 }
