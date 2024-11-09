@@ -16,7 +16,7 @@
                     <div class="search-container">
                         <i class="fi fi-rr-search search-icon"></i>
                         <input type="text" placeholder="Search for attractions..." aria-label="Search" v-model="searchQuery"
-                            @keyup="searchEvents(searchQuery)" />
+                            @keyup="searchAttractions(searchQuery)" />
                     </div>
                 </div>
             </div>
@@ -75,8 +75,8 @@
 
         <!-- All Events (Default View) -->
         <div v-else class="container mt-4">
-            <div class="row" v-if="attractions.length">
-                <div class="col-lg-4 col-md-6 col-12 mb-4" v-for="attraction in attractions" :key="attraction.id">
+            <div class="row" v-if="sortedEvents.length">
+                <div class="col-lg-4 col-md-6 col-12 mb-4" v-for="attraction in sortedEvents" :key="attraction.id">
                     <div class="card event" @click="goToAttractionDetails(attraction.id)" style="cursor: pointer; position: relative">
 
                         <!-- Image -->
@@ -133,6 +133,7 @@ export default {
             attractions: [],
             wishlists: [],
             pop_events: [],
+            searchFiltered: [],
             userID: null,
             showSearchBar: false,
             selectedFilter: 'all',
@@ -141,6 +142,13 @@ export default {
         };
     },
     computed: {
+        sortedEvents() {
+
+            const eventsToUse = this.searchQuery ?
+                this.searchFiltered:
+                this.attractions
+            return eventsToUse
+        },
         filteredAttractions() {
             if (this.userID && this.wishlists.length) {
                 console.log("this happened: ",this.attractions.filter(event =>
@@ -242,6 +250,17 @@ export default {
                 console.error('Failed to update wishlist:', error);
             }
         },
+
+        async searchAttractions (query) {
+            console.log('Searching with query:', query);
+            if (query && query.length > 0) {
+                try {
+                    this.searchFiltered = await attractionService.searchAttractionName(query);
+                } catch (error) {
+                    console.error('Error searching events:', error);
+                }
+            } 
+        }
     },
 };
 </script>
