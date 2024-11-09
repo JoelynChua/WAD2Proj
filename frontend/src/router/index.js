@@ -1,6 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import { auth } from '../firebase/firebaseClientConfig'; // Adjust the path to your Firebase config
-// import HomePage from '../screens/homePage.vue';
+import { auth } from '../firebase/firebaseClientConfig';
 import EventDetails from '../screens/eventDetails.vue';
 import AttractionsList from '../screens/attractionsList.vue';
 import AttractionDetails from '../screens/attractionDetails.vue';
@@ -17,10 +16,12 @@ import EventsPage from '../screens/eventsPage.vue';
 import AboutUs from '../screens/AboutUs.vue';
 import FAQ from '../screens/FAQ.vue';
 import PrivacyPolicy from '../screens/PrivacyPolicy.vue';
-import EventsMarketplace from '../screens/EventsMarketplace.vue'
 import WhyUsOrganizers from '../screens/WhyUsOrganizers.vue'
 import loginpageForOrganisers from '../screens/loginpageForOrganisers.vue';
 import OrganizerDashboard from '../screens/OrganizerDashboard.vue';
+import EventStatistics from '@/components/EventStatistics.vue';
+import NotFound from '@/components/NotFound.vue';
+
 
 
 const routes = [
@@ -60,11 +61,6 @@ const routes = [
         component: ItineraryForm,
     },
     {
-        path: '/marketplace',
-        name: 'EventsMarketplace',
-        component: EventsMarketplace,
-    },
-    {
         path: '/organizers',
         name: 'WhyUsOrganizers',
         component: WhyUsOrganizers,
@@ -76,6 +72,12 @@ const routes = [
         meta: { redirectIfAuthenticated: true }, // Redirect if authenticated
     },
     {
+        path: '/dashboard/:eventId',
+        name: 'EventStatistics',
+        component: EventStatistics,
+        props: true,
+    },
+    {
         path: '/login-for-users',
         name: 'loginpageForUsers',
         component: loginpageForUsers,
@@ -84,9 +86,9 @@ const routes = [
     {
         path: '/login-for-organisers',
         name: 'loginpageForOrganisers',
-        component: loginpageForOrganisers, // Route to Organizer Login Page
+        component: loginpageForOrganisers,
         meta: { redirectIfAuthenticated: true }, // Redirect if authenticated
-      },
+    },
     {
         path: '/ExpensePage',
         name: 'ExpensePage',
@@ -112,6 +114,11 @@ const routes = [
     { path: '/about-us', component: AboutUs },
     { path: '/faq', component: FAQ },
     { path: '/privacy-policy', component: PrivacyPolicy },
+    {
+        path: '/:pathMatch(.*)*',
+        name: 'NotFound',
+        component: NotFound,
+    },
     // You can add more routes here
 ];
 
@@ -126,17 +133,14 @@ router.beforeEach((to, from, next) => {
     const redirectIfAuthenticated = to.matched.some(
         (record) => record.meta.redirectIfAuthenticated
     );
-    const isAuthenticated = !!auth.currentUser; // Check if the user is authenticated
-
-    console.log('Navigating to:', to.name); // Debugging line
-    console.log('Is Authenticated:', isAuthenticated); // Debugging line
+    const isAuthenticated = !!auth.currentUser;
 
     if (requiresAuth && !isAuthenticated) {
-        next('/login-for-users'); // Redirect to login page if not authenticated
+        next('/login-for-users');
     } else if (redirectIfAuthenticated && isAuthenticated) {
-        next('/dashboard'); // Redirect to Profile Page if already authenticated
+        next('/dashboard');
     } else {
-        next(); // Proceed to the route
+        next();
     }
 });
 

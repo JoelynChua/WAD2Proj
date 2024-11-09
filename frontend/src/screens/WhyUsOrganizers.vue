@@ -4,12 +4,14 @@
             <img src="../assets/organizer_background.jpg" class="background-img">
             <div class="fade-in-text">
                 <div>HOST YOUR</div>
-                <Typical class="typer" :steps="['> EVENTS', 2000, '> PARTY', 2000, '> TOUR', 2000]" :loop="Infinity" wrapper="span" />
+                <Typical class="typer" :steps="['> EVENTS', 2000, '> PARTIES', 2000, '> TOURS', 2000]" :loop="Infinity" wrapper="span" />
                 <div>WITH US</div>
                 <button onclick="window.location.href='mailto:wad2proj@gmail.com'">Contact Us</button>
             </div>
             <img src="../assets/boat.gif" class="boat-1">
             <img src="../assets/boat2.gif" class="moving-boat">
+            <img src="../assets/boat2.gif" class="moving-boat-2">
+
         </div>
     </section>
 </template>
@@ -105,15 +107,36 @@ button {
     height: 200px;
     position: absolute;
     top: 175px;
-    animation: moveBoat 12s linear infinite;
+    animation: moveBoat 15s linear infinite; 
+}
+
+.moving-boat-2 {
+    height: 200px;
+    position: absolute;
+    top: 250px;
+    opacity: 0; 
+    visibility: hidden; 
+    animation: moveBoat 15s linear infinite, showBoat 0s forwards 3s; 
+    animation-delay: 3s;
 }
 
 @keyframes moveBoat {
     0% {
-        left: -150px;
+        left: -150px; 
     }
     100% {
-        left: calc(100vw + 150px);
+        left: calc(100vw + 150px); 
+    }
+}
+
+@keyframes showBoat {
+    0% {
+        opacity: 0; 
+        visibility: hidden; 
+    }
+    100% {
+        opacity: 1; 
+        visibility: visible; 
     }
 }
 
@@ -122,4 +145,5 @@ button {
         font-size: 3rem;
     }
 }
+
 </style>

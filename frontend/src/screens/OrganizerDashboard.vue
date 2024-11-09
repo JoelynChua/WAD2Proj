@@ -1,33 +1,58 @@
 <template>
   <div class="container-fluid organizer-dashboard">
-    <h1>Welcome to the Organizer Dashboard, {{ organizerName }}!</h1>
-    <p>This is your workspace for managing events, viewing analytics, and more.</p>
+    <div v-if="organizerEvents.length > 0">
 
-    <!-- Event Summary with Borders and Margins -->
-    <div class="row component-box">
-      <div class="col-md-4" v-for="(event, index) in events" :key="index">
-        <div class="card text-center border m-3" :style="{ backgroundColor: event.color, color: '#fff' }">
-          <div class="card-body">
-            <h5 class="card-title">{{ event.name }}</h5>
-            <p class="card-text">Attendees: {{ event.attendees }}</p>
-          </div>
+    <div class="text-start p-2">
+      <h2><b>Organiser Dashboard</b></h2>
+    </div>
+      <div class="smallBrowser">
+        Please expand your browser to view detailed analysis
+      </div>
+
+      <!-- Charts Section with Borders and Margins -->
+      <div class="row justify-content-center graph">
+        <div class="col-12 col-md-6 col-lg-5 component-box">
+          <canvas id="attendeePieChart"></canvas>
+        </div>
+        <div class="col-12 col-md-6 col-lg-5 component-box">
+          <canvas id="attendeeBarChart"></canvas>
+        </div>
+
+        <!-- Revenue Chart Section -->
+        <div class="col-12 col-md-6 col-lg-5 component-box">
+          <canvas id="revenueBarChart"></canvas>
         </div>
       </div>
-    </div>
 
-    <!-- Total Attendees -->
-    <div class="text-center my-4 border p-3">
-      <h3>Total Attendees: {{ totalAttendees }}</h3>
+      <!-- Signups Table Section -->
+      <div class="signups-table component-box m-0 mt-3">
+        <h2>Event Signups</h2>
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Event Title</th>
+              <th>Signups</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="event in organizerEvents" :key="event.id">
+              <td>{{ event.title }}</td>
+              <td>
+                <!-- Button to navigate to Event Statistics page -->
+                <button class="btn btn-primary" @click="viewEventStatistics(event.eventId)">
+                  View Info
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
-
-    <!-- Charts Section with Borders and Margins -->
-    <div class="row justify-content-center">
-      <div class="col-12 col-md-6 col-lg-5 component-box">
-        <canvas id="attendeePieChart"></canvas>
-      </div>
-      <div class="col-12 col-md-6 col-lg-5 component-box">
-        <canvas id="attendeeBarChart"></canvas>
-      </div>
+    <div v-else>
+      <div class="text-center p-2">
+      <h2><b>Organiser Dashboard</b></h2>
+    </div>
+      Please create some events before returning to this page.
     </div>
   </div>
 </template>
@@ -42,17 +67,16 @@ export default {
   data() {
     return {
       organizerName: 'Organizer',
-      events: [
-        { name: 'Event 1', attendees: 12, color:"#A44A3F" },
-        { name: 'Event 2', attendees: 15, color: "#3C7A89" },
-        { name: 'Event 3', attendees: 7, color: "#2E4756" },
-      ],
+      organizerEvents: [],
       pieChartInstance: null,
       barChartInstance: null,
+      revenueChartInstance: null,
+      dropdownOpen: {}, // Track open/close state of each dropdown by event ID
     };
   },
   mounted() {
     const auth = getAuth();
+
     onAuthStateChanged(auth, async (user) => {
       if (user) {
         const userRef = ref(database, `users/${user.uid}`);
@@ -62,8 +86,41 @@ export default {
           const userData = snapshot.val();
 
           if (userData.userType === 'organiser') {
-            this.organizerName = userData.displayName || 'Organizer';
+            this.organizerName = userData.name || 'Organizer';
             console.log("Display name retrieved from Firebase Database:", this.organizerName);
+
+            // Fetch events based on the organizer ID
+            const eventsRef = ref(database, `/events`);
+            const eventsSnapshot = await get(eventsRef);
+
+            if (eventsSnapshot.exists()) {
+              const eventsData = eventsSnapshot.val();
+
+              // Filter events for the specific organizer ID
+              this.organizerEvents = Object.entries(eventsData)
+                .filter(([, event]) => event.organiserId === user.uid) 
+                .map(([key, event]) => {
+                  return { ...event, eventId: key }; 
+                })
+                .sort((a, b) => {
+                  const dateA = new Date(a.start); 
+                  const dateB = new Date(b.start); 
+                  return dateA - dateB;
+                });
+
+
+              console.log("Events retrieved for the organizer:", this.organizerEvents);
+              console.log("Revenue", this.revenueCounts)
+
+              // Render the charts after the DOM has been updated and organizerEvents is populated
+              this.$nextTick(() => {
+                this.renderPieChart();
+                this.renderBarChart();
+                this.renderRevenueChart();
+              });
+            } else {
+              console.warn("No events found for this organizer in Firebase Database.");
+            }
           } else {
             console.warn("Access denied: User is not an organizer.");
             this.$router.push('/');
@@ -78,39 +135,53 @@ export default {
       }
     });
 
-    this.renderPieChart();
-    this.renderBarChart();
-
     window.addEventListener('resize', this.handleResize);
   },
+
   beforeUnmount() {
     window.removeEventListener('resize', this.handleResize);
   },
   computed: {
     totalAttendees() {
-      return this.events.reduce((total, event) => total + event.attendees, 0);
+      return this.organizerEvents.reduce((total, event) => total + (event.signups ? Object.keys(event.signups).length : 0), 0);
     },
+
     eventNames() {
-      return this.events.map(event => event.name);
+      return this.organizerEvents.map(event => event.title);
     },
     attendeeCounts() {
-      return this.events.map(event => event.attendees);
+      return this.organizerEvents.map(event => event.signups ? Object.keys(event.signups).length : 0);
+    },
+    revenueCounts() {
+      return this.organizerEvents.map(event => {
+        const attendeeCount = event.signups ? Object.keys(event.signups).length : 0;
+        const price = event.price || 0;
+        return attendeeCount * price;
+      });
     },
   },
   methods: {
+    viewEventStatistics(eventId) {
+      // Navigate to the event statistics page
+      this.$router.push({ name: 'EventStatistics', params: { eventId } });
+    },
+
     handleResize() {
       if (this.pieChartInstance) this.pieChartInstance.resize();
       if (this.barChartInstance) this.barChartInstance.resize();
+      if (this.revenueChartInstance) this.revenueChartInstance.resize();
     },
+
     renderPieChart() {
       const ctxPie = document.getElementById('attendeePieChart').getContext('2d');
+      if (this.pieChartInstance) this.pieChartInstance.destroy();
       this.pieChartInstance = new Chart(ctxPie, {
         type: 'pie',
         data: {
           labels: this.eventNames,
           datasets: [{
             data: this.attendeeCounts,
-            backgroundColor: ['#A44A3F', '#3C7A89', '#2E4756'],
+            backgroundColor: ['#003f5c', '#58508d', '#bc5090', '#ff6361', '#ffa600'],
           }]
         },
         options: {
@@ -125,8 +196,10 @@ export default {
         }
       });
     },
+
     renderBarChart() {
       const ctxBar = document.getElementById('attendeeBarChart').getContext('2d');
+      if (this.barChartInstance) this.barChartInstance.destroy(); 
       this.barChartInstance = new Chart(ctxBar, {
         type: 'bar',
         data: {
@@ -134,7 +207,7 @@ export default {
           datasets: [{
             label: 'Number of Attendees',
             data: this.attendeeCounts,
-            backgroundColor: ['#A44A3F', '#3C7A89', '#2E4756'],
+            backgroundColor: ['#003f5c', '#58508d', '#bc5090', '#ff6361', '#ffa600'],
           }]
         },
         options: {
@@ -153,19 +226,55 @@ export default {
           }
         }
       });
+    },
+
+    renderRevenueChart() {
+      const ctxRevenue = document.getElementById('revenueBarChart').getContext('2d');
+      if (this.revenueChartInstance) this.revenueChartInstance.destroy(); 
+      this.revenueChartInstance = new Chart(ctxRevenue, {
+        type: 'bar',
+        data: {
+          labels: this.eventNames,
+          datasets: [{
+            label: 'Revenue per Event',
+            data: this.revenueCounts,
+            backgroundColor: ['#003f5c', '#58508d', '#bc5090', '#ff6361', '#ffa600'],
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            title: {
+              display: true,
+              text: 'Revenue per Event'
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              title: {
+                display: true,
+                text: 'Revenue ($)'
+              }
+            }
+          }
+        }
+      });
     }
   }
 };
 </script>
+
 
 <style scoped>
 .organizer-dashboard {
   padding: 20px;
   width: 50%;
 }
+
 .component-box {
-  border: 3px solid;
-  border-radius: 20px;
+  border: 1px solid grey;
   padding: 10px;
   margin: 10px;
   flex-grow: 1;
@@ -173,9 +282,48 @@ export default {
   align-items: center;
   justify-content: center;
 }
+
 canvas {
   width: 100% !important;
   height: 100% !important;
 }
-</style>
 
+.signups-table {
+  margin-top: 20px;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th,
+.table td {
+  padding: 10px;
+  border: 1px solid #ddd;
+}
+
+.smallBrowser {
+  display: none;
+}
+
+@media (max-width: 1024px) {
+  .graph {
+    display: none;
+  }
+
+  .smallBrowser {
+    display: block;
+  }
+}
+
+@media (max-width: 768px) {
+  .smallBrowser {
+    display: block;
+  }
+
+  .signups-table {
+    display: none;
+  }
+}
+</style>
