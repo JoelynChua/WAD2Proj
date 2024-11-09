@@ -1,59 +1,67 @@
 <template>
-    <div id="app">
-        <!-- Logo centered on the page -->
-        <a href="/">
-            <img
-                style="display: none; margin: 0 auto; width: 30%; height: auto"
-                alt="logo"
-                src="./assets/tabiLog_logo_noBackground.png"
-            />
-        </a>
-        <!-- Collapsible Navigation Bar -->
-        <collapsible-navibar v-if="!fullPageRoutes.includes($route.path)" />
-
-        <div
-            id="navbuffer"
-            style="height: 100px"
-            v-if="
-                !fullPageRoutes.includes($route.path) &&
-                !noBuffer.includes($route.path)
-            "
-        ></div>
-        <!-- Sticky Navbar Buffer -->
-
-        <!-- Router View for Dynamic Content -->
+    <div id="app" class="app-container">  
+      <!-- Collapsible Navigation Bar -->
+      <collapsible-navibar v-if="!fullPageRoutes.includes($route.path)" />
+  
+      <div
+        id="navbuffer"
+        style="height: 100px"
+        v-if="!fullPageRoutes.includes($route.path) && !noBuffer.includes($route.path)"
+      ></div>
+  
+      <div class="content-wrapper">
         <router-view />
-        <div id="footerbuffer" v-if="!fullPageRoutes.includes($route.path) && !noBuffer.includes($route.path)"></div>
-
-        <!-- Footer Component -->
-        <AppFooter id="#AppFooter" v-if="!fullPageRoutes.includes($route.path)" />
+      </div>
+      
+      <div id="footerbuffer" v-if="!fullPageRoutes.includes($route.path) && !noBuffer.includes($route.path)"></div>
+  
+      <!-- Footer Component -->
+      <AppFooter id="#AppFooter" v-if="!fullPageRoutes.includes($route.path)" />
     </div>
-</template>
+  </template>
 
 <script>
-// Import collapsibleNavibar component
-import collapsibleNavibar from './components/naviBar.vue'; // Adjust the path if necessary
-import AppFooter from './components/AppFooter.vue'; // Import the Footer component
+import collapsibleNavibar from './components/naviBar.vue';
+import AppFooter from './components/AppFooter.vue'; 
 
 export default {
     data() {
         return {
             fullPageRoutes: ['/login-for-users', '/signup', '/login-for-organisers'],
-            noBuffer: ['/', "/organizers"],
+            noBuffer: ['/', "/organizers", "/events", "/attractionsList"],
         };
     },
     name: 'App',
     components: {
-        collapsibleNavibar, // Register the NavigationBar component
-        AppFooter, // Register the Footer component
+        collapsibleNavibar, 
+        AppFooter, 
     },
 };
 </script>
 
 <style>
-#AppFooter {
-    position: relative;
-    bottom: 0;
+.app-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh; 
+}
+
+.content-wrapper {
+  flex-grow: 1; 
+  display: flex;
+  flex-direction: column;
+}
+
+#navbuffer {
+  flex-grow: 1; 
+}
+
+#footerbuffer {
+  height: 30px; 
+}
+
+.AppFooter {
+  margin-top: auto; 
 }
 
 #app {
@@ -64,6 +72,12 @@ export default {
     text-align: center;
     color: #2c3e50;
     margin-top: 0;
+}
+
+.content-wrapper {
+  flex-grow: 1; 
+  display: flex;
+  flex-direction: column;
 }
 
 #footerbuffer {

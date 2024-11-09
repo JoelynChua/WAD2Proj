@@ -99,12 +99,8 @@ export default {
       } catch (error) {
         if (error.message === 'Firebase: Error (auth/invalid-credential).') {
           this.invalidCred = true;
-        } else if (error.message === 'Firebase: Error (auth/popup-closed-by-user).') {
-          console.log(error.message);
-        }
-        else {
-          console.error('Error logging in:', error.message);
-          alert(error.message);
+        } else {
+          console.log('Error logging in:', error.message);
         }
       }
     },

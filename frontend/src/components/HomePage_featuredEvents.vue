@@ -36,7 +36,7 @@
             class="event-image" />
         </div>
 
-        <div class="event-details">
+        <div class="event-details" @click="navigateToLink(event.link)">
           <div
             style="font-weight: 600; font-size: 22px; font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;">
             {{ event.name }}</div>

@@ -17,10 +17,11 @@ import EventsPage from '../screens/eventsPage.vue';
 import AboutUs from '../screens/AboutUs.vue';
 import FAQ from '../screens/FAQ.vue';
 import PrivacyPolicy from '../screens/PrivacyPolicy.vue';
-import EventsMarketplace from '../screens/EventsMarketplace.vue'
 import WhyUsOrganizers from '../screens/WhyUsOrganizers.vue'
 import loginpageForOrganisers from '../screens/loginpageForOrganisers.vue';
 import OrganizerDashboard from '../screens/OrganizerDashboard.vue';
+import EventStatistics from '@/components/EventStatistics.vue'; // New component for statistics
+
 
 
 const routes = [
@@ -60,11 +61,6 @@ const routes = [
         component: ItineraryForm,
     },
     {
-        path: '/marketplace',
-        name: 'EventsMarketplace',
-        component: EventsMarketplace,
-    },
-    {
         path: '/organizers',
         name: 'WhyUsOrganizers',
         component: WhyUsOrganizers,
@@ -74,6 +70,12 @@ const routes = [
         name: 'NewUser',
         component: Signup,
         meta: { redirectIfAuthenticated: true }, // Redirect if authenticated
+    },
+    {
+        path: '/dashboard/:eventId',  // Define route for event-specific statistics
+        name: 'EventStatistics',
+        component: EventStatistics,
+        props: true,
     },
     {
         path: '/login-for-users',
@@ -86,7 +88,7 @@ const routes = [
         name: 'loginpageForOrganisers',
         component: loginpageForOrganisers, // Route to Organizer Login Page
         meta: { redirectIfAuthenticated: true }, // Redirect if authenticated
-      },
+    },
     {
         path: '/ExpensePage',
         name: 'ExpensePage',
