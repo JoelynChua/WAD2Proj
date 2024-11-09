@@ -80,6 +80,7 @@ export default {
         validateProfile() {
             const mobilePattern = /^[89]\d{7}$/;
 
+
             if (!this.displayName) {
                 alert("Name is required");
                 return false;
@@ -90,9 +91,22 @@ export default {
                 return false;
             }
 
-            // Check if dob is selected and has a value
             if (!this.dob) {
                 alert("Date of Birth is required");
+                return false;
+            }
+
+            const dobDate = new Date(this.dob);
+            const today = new Date();
+            let age = today.getFullYear() - dobDate.getFullYear();
+            const monthDifference = today.getMonth() - dobDate.getMonth();
+
+            if (monthDifference < 0 || (monthDifference === 0 && today.getDate() < dobDate.getDate())) {
+                age--;
+            }
+
+            if (age < 13) {
+                alert("You must be at least 13 years old.");
                 return false;
             }
 

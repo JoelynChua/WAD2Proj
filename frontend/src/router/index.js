@@ -91,6 +91,8 @@ const routes = [
         path: '/ExpensePage',
         name: 'ExpensePage',
         component: ExpensePage,
+        meta: { requiresAuth: true }, // Requires authentication
+
     },
     {
         path: '/dashboard',
