@@ -10,7 +10,7 @@
                 <h6>{{ booking.title }}</h6>
                 <p>Date: {{ booking.date }}</p>
                 <p>Time: {{ booking.time }}</p>
-                <p>Price: ${{ booking.price }}</p>
+                <p>Price: S{{ booking.price }}</p>
             </div>
         </div>
     </div>

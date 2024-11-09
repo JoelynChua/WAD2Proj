@@ -27,6 +27,7 @@
     "bootstrap": "^5.3.3",
     "chart.js": "^4.4.4",
     "core-js": "^3.8.3",
+    "dayjs": "^1.11.13",
     "firebase": "^10.14.1",
     "font-awesome-icons": "^1.6.0",
     "gapi-script": "^1.2.0",
