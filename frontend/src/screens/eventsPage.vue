@@ -108,9 +108,8 @@
                         </div>
 
                         <!-- Event Details -->
-                        <div class="card-body">
-                            <h5 class="card-title">{{ event.name }}</h5>
-                            <p class="card-text">Type: {{ event.type }}</p>
+                        <div class="card-body text-start">
+                            <h5 class="card-title fs-4">{{ event.name }}</h5>
                             <p class="card-text">
                                 {{ new Date(event.dates?.start?.dateTime || event.start).toLocaleDateString('en-US', {
                                     weekday: 'short',
@@ -121,6 +120,7 @@
                                     minute: '2-digit'
                                 }) }}
                             </p>
+                            <p class="card-text">Type: {{ event.classifications && event.classifications[0] ? event.classifications[0].genre.name : event.type }}</p>
                         </div>
                     </div>
                 </div>
@@ -147,7 +147,6 @@ import PopularEvents from '../components/PopularEvents.vue';
 library.add(faBookmark, farBookmark); // Add the icons to the library
 
 export default {
-    name: 'HomePage',
     components: {
         FontAwesomeIcon,
         PopularEvents,
@@ -211,12 +210,12 @@ export default {
             // Fetch events only after the user state has been set
             if (this.userID) {
                 this.events = await eventService.displayEvents();
-                console.log(this.events);
+                console.log("events: ",this.events);
                 this.wishlists = await itineraryService.getUserWishlist(this.userID); // Fetch wishlists if userID exists
             } else {
                 // If userID is not available yet, you might want to fetch events without wishlists
                 this.events = await eventService.displayEvents();
-                console.log(this.events);
+                console.log("Events, without userID: ",this.events);
             }
         } catch (error) {
             console.error('Failed to fetch events or wishlists:', error);
