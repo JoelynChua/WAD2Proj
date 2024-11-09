@@ -5,6 +5,7 @@ require("dotenv").config();
 //Therefore eventObjectsArray is use to story the events array in displayEvents then searchEvents will check if the event is included before returning
 // Declare a global array to store all the event objects
 let eventObjectsArray = [];
+let attractionObjectsArray = [];
 
 async function displayEvents(req, res) {
     const apiKey = process.env.ticketMasterAPI;
@@ -91,6 +92,35 @@ async function searchEventsByName(req, res) {
     }
 }
 
+async function searchAttractionsByName(req, res) {
+    const apiKey = process.env.ticketMasterAPI;
+    const attractionName = req.params.attractionName; // Extract eventName from request parameters
+
+    if (!attractionName) {
+        return res.status(400).send('Attraction name is required');
+    }
+
+    try {
+        console.log(attractionName, "ATTRACTIONNAME BACK");
+        // Fetch the specific events by keyword
+        const attractionResponse = await axios.get(`https://app.ticketmaster.com/discovery/v2/suggest?keyword=${attractionName}&countryCode=US&apikey=${apiKey}`);
+
+        // Log the event details
+        console.log(attractionResponse.data); // Log the event details
+
+        // Filter the events to include only those present in the global eventObjectsArray
+        const filteredAttractions = attractionResponse.data._embedded.attractions.filter(event =>
+            attractionObjectsArray.some(globalEvent => globalEvent.id === event.id)
+        );
+
+        // Send the filtered events as a response
+        res.json(filteredAttractions);
+    } catch (error) {
+        console.error('Error fetching attraction:', error);
+        res.status(500).send('Failed to search attraction');
+    }
+}
+
 
 
 
@@ -106,10 +136,12 @@ async function displayAttractions(req, res) {
         let attractions = attractionResponse.data._embedded.attractions
         console.log(attractions); //display the array of events
 
+        attractionObjectsArray = []
         for (i in attractions) {
             let attractionObject = attractions[i];
             let attractiontName = attractionObject.name;
             //console.log(attractiontName);
+            attractionObjectsArray.push(attractionObject)
         }
 
         // Send the fetched events as a response
@@ -214,5 +246,5 @@ async function getEventByIdItinerary(req, res) {
 
 module.exports = {
     displayEvents, displayAttractions, getEventById, getAttractionsById,
-    getAttractionByIdItinerary, getEventByIdItinerary, searchEventsByName
+    getAttractionByIdItinerary, getEventByIdItinerary, searchEventsByName, searchAttractionsByName
 };  // Ensure that you are exporting it this way

@@ -26,7 +26,6 @@ async function searchEventName(eventName) {
         throw error;
     }
 }
-
 async function goToEventDetails(eventId) {
     try {
         const res = await axiosInstance.get(`${finalURL}/api/eventDetails/${eventId}`);

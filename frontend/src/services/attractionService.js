@@ -16,6 +16,17 @@ async function displayAttractions() {
     }
 }
 
+async function searchAttractionName(AttractionName) {
+    try {
+        const res = await axiosInstance.get(`${finalURL}/api/displayAttractions/${AttractionName}`);
+        console.log(res)
+        // Return the list of events
+        return res.data;
+    } catch (error) {
+        console.error("Error fetching Attractions:", error);
+        throw error;
+    }
+}
 
 async function goToAttractionDetails(attractionId) {
     try {
@@ -30,5 +41,6 @@ async function goToAttractionDetails(attractionId) {
 
 export default {
     displayAttractions,
-    goToAttractionDetails
+    goToAttractionDetails,
+    searchAttractionName
 };
