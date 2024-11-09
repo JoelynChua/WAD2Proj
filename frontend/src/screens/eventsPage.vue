@@ -28,7 +28,7 @@
         <!-- Events filter -->
         <div v-if="userID" class="filter-container">
             <h1>Upcoming Events</h1>
-            <div class="dropdown-container">
+            <div class="dropdown-container" v-if="isCustomer">
                 <i class="fi fi-rr-angle-small-down dropdown-icon"></i>
                 <select id="event-filter" class="custom-dropdown" v-model="selectedFilter">
                     <option value="all">All Events</option>
@@ -99,12 +99,12 @@
                         <img v-else :src="event.images[0].url" alt="Event image" class="ticketmaster-image" />
 
                         <!-- Bookmark Icon -->
-                        <div class="icon-container" v-if="!isBookmarked(event.id)">
+                        <div class="icon-container" v-if="!isBookmarked(event.id) && isCustomer">
                             <font-awesome-icon v-if="userID"
                                 :icon="isBookmarked(event.id) ? ['fas', 'bookmark'] : ['far', 'bookmark']"
                                 class="bookmark-icon" @click.stop="toggleWishlist(event.id)" />
                         </div>
-                        <div class="fixed-icon-container" v-else>
+                        <div class="fixed-icon-container" v-if="isBookmarked(event.id) && isCustomer">
                             <font-awesome-icon v-if="userID"
                                 :icon="isBookmarked(event.id) ? ['fas', 'bookmark'] : ['far', 'bookmark']"
                                 class="bookmark-icon" @click.stop="toggleWishlist(event.id)" />
@@ -142,6 +142,8 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { faBookmark } from '@fortawesome/free-solid-svg-icons';
 import { faBookmark as farBookmark } from '@fortawesome/free-regular-svg-icons';
 import { getAuth } from 'firebase/auth';
+import { ref as dbRef, getDatabase, get } from 'firebase/database';
+
 // import axios from 'axios';
 
 
@@ -167,6 +169,8 @@ export default {
             pop_events: [],
             filteredTicketmasterEvents: [], // New property to store filtered Ticketmaster events
             filteredOrganiserEvents: [], // New property to store filtered organizer events
+            isCustomer: false,
+
 
         };
     },
@@ -180,8 +184,17 @@ export default {
                 organiserEventService.getAllEvents()
             ]);
 
+            const today = new Date();
+            today.setHours(0, 0, 0, 0); // Set to midnight for accurate comparison
+
+            // Filter out organiserEvents that are in the past
+            this.organiserEvents = organiserEvents.filter(event => {
+                const eventDate = new Date(event.start);
+                eventDate.setHours(0, 0, 0, 0); // Set to midnight for comparison
+                return eventDate >= today; // Only keep events that are today or in the future
+            });
+
             this.events = ticketmasterEvents;
-            this.organiserEvents = organiserEvents;
 
             // Create the master date-sorted list
             this.eventDateMap = [
@@ -292,8 +305,19 @@ export default {
             // Listen to the authentication state
             auth.onAuthStateChanged(async (user) => {
                 if (user) {
-                    // User is signed in
-                    this.userID = user.uid; // Get the user ID
+
+                    const db = getDatabase();
+                    const userRef = dbRef(db, `users/${user.uid}`);
+                    try {
+                        const snapshot = await get(userRef);
+                        if (snapshot.exists()) {
+                            this.isCustomer = snapshot.val().userType === 'customer';
+                        }
+                    } catch (error) {
+                        console.error("Error checking user type:", error);
+                    }
+
+                    this.userID = user.uid; 
                     try {
                         await this.reloadWishlists();
 

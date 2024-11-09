@@ -6,14 +6,16 @@
         </div>
         <div v-else>
             <!-- Custom event image handling -->
-            <div v-if="isOrganiserEvent" 
-                            class="custom-event-image" 
-                            :style="{ backgroundColor: eventDetails.colour || '#1a1a40' }">
-                            <img src="../assets/logo.png" alt="Event logo" class="event-logo" />
+            <div v-if="isOrganiserEvent" class="row event-hero-wrapper">
+                            <div class="col-2"></div>
+                            <div class="col-8" :style="{ backgroundColor: eventDetails.colour || '#1a1a40', borderRadius: '20px'}">
+                                <img src="../assets/logo.png" alt="Event logo" class="event-hero-custom-image" />
+                            </div>
+                            <div class="col-2"></div>
                         </div>
-            <div v-else class="row event-hero-wrapper v-else">
+            <div v-else class="row event-hero-wrapper">
                     <div class="col-2"></div>
-                    <div class="col-8 ">
+                    <div class="col-8">
                         <!-- Ticketmaster event image -->
                         <img 
                             :src="eventDetails.images?.[0]?.url" 
@@ -22,9 +24,8 @@
                     </div>
                     <div class="col-2"></div>
             </div>
-             <!-- Organiser Event specific details -->
-             <div v-if="isOrganiserEvent">
-                <!-- Common details -->
+             <!-- Organiser Event specific details  -->
+            <!-- <div v-if="isOrganiserEvent">
                 <h1>{{ isOrganiserEvent ? eventDetails.title : eventDetails.name }}</h1>
                 <p>Type: {{ isOrganiserEvent ? 'Organiser Event' : eventDetails.type }}</p>
                 <p>Date: {{ formatDate(eventDetails.start) }}</p>
@@ -32,25 +33,26 @@
                 <p v-if="eventDetails.description">Description: {{ eventDetails.description }}</p>
                 <p v-if="eventDetails.location">Location: {{ eventDetails.location }}</p>
                 <p v-if="eventDetails.price">Price: ${{ eventDetails.price }}</p>
-            </div>
-            <div class="event-details" v-else>
+            </div> -->
+            <div class="event-details" >
                 <div class="row mt-5">
                     <div class="col-2"></div>
                     <div class="col-6">
                         <div class="text-start">
                             <div class="event-date">
-                                {{ eventDate }}
+                                {{ isOrganiserEvent ? formatDateWithoutYear(eventDetails.start) : eventDate }}
                             </div>
                             <div class="event-title">
-                                {{ eventDetails.name }}
+                                {{ isOrganiserEvent ? eventDetails.title : eventDetails.name }}
                             </div>
                             <div class="event-container">
                                 <div class="event-header">Date and Time</div>
                                 <i class="fi fi-rr-calendar-day" style="margin: 0px 8px;"></i>
-                                <span> {{ eventDetails.dates.start.localDate }} {{ eventDetails.dates.start.localTime.slice(0,5) }} {{ eventDetails.dates.timezone }}</span>
+                                <span v-if="!isOrganiserEvent"> {{ eventDetails.dates.start.localDate }}, {{ eventDetails.dates.start.localTime.slice(0,5) }} {{ eventDetails.dates.timezone }}</span>
+                                <span v-else>{{ formatDate(eventDetails.start) }}, {{ formatTime(eventDetails.start) }} SGT</span>
                             </div>
 
-                            <div class="event-container">
+                            <div class="event-container" v-if="!isOrganiserEvent">
                                 <div class="event-header">Location</div>
                                 <i class="fi fi-rs-marker" style="margin: 0px 8px;"></i>
                                 <span> {{ eventDetails._embedded.venues[0].name }}</span>
@@ -64,20 +66,26 @@
 
                             </div>
                             <div class="event-container">
-                                <div class="event-header">Price Range</div>
+                                <div class="event-header" v-if="!isOrganiserEvent">Price Range</div>
+                                <div class="event-header" v-else>Price</div>
                                 <i class="fi fi-rr-dollar" style="margin: 0px 8px;"></i>
-                                <span>
+                                <span v-if="!isOrganiserEvent">
                                     {{ eventDetails.priceRanges[0].min }}{{ eventDetails.priceRanges[0].currency}} 
                                     - 
                                     {{ eventDetails.priceRanges[0].max }}{{ eventDetails.priceRanges[0].currency }}
                                 </span>
+                                <span v-else>
+                                    {{ eventDetails.price }}SGD
+                                </span>
                             </div>
 
-                            <div class="event-container">
+                            <div class="event-container" v-if="!isOrganiserEvent">
                                 <div class="event-header">Ticket Sales</div>
-                                <div class="d-inline-block"> {{ formatDateTime(eventDetails.sales.public.startDateTime) }} </div>
-                                <div class="d-inline-block">&nbsp;&nbsp; - &nbsp;&nbsp; </div>
-                                <div class="d-inline-block"> {{ formatDateTime(eventDetails.sales.public.endDateTime) }} </div> 
+                                <div style="margin: 0px 8px;">
+                                    <div class="d-inline-block"> {{ formatDateTime(eventDetails.sales.public.startDateTime) }} </div>
+                                    <div class="d-inline-block">&nbsp;&nbsp; - &nbsp;&nbsp; </div>
+                                    <div class="d-inline-block"> {{ formatDateTime(eventDetails.sales.public.endDateTime) }} </div> 
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -312,9 +320,11 @@ export default {
         },
             
         formatDate(dateString) {
+            return dateString.split('T')[0];
+        },
+        formatDateWithoutYear(dateString) {
             return new Date(dateString).toLocaleDateString('en-US', {
                 weekday: 'long',
-                year: 'numeric',
                 month: 'long',
                 day: 'numeric'
             });
@@ -399,6 +409,15 @@ export default {
   border-radius: 8px;
   object-position: center;
 }
+
+.event-hero-custom-image {
+    width: 50%;
+    max-height: 450px;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 8px;
+    object-position: center;
+}
 .event-container {
     margin: 80px 0px;
 }
@@ -458,7 +477,7 @@ export default {
 
 .bookmark-icon:hover {
     color: #e74c3c;
-    
+    cursor: pointer;
 }
 
 </style>

@@ -29,7 +29,7 @@
          <!-- Events filter -->
          <div v-if="userID" class="filter-container">
             <h1>Upcoming Attractions</h1>
-            <div class="dropdown-container">
+            <div class="dropdown-container" v-if="isCustomer">
                 <i class="fi fi-rr-angle-small-down dropdown-icon"></i>
                 <select id="event-filter" class="custom-dropdown" v-model="selectedFilter">
                     <option value="all">All Attractions</option>
@@ -83,12 +83,12 @@
                         <img :src="attraction.images[0].url" alt="Attraction image" class="ticketmaster-image" />
                         
                         <!-- Bookmark Icon -->
-                        <div class="icon-container" v-if="!isBookmarked(attraction.id)">
+                        <div class="icon-container" v-if="!isBookmarked(attraction.id) && isCustomer">
                             <font-awesome-icon v-if="userID"
                                 :icon="isBookmarked(attraction.id) ? ['fas', 'bookmark'] : ['far', 'bookmark']"
                                 class="bookmark-icon" @click.stop="toggleWishlist(attraction.id)" />
                         </div>
-                        <div class="fixed-icon-container" v-else>
+                        <div class="fixed-icon-container" v-if="isBookmarked(attraction.id) && isCustomer">
                             <font-awesome-icon v-if="userID"
                                 :icon="isBookmarked(attraction.id) ? ['fas', 'bookmark'] : ['far', 'bookmark']"
                                 class="bookmark-icon" @click.stop="toggleWishlist(attraction.id)" />
@@ -115,6 +115,8 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { faBookmark } from '@fortawesome/free-solid-svg-icons';
 import { faBookmark as farBookmark } from '@fortawesome/free-regular-svg-icons';
 import { getAuth } from 'firebase/auth';
+import { ref as dbRef, getDatabase, get } from 'firebase/database';
+
 
 import PopularEvents from '../components/PopularEvents.vue';
 
@@ -138,6 +140,8 @@ export default {
             showSearchBar: false,
             selectedFilter: 'all',
             searchQuery: '',
+            isCustomer: false,
+
 
         };
     },
@@ -199,6 +203,17 @@ export default {
             const auth = getAuth();
             auth.onAuthStateChanged(async (user) => {
                 if (user) {
+                    const db = getDatabase();
+                    const userRef = dbRef(db, `users/${user.uid}`);
+                    try {
+                        const snapshot = await get(userRef);
+                        if (snapshot.exists()) {
+                            this.isCustomer = snapshot.val().userType === 'customer';
+                        }
+                    } catch (error) {
+                        console.error("Error checking user type:", error);
+                    }
+                    
                     this.userID = user.uid;
                     try {
                         await this.reloadWishlists();

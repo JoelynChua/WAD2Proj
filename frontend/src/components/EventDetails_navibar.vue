@@ -2,7 +2,7 @@
     <div class="navbar">
         <div class="navbar-item back" @click='goToEventsPage'>Back</div>
         <div class="navbar-item" data-bs-toggle="modal"
-        data-bs-target="#staticBackdrop">Seatmap</div>
+        data-bs-target="#staticBackdrop" v-if="!isOrganiserEvent">Seatmap</div>
         <div class="navbar-item" @click="showModal = true">Share Event</div>
         <div class="navbar-item special" @click='openTickets'>Get Tickets</div>
     </div>
@@ -20,7 +20,7 @@
             <input
               type="text"
               id="eventUrl"
-              :value="event.url"
+              :value="event.url||currentUrl"
               readonly
               ref="urlInput"
             />
@@ -84,8 +84,12 @@ export default {
             copySuccess: false,
             showTicketPopup: false,
             ticketPopupMessage: '',
-            ticketPopupTitle: ''
+            ticketPopupTitle: '',
+            currentUrl: '',
         }
+    },
+    created() {
+        this.currentUrl = window.location.href; // Set the current URL when the component is created
     },
     computed: {
         eventPrice() {
