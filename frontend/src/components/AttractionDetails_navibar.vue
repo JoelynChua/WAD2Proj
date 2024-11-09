@@ -1,8 +1,6 @@
 <template>
     <div class="navbar">
         <div class="navbar-item back" @click='goToEventsPage'>Back</div>
-        <div class="navbar-item" data-bs-toggle="modal"
-        data-bs-target="#staticBackdrop">Seatmap</div>
         <div class="navbar-item" @click="showModal = true">Share Event</div>
         <div class="navbar-item special" @click='openTickets'>Get Tickets</div>
     </div>
@@ -51,33 +49,18 @@
             </div>
         </div>
     </div>
-    <TicketPopup 
-    :show="showTicketPopup"
-    :title="ticketPopupTitle"
-    :message="ticketPopupMessage"
-    @close="showTicketPopup = false"
-    />
 </template>
 
 <script>
 
 import { Modal } from "bootstrap";
-import { getAuth } from 'firebase/auth';
-import { ref, getDatabase, update, get } from 'firebase/database';
-import TicketPopup from './EventDetails_ticketpopup.vue';
 
 export default {
-    name: 'EventNavibar',
+    name: 'AttrationNavibar',
     props: {
         event: Object,
-        isOrganiserEvent: {
-            type: Boolean,
-            required: true
-        }
     },
-    components: {
-    TicketPopup
-    },
+
     data () {
         return {
             showModal: false,
@@ -101,80 +84,7 @@ export default {
     },
     methods: {
         async openTickets() {
-            console.log(this.isOrganiserEvent);
-            console.log(this.event);
-            if (this.isOrganiserEvent) {
-                const auth = getAuth();
-                const user = auth.currentUser;
-                
-                if (!user) {
-                    this.ticketPopupTitle = 'Login Required';
-                    this.ticketPopupMessage = 'Please log in to register for this event';
-                    this.showTicketPopup = true;
-                    return;
-                }
-
-                this.isLoading = true;
-                const db = getDatabase();
-                const eventRef = ref(db, `events/${this.event.id}`);
-                
-                try {
-                    const eventSnapshot = await get(eventRef);
-                    const eventData = eventSnapshot.val();
-                    
-                    if (eventData.signups && eventData.signups[user.uid]) {
-                        this.ticketPopupTitle = 'Already Registered';
-                        this.ticketPopupMessage = 'You are already registered for this event';
-                        this.showTicketPopup = true;
-                        return;
-                    }
-
-                    // Check existing bookings
-                    const userRef = ref(db, `users/${user.uid}/bookings`);
-                    const bookingsSnapshot = await get(userRef);
-                    let nextBookingNumber = 1;
-                    
-                    if (bookingsSnapshot.exists()) {
-                        // Get the number of existing bookings
-                        const existingBookings = bookingsSnapshot.val();
-                        nextBookingNumber = Object.keys(existingBookings).length + 1;
-                    }
-
-                    // Create booking object
-                    const booking = {
-                        eventId: this.event.id || '',
-                        title: this.event.title || 'Untitled Event',
-                        date: this.formatDate(this.event.start) || 'TBD',  
-                        time: this.formatTime(this.event.start) || 'TBD',  
-                        price: this.event.price ? `$${this.event.price}` : 'Free'  
-                    };
-
-                    // Create updates object
-                    const updates = {};
-                    
-                    // Add event signup
-                    updates[`events/${this.event.id}/signups/${user.uid}`] = true;
-                    
-                    // Add booking to user's bookings with next number
-                    updates[`users/${user.uid}/bookings/${nextBookingNumber}`] = booking;
-
-                    // Update database
-                    await update(ref(db), updates);
-
-                    this.ticketPopupTitle = 'Success';
-                    this.ticketPopupMessage = 'Successfully registered for the event!';
-                    this.showTicketPopup = true;
-                } catch (error) {
-                    console.error('Error registering:', error);
-                    this.ticketPopupTitle = 'Error';
-                    this.ticketPopupMessage = 'Failed to register for the event';
-                    this.showTicketPopup = true;
-                } finally {
-                    this.isLoading = false;
-                }
-            } else {
-                window.open(this.event.url, '_blank');
-            }
+            window.open(this.event.url, '_blank');  
         },
         goToEventsPage() {
             this.$router.back();
@@ -306,11 +216,11 @@ export default {
     }
 
     .back{
-        font-weight: bold;
-        color: #fff;
-        background-color: #000; 
-        padding: 8px 16px; 
-        margin-right: 0px;
+    font-weight: bold;
+    color: #fff;
+    background-color: #000; 
+    padding: 8px 16px; 
+    margin-right: 0px;
     }
 
     .navbar-item {
