@@ -25,9 +25,10 @@
                             {{ attractionDetails.name }}
                         </div>
                         <div class="event-container">
-                            <div class="event-header">Genre</div>
-                            {{ attractionDetails.classifications?.[0]?.segment.name }}, 
-                            {{ attractionDetails.classifications?.[0]?.genre.name }} ({{ attractionDetails.classifications?.[0]?.subGenre.name }})
+                            <div class="event-header" >Genre</div>
+                            <div style="margin: 0px 8px;">{{ attractionDetails.classifications?.[0]?.segment.name }}, 
+                                {{ attractionDetails.classifications?.[0]?.genre.name }} ({{ attractionDetails.classifications?.[0]?.subGenre.name }})
+                            </div>
                         </div>
 
                         <div class="event-container" v-if="attractionDetails.externalLinks?.homepage?.[0]?.url?.length">
@@ -37,7 +38,11 @@
                         </div>
                         <div class="event-container">
                             <div class="event-header">Socials</div>
-                            <div>
+                            <div v-if="attractionDetails.externalLinks && (
+                                attractionDetails.externalLinks.facebook?.length || 
+                                attractionDetails.externalLinks.instagram?.length || 
+                                attractionDetails.externalLinks.twitter?.length || 
+                                attractionDetails.externalLinks.youtube?.length)">
                                 <a v-if="attractionDetails.externalLinks?.facebook?.length"
                                     :href="attractionDetails.externalLinks.facebook[0].url" target="_blank"
                                     rel="noopener noreferrer">
@@ -67,6 +72,7 @@
                                         style="margin: 10px; color: #FF0000;" />
                                 </a>
                             </div>
+                            <div v-else style="margin: 0px 8px;">No Socials Found</div>
                         </div>
                     </div>
                     <div class="col-2" v-if="isCustomer">
@@ -79,6 +85,11 @@
                 </div>
             </div>
             <AttractionNaviBar v-if="isCustomer" :event="attractionDetails"></AttractionNaviBar>
+            <div v-else style="width: fit-content; margin-left: 17%;">
+                <div class="btn " @click="goToEventsPage" style="margin: auto;color: #fff; background-color: #000; padding: 10px 15px">
+                    Back
+                </div>
+            </div>
         </div>
     </div>
 </template>
@@ -210,6 +221,9 @@ export default {
             finally {
                 this.loading = false;
             }
+        },
+        goToEventsPage() {
+            this.$router.back();
         },
     },
 };
@@ -353,5 +367,15 @@ export default {
 .get-tickets-btn:hover {
     background-color: #f5a358;
     transform: scale(1.10);
+}
+
+.bookmark-icon {
+    opacity: 1;
+    transition: color 0.3 ease;
+}
+
+.bookmark-icon:hover {
+    color: #e74c3c;
+    cursor: pointer;
 }
 </style>
