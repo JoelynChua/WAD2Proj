@@ -1,49 +1,58 @@
 <template>
   <div class="container-fluid organizer-dashboard">
+    <div v-if="organizerEvents.length > 0">
+
     <div class="text-start p-2">
       <h2><b>Organiser Dashboard</b></h2>
     </div>
-    <div class="smallBrowser">
-      Please expand your browser to view detailed analysis
+      <div class="smallBrowser">
+        Please expand your browser to view detailed analysis
+      </div>
+
+      <!-- Charts Section with Borders and Margins -->
+      <div class="row justify-content-center graph">
+        <div class="col-12 col-md-6 col-lg-5 component-box">
+          <canvas id="attendeePieChart"></canvas>
+        </div>
+        <div class="col-12 col-md-6 col-lg-5 component-box">
+          <canvas id="attendeeBarChart"></canvas>
+        </div>
+
+        <!-- Revenue Chart Section -->
+        <div class="col-12 col-md-6 col-lg-5 component-box">
+          <canvas id="revenueBarChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Signups Table Section -->
+      <div class="signups-table component-box m-0 mt-3">
+        <h2>Event Signups</h2>
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Event Title</th>
+              <th>Signups</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="event in organizerEvents" :key="event.id">
+              <td>{{ event.title }}</td>
+              <td>
+                <!-- Button to navigate to Event Statistics page -->
+                <button class="btn btn-primary" @click="viewEventStatistics(event.eventId)">
+                  View Info
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
-
-    <!-- Charts Section with Borders and Margins -->
-    <div class="row justify-content-center graph">
-      <div class="col-12 col-md-6 col-lg-5 component-box">
-        <canvas id="attendeePieChart"></canvas>
-      </div>
-      <div class="col-12 col-md-6 col-lg-5 component-box">
-        <canvas id="attendeeBarChart"></canvas>
-      </div>
-
-      <!-- Revenue Chart Section -->
-      <div class="col-12 col-md-6 col-lg-5 component-box">
-        <canvas id="revenueBarChart"></canvas>
-      </div>
+    <div v-else>
+      <div class="text-center p-2">
+      <h2><b>Organiser Dashboard</b></h2>
     </div>
-
-    <!-- Signups Table Section -->
-    <div class="signups-table component-box m-0 mt-3">
-      <h2>Event Signups</h2>
-      <table class="table">
-        <thead>
-          <tr>
-            <th>Event Title</th>
-            <th>Signups</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="event in organizerEvents" :key="event.id">
-            <td>{{ event.title }}</td>
-            <td>
-              <!-- Button to navigate to Event Statistics page -->
-              <button class="btn btn-primary" @click="viewEventStatistics(event.eventId)">
-                View Info
-              </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+      Please create some events before returning to this page.
     </div>
   </div>
 </template>

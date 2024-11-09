@@ -13,16 +13,21 @@
           <th>Name</th>
           <th>Email</th>
           <th>Contact</th>
-          <th>Age</th> <!-- Changed to display Age -->
+          <th>Age</th>
         </tr>
       </thead>
-      <tbody>
+      <tbody v-if="signupsDetails.length > 0">
         <tr v-for="(signup, index) in signupsDetails" :key="signup.uid">
           <td>{{ index + 1 }}</td>
           <td>{{ signup.displayName }}</td>
           <td>{{ signup.email }}</td>
           <td>{{ signup.contact }}</td>
-          <td>{{ signup.age }}</td> <!-- Display age instead of date of birth -->
+          <td>{{ signup.age }}</td>
+        </tr>
+      </tbody>
+      <tbody v-else>
+        <tr>
+          <td colspan="5" class="text-center">No one has signed up yet</td>
         </tr>
       </tbody>
     </table>
@@ -33,8 +38,7 @@
 <script>
 import { ref, onMounted } from 'vue';
 import { ref as firebaseRef, get } from 'firebase/database';
-import { database } from '../firebase/firebaseClientConfig';  // Adjust path as necessary
-
+import { database } from '../firebase/firebaseClientConfig';
 export default {
   props: {
     eventId: {
@@ -50,7 +54,6 @@ export default {
     const eventSignups = ref([]);
     const signupsDetails = ref([]);
 
-    // Helper function to calculate age from date of birth
     const calculateAge = (dateOfBirth) => {
       const birthDate = new Date(dateOfBirth);
       const today = new Date();
@@ -58,7 +61,7 @@ export default {
       const month = today.getMonth();
       const day = today.getDate();
       if (month < birthDate.getMonth() || (month === birthDate.getMonth() && day < birthDate.getDate())) {
-        age--; // Subtract one year if the birthday hasn't occurred yet this year
+        age--;
       }
       return age;
     };
@@ -71,9 +74,9 @@ export default {
       if (snapshot.exists()) {
         const eventData = snapshot.val();
         eventTitle.value = eventData.title;
-        eventDescription.value = eventData.description || 'N/A'; // Display description
-        eventStartTime.value = new Date(eventData.start).toLocaleString() || 'N/A'; // Format start time
-        eventPrice.value = eventData.price || 0; // Display price
+        eventDescription.value = eventData.description || 'N/A';
+        eventStartTime.value = new Date(eventData.start).toLocaleString() || 'N/A'
+        eventPrice.value = eventData.price || 0;
 
         eventSignups.value = Object.keys(eventData.signups || {});
 
@@ -84,7 +87,7 @@ export default {
 
           if (userSnapshot.exists()) {
             const userData = userSnapshot.val();
-            const age = userData.dateOfBirth ? calculateAge(userData.dateOfBirth) : 'N/A'; // Calculate age
+            const age = userData.dateOfBirth ? calculateAge(userData.dateOfBirth) : 'N/A';
 
             signupsDetails.value.push({
               uid,

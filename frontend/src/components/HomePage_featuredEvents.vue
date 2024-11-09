@@ -3,16 +3,18 @@
   <h5 class="fe-secondary">SINGAPORE</h5>
   <div class="pop-events">
     <div id="carouselController" class="text-end">
-  <i @click="prev" :class="['fi', 'fi-rr-angle-circle-left', 'h1', 'me-1', { 'active': isPrevActive }]" @mouseenter="isPrevActive = true" @mouseleave="isPrevActive = false"></i>
-  <i @click="next" :class="['fi', 'fi-rr-angle-circle-right', 'h1', { 'active': isNextActive }]" @mouseenter="isNextActive = true" @mouseleave="isNextActive = false"></i>
-</div>
+      <i @click="prev" :class="['fi', 'fi-rr-angle-circle-left', 'h1', 'me-1', { 'active': isPrevActive }]"
+        @mouseenter="isPrevActive = true" @mouseleave="isPrevActive = false"></i>
+      <i @click="next" :class="['fi', 'fi-rr-angle-circle-right', 'h1', { 'active': isNextActive }]"
+        @mouseenter="isNextActive = true" @mouseleave="isNextActive = false"></i>
+    </div>
 
     <swiper :slidesPerView="4" :spaceBetween="100" :grabCursor="true" :pagination="{
       clickable: true,
     }" :modules="modules" :breakpoints="{
       0: {
         slidesPerView: 1,
-      },      
+      },
       440: {
         slidesPerView: 2,
         spaceBetween: 10
@@ -25,15 +27,13 @@
         slidesPerView: 4,
         spaceBetween: 50
       }
-    }" class="mySwiper"
-      @swiper="setSwiperInstance"
-      >
+    }" class="mySwiper" @swiper="setSwiperInstance">
       <swiper-slide v-for="event in events" :key="event.id" class="event-box" @click="goToEventDetails(event.id)"
         style="cursor: pointer; position: relative">
         <!-- Event Image Placeholder -->
         <div class="event-image-container" @click="navigateToLink(event.link)">
           <img :src="event.image || 'https://via.placeholder.com/300x200?text=Event+Image'" alt="Event image"
-            class="event-image" />
+            class="event-image"/>
         </div>
 
         <div class="event-details" @click="navigateToLink(event.link)">
@@ -45,7 +45,8 @@
 
           <div style="font-weight: 400; font-size: 14px;">{{ event.location }}</div>
           <div class="mt-4">{{ event.price }}</div>
-          <div class="mt-3" style="font-size: 14px;"><i class="fi fi-rs-following"></i> {{ event.followers }} followers</div>
+          <div class="mt-3" style="font-size: 14px;"><i class="fi fi-rs-following"></i> {{ event.followers }} followers
+          </div>
 
         </div>
 
@@ -113,11 +114,11 @@ export default {
         {
           image: require('@/assets/featuredEvents/6.jpg'),
           date: '18 January 2025, TBC',
-          name: 'BEAUTY AND THE BEAST IN CONCERT [G]',
+          name: 'Beauty and the Beast in Concert [G]',
           location: 'Esplanade Theatre',
           price: 'From S$38',
           followers: '2112',
-          link : 'https://www.sistic.com.sg/events/beauty0125'
+          link: 'https://www.sistic.com.sg/events/beauty0125'
         },
         {
           image: require('@/assets/featuredEvents/7.jpg'),
@@ -160,10 +161,10 @@ export default {
   },
   methods: {
     navigateToLink(link) {
-            if (link) {
-                window.location.href = link; // Navigates to the link directly
-            }
-        },
+      if (link) {
+        window.location.href = link; // Navigates to the link directly
+      }
+    },
     goToEventDetails(event) {
       this.$emit('popevent', event)
     },
@@ -284,6 +285,11 @@ export default {
   /* Increase the value to move it lower */
 }
 
+:deep(.swiper-wrapper) {
+    overflow: visible;
+    padding: 20px 0; /* Add padding to account for hover scale effect */
+}
+
 
 .swiper-slide img {
   display: block;
@@ -305,7 +311,7 @@ export default {
 }
 
 #carouselController {
-    margin-right: 15%;
+  margin-right: 15%;
 }
 
 i {
@@ -325,9 +331,9 @@ i:active {
   0% {
     transform: scale(1.1);
   }
+
   100% {
     transform: scale(1);
   }
 }
-
 </style>

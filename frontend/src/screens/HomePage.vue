@@ -140,7 +140,6 @@ export default {
 
 .slide-in {
   animation: slide-in 1s forwards;
-  /* Apply slide-in animation */
 }
 
 #aboutUs {
@@ -228,7 +227,6 @@ export default {
   overflow: hidden;
   height: 100vh;
   z-index: 1;
-  /* Ensure hero content appears above video */
 
 }
 
@@ -241,7 +239,6 @@ export default {
   height: 100%;
   object-fit: cover;
   z-index: -1;
-  /* Adjust opacity for readability */
 }
 
 .hero h2 {
