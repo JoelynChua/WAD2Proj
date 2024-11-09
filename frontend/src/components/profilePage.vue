@@ -3,11 +3,6 @@
         <div class="row h-100 justify-content-center">
             <div id="profilenav" class="col-12 col-md-3 col-lg-2 mt-3 ms-md-3 p-3 pe-lg-0">
                 <div class="p-2">
-                    <div>
-                        <img v-if="this.photoURL"
-                            src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Default_pfp.svg/510px-Default_pfp.svg.png"
-                            class="rounded-circle mt-3 mb-3" style="width: 100px; height: 100px; object-fit: cover;">
-                    </div>
 
                     <ul id="verticalnav" class="nav flex-column nav-pills mt-3" role="tablist">
                         <li class="nav-item">
