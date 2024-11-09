@@ -26,14 +26,15 @@
 
       <!-- Footer Links -->
       <ul class="footer-links">
-        <li><router-link to="/about-us">About Us</router-link></li>
-        <li><router-link to="/faq">FAQ</router-link></li>
-        <li><router-link to="/privacy-policy">Privacy Policy</router-link></li>
+        <li><a href="/about-us">About Us</a></li>
+        <li><a href="/faq">FAQ</a></li>
+        <li><a href="/privacy-policy">Privacy Policy</a></li>
       </ul>
 
       <!-- Copyright -->
       <p>&copy; 2024 Activity.ai. All Rights Reserved.</p>
       <p>API from ticketMaster developer</p>
+      <a href="https://www.flaticon.com/free-animated-icons/finger" title="finger animated icons">Finger animated icons created by Freepik - Flaticon</a>
     </div>
   </footer>
 </template>
@@ -51,8 +52,6 @@ export default {
   color: rgb(139, 5, 5);
   text-align: center;
   padding: 20px 0;
-  position: relative;
-  bottom: 0;
   width: 100%;
 
   /* shadow */

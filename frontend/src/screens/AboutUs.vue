@@ -15,10 +15,12 @@
     </div>
 
     <!-- Main Content -->
-    <div class="content container">
+    <div class="content container text-center">
       <h1 class="display-2 text-center my-5">About Us</h1>
 
-      <section id="who-are-we" class="mb-5">
+      <img src='../assets/logo.png'>
+
+      <section id="who-are-we" class="mb-5 mt-5">
         <div class="spacer" id="spacer-who-are-we"></div>
         <h2>Who Are We?</h2>
         <p>
@@ -193,6 +195,10 @@ export default {
 
   .toc.show {
     transform: translateY(0);
+  }
+
+  button {
+    display: none;
   }
 }
 

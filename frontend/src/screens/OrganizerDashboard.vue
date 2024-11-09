@@ -161,6 +161,7 @@ export default {
 <style scoped>
 .organizer-dashboard {
   padding: 20px;
+  width: 50%;
 }
 .component-box {
   border: 3px solid;

@@ -2,7 +2,7 @@
   <div class="calendar-container">
     
     <FullCalendar
-      ref="fullCalendar"
+      ref="calendarRef"
       :options="calendarOptions"
     />
     
@@ -61,7 +61,7 @@ export default {
     const newEvent = ref(null)
     const editingEvent = ref(null)
     const defaultColor = '#4339cf'
-    // const calendarRef = ref(null)
+    const calendarRef = ref(null)
 
     const {
       events,
@@ -92,6 +92,7 @@ export default {
       newEvent.value = {
         title: '',
         description: '',
+        price: '',
         start: formatDate(startStr),
         end: formatDate(endStr),
         startTime: selectInfo.allDay ? '' : selectInfo.startStr.split('T')[1]?.slice(0, 5) || '',
@@ -134,6 +135,7 @@ export default {
         editingEvent.value = {
             id: event.id,
             title: event.title,
+            price: event.extendedProps.price,
             description: event.extendedProps.description || '',
             start: formatDate(startDate),
             end: formatDate(endDate),
@@ -147,6 +149,13 @@ export default {
         // console.log('Formatted event:', editingEvent.value);
         
         showEventEditor.value = true
+    }
+
+    const refreshCalendar = () => {
+      if (calendarRef.value) {
+        const calendarApi = calendarRef.value.getApi()
+        calendarApi.refetchEvents()
+      }
     }
 
     function formatDate(date) {
@@ -180,16 +189,18 @@ export default {
         const updatedEvent = {
           id: event.id,
           title: event.title,
-          description: event.extendedProps?.description || '',
-          start: event.startStr, // Use startStr and endStr directly
+          price: event.extendedProps.price,  
+          description: event.extendedProps.description,
+          start: event.startStr,
           end: event.endStr,
           allDay: event.allDay,
-          colour: event.backgroundColor,
+          colour: event.backgroundColor || defaultColor,  
           organiserId: props.organiserId
         }
 
         console.log('Drop event data:', updatedEvent);
         await updateEvent(updatedEvent.id, updatedEvent)
+        refreshCalendar()  
       } catch (err) {
         dropInfo.revert()
         console.error('Error updating event:', err)
@@ -205,16 +216,18 @@ export default {
         const updatedEvent = {
           id: event.id,
           title: event.title,
-          description: event.extendedProps?.description || '',
-          start: event.startStr, // Use startStr and endStr directly
+          price: event.extendedProps.price,  // Fix: get price from extendedProps
+          description: event.extendedProps.description,
+          start: event.startStr,
           end: event.endStr,
           allDay: event.allDay,
-          colour: event.backgroundColor,
+          colour: event.backgroundColor || defaultColor,  // Use default color if not set
           organiserId: props.organiserId
         }
 
         console.log('Resize event data:', updatedEvent);
         await updateEvent(updatedEvent.id, updatedEvent)
+        refreshCalendar()  // Add this to ensure calendar updates
       } catch (err) {
         resizeInfo.revert()
         console.error('Error updating event after resize:', err)
@@ -250,6 +263,7 @@ export default {
             newEvent.value = {
               title: '',
               description: '',
+              price: '',
               start: formattedDate,
               end: formattedDate,
               startTime: '',
@@ -326,7 +340,12 @@ export default {
     // CRUD operations
     const handleCreateEvent = async (eventData) => {
       try {
-        await createEvent(eventData)
+        const createdEvent = await createEvent(eventData)
+        if (createdEvent) {
+          events.value = [...events.value, createdEvent]
+          refreshCalendar()
+          calendarRef.value.getApi().refetchEvents()
+        }
         closePopup()
       } catch (err) {
         console.error('Error creating event:', err)
@@ -335,11 +354,13 @@ export default {
 
     const handleUpdateEvent = async (eventData) => {
       try {
-        console.log('EventData being sent to update:', {
-          eventId: editingEvent.value.id,
-          eventData: eventData
-        });
-        await updateEvent(editingEvent.value.id, eventData)
+        const updatedEvent = await updateEvent(editingEvent.value.id, eventData)
+        if (updatedEvent) {
+          events.value = events.value.map(event => 
+            event.id === updatedEvent.id ? updatedEvent : event
+          )
+          refreshCalendar()
+        }
         closeEventEditor()
       } catch (err) {
         console.error('Error updating event:', err)
@@ -347,14 +368,12 @@ export default {
     }
 
     const handleDeleteEvent = async () => {
-      if (!editingEvent.value?.id) {
-        console.error('No event ID available for deletion')
-        return
-      }
+      if (!editingEvent.value?.id) return
       
       try {
-        console.log('Deleting event:' + editingEvent.value.id)
         await deleteEvent(editingEvent.value.id)
+        events.value = events.value.filter(event => event.id !== editingEvent.value.id)
+        refreshCalendar()
         closeEventEditor()
       } catch (err) {
         console.error('Error deleting event:', err)
@@ -382,6 +401,7 @@ export default {
     })
 
     return {
+      calendarRef,
       calendarOptions,
       showEventPopup,
       showEventEditor,
@@ -394,7 +414,7 @@ export default {
       handleDeleteEvent,
       handleEventResize,
       closePopup,
-      closeEventEditor
+      closeEventEditor,
     }
   }
 }

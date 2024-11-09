@@ -11,7 +11,7 @@
                             :style="{ backgroundColor: eventDetails.colour || '#1a1a40' }">
                             <img src="../assets/logo.png" alt="Event logo" class="event-logo" />
                         </div>
-            <div class="row event-hero-wrapper v-else">
+            <div v-else class="row event-hero-wrapper v-else">
                     <div class="col-2"></div>
                     <div class="col-8 ">
                         <!-- Ticketmaster event image -->
@@ -31,6 +31,7 @@
                 <p>Time: {{ formatTime(eventDetails.start) }}</p>
                 <p v-if="eventDetails.description">Description: {{ eventDetails.description }}</p>
                 <p v-if="eventDetails.location">Location: {{ eventDetails.location }}</p>
+                <p v-if="eventDetails.price">Price: ${{ eventDetails.price }}</p>
             </div>
             <div class="event-details" v-else>
                 <div class="row mt-5">
@@ -82,7 +83,7 @@
                     </div>
                 </div>
             </div>
-        <EventNaviBar :event="eventDetails" :isOrganiserEvent="isOrganiserEvent"></EventNaviBar>
+        <EventNaviBar v-if="isCustomer" :event="eventDetails" :isOrganiserEvent="isOrganiserEvent"></EventNaviBar>
     </div> 
 </div>     
 </template>
@@ -98,8 +99,8 @@ import 'bootstrap';
 import EventNaviBar from "../components/EventDetails_navibar.vue"
 import { Loader } from "@googlemaps/js-api-loader"
 import { getGoogleClientId } from '../services/getGoogleClientId'
-
-
+import { getAuth } from 'firebase/auth';
+import { ref as dbRef, getDatabase, get } from 'firebase/database';
 
 export default {
     data() {
@@ -108,7 +109,8 @@ export default {
             loading: true,
             isOrganiserEvent: false,
             map: null,
-            showMap: false
+            showMap: false,
+            isCustomer: false
         };
     },
     components: {
@@ -125,8 +127,10 @@ export default {
             return formattedDate
         },
         
+        
     },
     async created() {
+        await this.checkUserType();
         this.fetchEventDetails();
     },
     async mounted() {
@@ -136,7 +140,25 @@ export default {
             this.initializeMap(); // Initializes map with venue location data
         }
     },
+
     methods: {
+        async checkUserType() {
+            const auth = getAuth();
+            const user = auth.currentUser;
+            
+            if (user) {
+                const db = getDatabase();
+                const userRef = dbRef(db, `users/${user.uid}`);
+                try {
+                    const snapshot = await get(userRef);
+                    if (snapshot.exists()) {
+                        this.isCustomer = snapshot.val().userType === 'customer';
+                    }
+                } catch (error) {
+                    console.error("Error checking user type:", error);
+                }
+            }
+        },
         async loadGoogleMapsScript() {
             // Fetch API Key dynamically if required
             const data = await getGoogleClientId(); // Assuming this function returns an object with apiKey

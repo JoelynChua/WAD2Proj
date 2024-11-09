@@ -1,5 +1,5 @@
 <template>
-    <div class="container-fluid">
+    <div class="container-fluid" ref="containerFluid">
         <!-- PixiJS canvas -->
         <canvas ref="pixiCanvas"></canvas>
 
@@ -22,7 +22,7 @@
                         <form @submit.prevent="handleUpdate">
                             <div class="row">
                                 <div class="col-lg-4"></div>
-                                <div class="col-lg-8 d-flex justify-content-center" style="margin-top: 30px;">
+                                <div class="col-lg-6 d-flex justify-content-center" style="margin-top: 30px;">
                                     <div class="w-50">
                                         <input type="text" class="form-control text-center titleInput" id="title"
                                             v-model="itineraryDetails.title" required />
@@ -49,7 +49,7 @@
 
                             <!-- Table content -->
                             <div class="row">
-                                <div class="col-lg-3"></div>
+                                <div class="col-lg-4"></div>
                                 <div class="col-lg-8" v-if="itineraryDetails.events && itineraryDetails.events.length">
                                     <h3>Events</h3>
                                     <table class="table table-striped table-bordered">
@@ -59,20 +59,38 @@
                                                 <th>Event Name</th>
                                             </tr>
                                         </thead>
+
                                         <tbody @drop="onDrop($event, event)" @dragover="allowDrop">
                                             <tr v-for="event in sortedEvents" :key="event.eventID" :draggable="true"
                                                 @dragstart="onDragStart($event, event)" :data-event-id="event.eventID"
                                                 class="draggable-item">
                                                 <td>{{ event.time }}</td>
 
-                                                <template v-if="eventDetails[event.eventID]">
+                                                <!-- Shared Event Details Section -->
+                                                <template
+                                                    v-if="eventDetails[event.eventID] || organiserEventDetails[event.eventID]">
                                                     <td class="event-details-wrapper"
                                                         style="border: 1px solid #ccc; border-radius: 10px; padding: 10px; margin: 10px;">
                                                         <div>
-                                                            <strong>{{ eventDetails[event.eventID].name }}</strong><br>
-                                                            {{ eventDetails[event.eventID].type }}<br>
-                                                            Status: {{ eventDetails[event.eventID].dates.status.code ||
-                                                                'N/A' }}
+                                                            <!-- Common Title -->
+                                                            <strong>{{ eventDetails[event.eventID]?.name ||
+                                                                organiserEventDetails[event.eventID]?.title
+                                                                }}</strong><br>
+                                                            <!-- Common Type -->
+                                                            {{ eventDetails[event.eventID]?.type ||
+                                                                organiserEventDetails[event.eventID]?.type }}<br>
+
+                                                            <!-- Additional Data Based on Source -->
+                                                            <div v-if="eventDetails[event.eventID]">
+                                                                Status: {{
+                                                                    eventDetails[event.eventID].dates?.status?.code
+                                                                }}
+                                                            </div>
+                                                            <div v-else-if="organiserEventDetails[event.eventID]">
+                                                                Genre: {{ organiserEventDetails[event.eventID]?.genre ||
+                                                                    'N/A' }}
+                                                            </div>
+
                                                             <!-- Remove Icon at top-right -->
                                                             <font-awesome-icon :icon="['fas', 'minus']"
                                                                 @click="onRemoveEvent(event.eventID)"
@@ -81,15 +99,16 @@
                                                     </td>
                                                 </template>
 
+                                                <!-- Attraction Details Section -->
                                                 <template v-else-if="attractionDetails[event.eventID]">
                                                     <td class="attraction-details-wrapper"
                                                         style="border: 1px solid #ccc; border-radius: 10px; padding: 10px; margin: 10px;">
                                                         <div>
                                                             <strong>{{ attractionDetails[event.eventID].name
                                                                 }}</strong><br>
-                                                            {{ attractionDetails[event.eventID].type }}<br>
+                                                            {{ attractionDetails[event.eventID].type || 'N/A' }}<br>
                                                             Genre: {{
-                                                                attractionDetails[event.eventID].classifications[0]?.genre.name
+                                                                attractionDetails[event.eventID].classifications?.[0]?.genre?.name
                                                                 || 'N/A' }}
                                                             <!-- Remove Icon at top-right -->
                                                             <font-awesome-icon :icon="['fas', 'minus']"
@@ -99,6 +118,7 @@
                                                     </td>
                                                 </template>
 
+                                                <!-- Default Placeholder Section -->
                                                 <template v-else>
                                                     <td
                                                         style="border: 1px solid #ccc; border-radius: 10px; padding: 10px; margin: 10px;">
@@ -123,20 +143,23 @@
             <div class="sidebar-container">
                 <font-awesome-icon :icon="['fas', 'bars']" @click="toggleExpand" class="expand-icon"
                     :class="{ 'icon-expanded': isExpanded }" />
-                <div class="wishlist-sidebar" :class="{ expanded: isExpanded }">
+                <div ref="wishlistSidebar" class="wishlist-sidebar" :class="{ expanded: isExpanded }">
                     <h3 style="text-decoration: underline;">Wishlist</h3>
 
                     <ul v-if="wishlists.length">
                         <li v-for="wishlist in wishlists" :key="wishlist.id" :draggable="true"
                             @dragstart="onDragStart($event, wishlist)" class="draggable-item"
                             style="border: 1px solid; margin: 5px; border-radius: 5px; padding: 10px;">
-
+                            <!-- Wishlist Content Here -->
                             <template v-if="eventDetails[wishlist.eventID]">
-                                {{ eventDetails[wishlist.eventID].name }}
+                                <span>{{ eventDetails[wishlist.eventID].name || eventDetails[wishlist.eventID].title
+                                    }}</span>
                             </template>
+
                             <template v-else-if="attractionDetails[wishlist.attractionID]">
                                 {{ attractionDetails[wishlist.attractionID].name }}
                             </template>
+
                             <template v-else>
                                 No details available.
                             </template>
@@ -145,9 +168,6 @@
                     <p v-else>No items in wishlist.</p>
                 </div>
             </div>
-
-
-
 
         </div>
     </div>
@@ -158,8 +178,10 @@
 
 
 
+
 <script>
 import itineraryService from "../services/itineraryService"; // Update to your itinerary service
+import organiserEventService from "../services/organiserEventService";
 import eventService from "../services/eventService"; // Import event service
 import attractionService from "../services/attractionService"; // Import attraction service
 import { debounce } from "lodash";
@@ -189,14 +211,25 @@ export default {
                 budget: 0,  // Initialize budget to ensure reactivity
                 events: []
             }, // Initialize as an empty object
+
             eventDetails: {}, // To hold event details keyed by eventID
             attractionDetails: {}, // To hold attraction details keyed by eventID
+            organiserEventDetails: {},
+
             updateMessage: null, // Initialize the success message
             updateError: null,   // Initialize the error message
             wishlists: [], // Initialize wishlist as an empty array
             userID: null,
 
+            // For the wishlist side bar to be expandable
             isExpanded: false,
+
+            // Used for allowing scrolling when dragging
+            isDragging: false,
+            autoScrollSpeed: 5,
+            autoScrollInterval: null,
+            currentClientY: 0,
+
 
             app: null,
             circle: null
@@ -209,6 +242,29 @@ export default {
     mounted() {
         this.initializeTrail();
         this.authListener();
+
+
+        const sidebar = this.$refs.wishlistSidebar;
+        const eventsTable = this.$refs.eventsTable; // Add ref to events table in template
+
+        // Log references to ensure they're defined
+        console.log('Sidebar ref:', sidebar);
+        console.log('Events table ref:', eventsTable);
+
+        // Listen to dragover events on sidebar and events table separately
+        if (sidebar) {
+            sidebar.addEventListener('dragover', this.handleDragOverSidebar);
+            sidebar.addEventListener('dragend', this.onDragEnd);
+        } else {
+            console.error('wishlistSidebar reference is missing');
+        }
+
+        if (eventsTable) {
+            eventsTable.addEventListener('dragover', this.handleDragOverTable);
+        }
+        else {
+            console.error('eventsTable reference is missing');
+        }
     },
 
     computed: {
@@ -234,13 +290,19 @@ export default {
     },
     watch: {
         itineraryDetails: {
-            handler(newValue) {
+            handler(newValue, oldValue) {
+                // Handle the update logic here
                 this.handleUpdate(); // Automatically call handleUpdate on change
+
+                // Log new and old values to track changes
                 console.log('Itinerary details updated:', newValue);
+                console.log('Previous itinerary details:', oldValue);
             },
-            deep: true,
+            deep: true, // Watch nested properties within itineraryDetails
         },
     },
+
+
     methods: {
         authListener() {
             const auth = getAuth(); // Initialize Firebase auth here
@@ -249,13 +311,18 @@ export default {
                 if (user) {
                     // User is signed in
                     this.userID = user.uid; // Get the user ID
-                    console.log(this.userID, "AUTHLISTERNER")
+                    console.log(this.userID, "AUTHLISTENER");
+
                     try {
+                        // Fetch the wishlist after the user ID is available
+                        await this.fetchWishlist();
+
                         // Fetch itineraries using the UID
                         this.itineraries = await itineraryService.getItineraryByUserID(this.userID);
-                        console.log(this.itineraries);
-                        this.fetchWishlist();
-                        // await this.reloadWishlists(); // Reload wishlists after fetching itineraries
+                        console.log("ITINERARIES", this.itineraries);
+
+
+
                     } catch (error) {
                         console.error("Failed to fetch itineraries:", error);
                     }
@@ -268,9 +335,11 @@ export default {
             });
         },
 
+
         async fetchWishlist() {
-            console.log(this.userID, "FETCHWISHLIST")
-            // Directly use the uid from currentUser already set in authListener
+            console.log(this.userID, "FETCHWISHLIST");
+
+            // Ensure userID is available before proceeding
             if (!this.userID) {
                 console.error("User ID is not available. Make sure the user is authenticated.");
                 return; // Exit early if userID is not available
@@ -279,26 +348,52 @@ export default {
             console.log(this.userID, "WISHLISTID");
 
             try {
-                this.wishlists = await itineraryService.getUserWishlist(this.userID); // Fetch the wishlist
+                console.log("Entered fetchWishlist method");
+
+                // Fetch the wishlist
+                const wishlist = await itineraryService.getUserWishlist(this.userID);
+                this.wishlists = wishlist;
                 console.log("Fetched wishlist:", this.wishlists);
 
-                // Loop through the wishlist to fetch event or attraction details based on the eventID
+                // Loop through the wishlist to fetch event or attraction details
                 for (const wishlistItem of this.wishlists) {
+                    console.log("Processing wishlist item:", wishlistItem);
+                    // Check if the item has eventID
                     if (wishlistItem.eventID) {
                         try {
-                            const eventDetails = await eventService.goToEventDetails(wishlistItem.eventID);
-                            console.log("Wishlist Event Details:", eventDetails);
-                            this.eventDetails[wishlistItem.eventID] = eventDetails; // Store event details
+                            let eventDetails = null;
+
+                            // Attempt to fetch event details from event service
+                            try {
+                                eventDetails = await eventService.goToEventDetails(wishlistItem.eventID);
+                                console.log("Wishlist Event Details:", eventDetails);
+                                this.eventDetails[wishlistItem.eventID] = eventDetails;
+                            } catch (eventError) {
+                                console.log("Failed to fetch event details, skipping...:", eventError.message);
+                            }
+
+                            // If no event details, fallback to organiser event service
+                            if (!eventDetails) {
+                                try {
+                                    const organiserEvent = await organiserEventService.getEventById(wishlistItem.eventID);
+                                    console.log("Organiser Event Details:", organiserEvent);
+                                    this.eventDetails[wishlistItem.eventID] = organiserEvent;
+                                    this.isOrganiserEvent = true; // Mark as organiser event
+                                } catch (organiserError) {
+                                    console.log("Failed to fetch organiser event details:", organiserError.message);
+                                }
+                            }
                         } catch (error) {
-                            console.error("Failed to fetch event details for wishlist:", error);
+                            console.error("Failed to fetch event or organiser event details:", error);
                         }
-                    } else {
+                    }
+                    // Check if the item has attractionID
+                    else if (wishlistItem.attractionID) {
                         try {
                             const attractionDetails = await attractionService.goToAttractionDetails(wishlistItem.attractionID);
                             console.log("Wishlist Attraction Details:", attractionDetails);
                             this.attractionDetails[wishlistItem.attractionID] = attractionDetails; // Store attraction details
                         } catch (error) {
-                            // Skip logging the error for attraction details
                             console.error("Failed to fetch attraction details:", error);
                             this.errorState = true; // Example of setting an error state
                         }
@@ -344,24 +439,50 @@ export default {
 
         async fetchDetails(eventID) {
             try {
+                // First, try to fetch event details
                 const eventDetails = await eventService.goToEventDetails(eventID);
                 console.log("Event Details:", eventDetails);
                 this.eventDetails[eventID] = eventDetails; // Store event details keyed by eventID
+                this.errorState = false; // Reset error state since event details are found
+                return; // Stop further execution as we have found the event details
+            } catch (error) {
+                console.error("Failed to fetch event details:", error);
             }
 
-            catch {
-                // If fetching event details fails, try fetching attraction details
-                try {
-                    const attractionDetails = await attractionService.goToAttractionDetails(eventID);
-                    console.log("Attraction Details:", attractionDetails);
-                    this.attractionDetails[eventID] = attractionDetails; // Store attraction details keyed by eventID
-                } catch {
-                    // Skip logging the error for attraction details
-                    // Optionally, you can set a state or flag to indicate failure
-                    this.errorState = true; // Example of setting an error state
-                }
+            try {
+                // If event details not found, try to fetch attraction details
+                const attractionDetails = await attractionService.goToAttractionDetails(eventID);
+                console.log("Attraction Details:", attractionDetails);
+                this.attractionDetails[eventID] = attractionDetails; // Store attraction details keyed by eventID
+                this.errorState = false; // Reset error state since attraction details are found
+                return; // Stop further execution as we have found the attraction details
+            } catch (error) {
+                console.error("Failed to fetch attraction details:", error);
             }
+
+            try {
+                // If both event and attraction details are not found, try fetching organiser event details
+                const organiserEventDetails = await organiserEventService.getEventById(eventID);
+                console.log("Organiser Event Details:", organiserEventDetails);
+                this.organiserEventDetails[eventID] = organiserEventDetails; // Store organiser event details keyed by eventID
+                this.errorState = false; // Reset error state since organiser event details are found
+                // title will be updated once drop
+                this.$nextTick(() => {
+                    console.log("Updated organiser event details", this.organiserEventDetails);
+                });
+                return; // Stop further execution as we have found the organiser event details
+            } catch (error) {
+                console.error("Failed to fetch organiser event details:", error);
+            }
+
+            // If all fetch attempts failed, set error state
+            this.errorState = true;
+            console.error("All fetch attempts failed for eventID:", eventID);
         },
+
+
+
+
 
         async updateEventTiming(draggedEventID, newTime) {
             try {
@@ -396,6 +517,7 @@ export default {
                 this.updateMessage = "Event timing updated successfully."; // Success message
                 setTimeout(() => {
                     this.updateMessage = null;
+                    location.reload();
                 }, 2000);
 
             } catch (error) {
@@ -428,21 +550,26 @@ export default {
             this.updateError = null;   // Reset previous error message
 
             try {
+                // Ensure sortedEvents contains the latest dragged event details
+                const updatedEvents = this.sortedEvents.map(event => ({
+                    time: event.time, // Using event object's time
+                    eventID: event.eventID, // Ensure eventID is the correct one after drag
+                }));
+
                 // Prepare updated itinerary details
                 const updatedData = {
                     title: this.itineraryDetails.title,
                     date: this.itineraryDetails.date, // Access date directly from itineraryDetails
                     budget: this.itineraryDetails.budget, // Access budget directly from itineraryDetails
                     collaborators: this.itineraryDetails.collaborators || [], // Access collaborators
-                    events: this.sortedEvents.map(event => ({
-                        time: event.time, // Using event object's time
-                        eventID: event.eventID,
-                    })),
+                    events: updatedEvents, // Make sure to use the updated events
                 };
 
-                // Call update itinerary service
+                // Call update itinerary service with the latest event data
                 const id = this.$route.params.id;
                 await itineraryService.updateItinerary(id, updatedData);
+
+                console.log("UPDATEDEVENTS", updatedEvents)
 
                 this.updateMessage = "Itinerary updated successfully."; // Success message
                 this.firstLoad = false;
@@ -450,8 +577,10 @@ export default {
                 // Clear the success message after 2 seconds
                 setTimeout(() => {
                     this.updateMessage = null;
+                    // location.reload();
                 }, 2000);
-            } catch (error) {
+            }
+            catch (error) {
                 // Only show the error if the wishlist is not empty
                 if (this.wishlists && this.wishlists.length > 0) {
                     this.updateError = "Error updating itinerary: " + error.message; // Error message
@@ -462,8 +591,9 @@ export default {
         },
 
 
-         // Toggle sidebar expansion
-         toggleExpand() {
+
+        // Toggle sidebar expansion
+        toggleExpand() {
             this.isExpanded = !this.isExpanded;
             this.reapplyListenersOnSidebarToggle(); // Reapply listeners when sidebar is toggled
         },
@@ -484,65 +614,199 @@ export default {
 
 
         // Methods for drag and drop of wishlist item into events table
-        // Method to handle the drag start event
-        onDragStart(event, draggedItemData) {
-            console.log("Drag started", draggedItemData);
-            // event.dataTransfer.setData('dragSource', 'table');
-            event.dataTransfer.setData('text/plain', JSON.stringify(draggedItemData));
+
+        handleDragOverSidebar(event) {
+            // Prevent default to allow drop in sidebar
+            event.preventDefault();
+
+            // Get the sidebar element
+            const sidebar = document.querySelector('.wishlist-sidebar');
+
+            // Get the bounding rect of the sidebar
+            const sidebarTop = sidebar.getBoundingClientRect().top;
+            const sidebarBottom = sidebar.getBoundingClientRect().bottom;
+
+            // Calculate the mouse's position relative to the sidebar
+            const mouseY = event.clientY;
+            const topDiff = mouseY - sidebarTop;
+            const bottomDiff = sidebarBottom - mouseY;
+
+            // Log the differences for debugging
+            console.log('auto-scroll conditions:', { topDiff, bottomDiff });
+
+            // Scroll the sidebar down when the mouse is near the bottom
+            if (bottomDiff < 20) { // Adjust this threshold as needed
+                sidebar.scrollTop += 5; // Scroll down slowly
+            }
+
+            // Scroll the sidebar up when the mouse is near the top
+            if (topDiff < 20) { // Adjust this threshold as needed
+                sidebar.scrollTop -= 5; // Scroll up slowly
+            }
+
+            // Update currentClientY for future calculations if needed
+            this.currentClientY = event.clientY;
+        },
+
+        handleDragOverTable(event) {
+            // Only handle dragover for events table, without affecting sidebar
+            event.preventDefault();
         },
 
 
-        async onDrop(event) {
-    event.preventDefault(); // Prevent default behavior
 
-    // Get the dragged item data
-    const wishlistItem = JSON.parse(event.dataTransfer.getData('text/plain'));
-    console.log(wishlistItem, "EVENT DRAGGED");
+        // Start auto-scroll only for sidebar if close to top or bottom
+        startAutoScroll() {
+            if (this.isDragging) {
+                const sidebar = this.$refs.wishlistSidebar;
 
-    // Find the closest row element that is the target for the drop
-    const droppedRow = event.target.closest('tr');
+                if (sidebar) {
+                    const boundingRect = sidebar.getBoundingClientRect();
+                    console.log('Auto-scroll conditions:', {
+                        bottomDiff: boundingRect.bottom - this.currentClientY,
+                        topDiff: this.currentClientY - boundingRect.top
+                    });
 
-    if (droppedRow) {
-        const time = droppedRow.querySelector('td:first-child').textContent; // Get the timing from the first cell
-
-        console.log("Dropped row:", droppedRow);
-        console.log("Time:", time);
-        console.log("Wishlist Item:", wishlistItem);
-
-        const eventID = wishlistItem.eventID || wishlistItem.attractionID;
-
-        // Check the length of the dragged item data to determine the source
-        if (eventID) {
-            if (Object.keys(wishlistItem).length === 2) {
-                // If length is 2, treat it as coming from the table
-                console.log("Dragging within the table, updating event timing.");
-                // You can call the updateEventTiming function here
-                // await this.updateEventTiming(wishlistItem.eventID, time); // Await here
+                    // Scroll down if close to bottom
+                    if (boundingRect.bottom - this.currentClientY < 50) {
+                        sidebar.scrollTop += this.autoScrollSpeed;
+                        console.log('Scrolling down');
+                    }
+                    // Scroll up if close to top
+                    if (this.currentClientY - boundingRect.top < 50) {
+                        sidebar.scrollTop -= this.autoScrollSpeed;
+                        console.log('Scrolling up');
+                    }
+                } else {
+                    console.log('Sidebar reference is undefined');
+                }
             } else {
-                // Otherwise, treat it as coming from the wishlist
-                console.log("Dragging from the wishlist, adding to event.");
-                await this.addToEvent(wishlistItem, { eventID, time });
-
-                // Remove the item from the wishlist after adding it to the event
-                this.removeFromWishlist(wishlistItem);
+                console.log('isDragging is false, skipping auto-scroll');
             }
-        } else {
-            console.error("Wishlist item does not have a valid eventID or attractionID.");
-        }
-    } else {
-        console.error("Dropped event does not have a valid row.");
-    }
-},
+        },
 
-// Method to remove item from the wishlist
-removeFromWishlist(wishlistItem) {
-    const index = this.wishlists.findIndex(item => item.id === wishlistItem.id);
-    if (index !== -1) {
-        this.wishlists.splice(index, 1); // Remove the item from the wishlists array
-    } else {
-        console.error("Wishlist item not found.");
-    }
-},
+        // Method to handle the drag start event
+        onDragStart(event, draggedItemData) {
+            console.log("Drag started", draggedItemData);
+            event.dataTransfer.setData('text/plain', JSON.stringify(draggedItemData));
+
+            // If screen width is below 768px, close the sidebar during drag
+            if (window.innerWidth <= 768) {
+                this.closeSidebar();
+            }
+
+            this.isDragging = true;
+            // Capture the initial position of the mouse when the drag starts
+            this.currentClientY = event.clientY;
+            console.log('Starting auto-scroll interval');
+            this.autoScrollInterval = setInterval(this.startAutoScroll, 30);
+        },
+
+        // Method to track the mouse position during dragging
+        onMouseMove(event) {
+            if (this.isDragging) {
+                this.currentClientY = event.clientY; // Update mouse Y position
+            }
+        },
+
+        onDragEnd() {
+            console.log("Drag ended");
+            clearInterval(this.autoScrollInterval);
+            this.isDragging = false;
+        },
+
+
+
+
+
+
+        // For responsive to close wishlist sidebar when dragging in mobile view
+        closeSidebar() {
+            const sidebar = document.querySelector('.wishlist-sidebar');
+            sidebar.classList.remove('expanded'); // Close sidebar by removing expanded class
+        },
+        openSidebar() {
+            const sidebar = document.querySelector('.wishlist-sidebar');
+            sidebar.classList.add('expanded'); // Open sidebar by adding expanded class
+        },
+
+
+
+
+        async onDrop(event) {
+            // Optional: Reopen sidebar if needed (after the drop)
+            if (window.innerWidth <= 768) {
+                this.openSidebar();
+            }
+            this.isDragging = false;
+            clearInterval(this.autoScrollInterval);
+
+            event.preventDefault(); // Prevent default behavior
+
+            // Get the dragged item data
+            const wishlistItem = JSON.parse(event.dataTransfer.getData('text/plain'));
+            console.log(wishlistItem, "EVENT DRAGGED");
+
+            // Find the closest row element that is the target for the drop
+            const droppedRow = event.target.closest('tr');
+
+            if (droppedRow) {
+                const time = droppedRow.querySelector('td:first-child').textContent; // Get the timing from the first cell
+
+                console.log("Dropped row:", droppedRow);
+                console.log("Time:", time);
+                console.log("Wishlist Item:", wishlistItem);
+
+                const eventID = wishlistItem.eventID || wishlistItem.attractionID;
+
+                // Check the length of the dragged item data to determine the source
+                if (eventID) {
+                    if (Object.keys(wishlistItem).length === 2) {
+                        // If length is 2, treat it as coming from the table
+                        console.log("Dragging within the table, updating event timing.", wishlistItem.eventID, time);
+                        await this.updateEventTiming(wishlistItem.eventID, time); // Await here
+
+                        // Instead of location.reload(), we can update the state and re-render the component
+                        this.$nextTick(() => {
+                            console.log("Event timing updated. DOM should reflect changes.");
+                        });
+                    } else {
+                        // Otherwise, treat it as coming from the wishlist
+                        console.log("Dragging from the wishlist, adding to event.", wishlistItem, { eventID, time });
+                        await this.addToEvent(wishlistItem, { eventID, time }); // Await here
+
+                        // Optionally, update the state after adding to the event
+                        this.$nextTick(() => {
+                            console.log("Wishlist item added to event. DOM should reflect changes.");
+                        });
+                    }
+                } else {
+                    console.error("Wishlist item does not have a valid eventID or attractionID.");
+                }
+            } else {
+                console.error("Dropped event does not have a valid row.");
+            }
+        },
+
+
+        async removeFromWishlist(wishlistItem) {
+            try {
+                // Delete the item from the backend using itineraryService
+                await itineraryService.deleteWishlist(wishlistItem.id);
+
+                // Remove the item from the wishlist array locally
+                const index = this.wishlists.findIndex(item => item.id === wishlistItem.id);
+                if (index !== -1) {
+                    this.wishlists.splice(index, 1);
+                } else {
+                    console.error("Wishlist item not found locally.");
+                }
+            } catch (error) {
+                console.error("Error removing wishlist item:", error);
+            }
+        },
+
+
 
 
 
@@ -560,54 +824,44 @@ removeFromWishlist(wishlistItem) {
 
         // Method to handle adding the item to the event
         async addToEvent(wishlistItem, { eventID, time }) {
-            // Use either eventID or attractionID
             const id = wishlistItem.eventID || wishlistItem.attractionID;
-
-            // Check if an event already exists in the itinerary with the same time
-            const existingEvent = this.sortedEvents.find(event => event.time === time);
+            let existingEvent = this.sortedEvents.find(event => event.time === time);
 
             if (existingEvent) {
                 // Update the existing event with details from the wishlist
-                existingEvent.eventID = id; // Update eventID if necessary
-                existingEvent.name = this.eventDetails[id]?.name || this.attractionDetails[id]?.name; // Update name
-                // Update other details if needed
+                existingEvent.eventID = id;
+                existingEvent.name = this.eventDetails[id]?.name || this.attractionDetails[id]?.name;
             } else {
                 // If the event does not exist, create a new one
                 this.sortedEvents.push({
-                    time: time, // Set time as a string
+                    time: time,
                     eventID: eventID,
                     name: this.eventDetails[eventID]?.name || this.attractionDetails[id]?.name,
                 });
             }
 
-            // Attempt to delete the added item from the wishlist
-            try {
-                await itineraryService.deleteWishlist(wishlistItem.id); // Remove from server
+            console.log("Updated sortedEvents:", this.sortedEvents); // Verify updated events
 
-                // Remove from local state
+            // Delete from wishlist
+            try {
+                await itineraryService.deleteWishlist(wishlistItem.id);
                 this.wishlists = this.wishlists.filter(wishlist => wishlist.id !== wishlistItem.id);
             } catch (error) {
                 console.error("Failed to delete wishlist item:", error);
-                // Optionally handle the error, such as showing a message to the user
             }
 
+            // Update the itinerary with the latest state
             try {
-                await this.handleUpdate(); // Await the completion of the update
-
-                // Confirm that the update is completed before reloading
-                console.log("Update completed, reloading page...");
-
-                // Display the success message and wait for a few seconds before reloading
-                setTimeout(() => {
-                    location.reload(); // Reload after the message is displayed
-                }, 2000); // Adjust the time as necessary
-
-                // location.reload(); // Reload only after the update is confirmed
+                console.log("Before handleUpdate:", this.sortedEvents);
+                await this.handleUpdate(); // Make sure handleUpdate reflects the latest sortedEvents
+                console.log("Update completed.");
             } catch (error) {
                 console.error("Failed to update itinerary:", error);
-                // Optionally handle the error (e.g., show an error message)
             }
         },
+
+
+
 
 
         // Cursor trial with pixi.js
@@ -681,9 +935,14 @@ removeFromWishlist(wishlistItem) {
 
 <style scoped>
 /* Jumbotron -- wishlist */
+/* Regular sidebar styles */
 .sidebar-container {
     position: relative;
     z-index: 10;
+    height: 100vh;
+    /* Ensure the container takes full height */
+    overflow-y: auto;
+    /* Allow vertical scrolling */
 }
 
 .wishlist-sidebar {
@@ -702,6 +961,7 @@ removeFromWishlist(wishlistItem) {
     z-index: 1000;
 }
 
+
 .wishlist-sidebar.expanded {
     left: 0;
 }
@@ -710,20 +970,18 @@ removeFromWishlist(wishlistItem) {
     position: fixed;
     top: 150px;
     left: 10px;
-    /* Default position when sidebar is hidden */
     font-size: 24px;
     color: #000;
     cursor: pointer;
     transition: left 0.3s ease;
     z-index: 1100;
-    /* Ensure icon stays above sidebar */
 }
 
 .expand-icon.icon-expanded {
     left: 260px;
-    /* Moves icon to the right when sidebar is expanded */
 }
 
+/* Table row style when dragging */
 tr.drag-over {
     background-color: rgba(0, 0, 0, 0.1);
     /* Light gray */
@@ -731,19 +989,40 @@ tr.drag-over {
     /* Optional dashed border */
 }
 
-/* Ensure the table rows are above the sidebar */
+/* Table rows are above the sidebar */
 .table-row {
     position: relative;
     z-index: 10;
 }
 
-/* Ensure the sidebar doesn't block drop events */
+/* Sidebar positioning to allow drop events */
 .sidebar {
     z-index: 5;
     position: relative;
 }
 
-/* Add other styles as needed */
+/* Responsive CSS for screens with max-width 768px */
+@media (max-width: 768px) {
+    .wishlist-sidebar {
+        left: -250px;
+        /* Hidden sidebar initially */
+    }
+
+    .wishlist-sidebar.expanded {
+        left: 0;
+        /* Show sidebar */
+    }
+
+    .expand-icon {
+        left: 10px;
+        /* Position icon at the top-left */
+    }
+
+    .expand-icon.icon-expanded {
+        left: 260px;
+        /* Icon position when sidebar is expanded */
+    }
+}
 
 
 
@@ -797,14 +1076,12 @@ tr.drag-over {
 .remove-icon {
     position: absolute;
     top: 10px;
-    /* Adjust as needed */
     right: 10px;
-    /* Adjust as needed */
     cursor: pointer;
     color: #f00;
-    /* Change color as needed */
     font-size: 1.2em;
-    /* Adjust size as needed */
+    z-index: 10;
+    /* Ensures it is on top of other elements */
 }
 
 .draggable-item {

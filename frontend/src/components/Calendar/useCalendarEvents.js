@@ -16,6 +16,7 @@ export const useCalendarEvents = (organiserId) => {
       return {
         id: event.id,
         title: event.title,
+        price: event.price,
         start: event.start,     // Don't convert, keep original format
         end: event.end,         // Don't convert, keep original format
         allDay: event.allDay || false,
@@ -24,7 +25,11 @@ export const useCalendarEvents = (organiserId) => {
         description: event.description || '',
         organiserId: event.organiserId,
         editable: true,
-        display: 'block'
+        display: 'block',
+        extendedProps: {
+          price: event.price,
+          description: event.description || ''
+        }
       }
     }
     
@@ -44,6 +49,7 @@ export const useCalendarEvents = (organiserId) => {
           return {
             title: eventData.title,
             description: eventData.description || '',
+            price: eventData.price,
             organiserId: organiserId,
             // For all-day events, set consistent start and end times
             start: `${startDate}T00:00:00+08:00`,
@@ -55,6 +61,7 @@ export const useCalendarEvents = (organiserId) => {
           // For timed events
           return {
             title: eventData.title,
+            price: eventData.price,
             description: eventData.description || '',
             organiserId: organiserId,
             start: eventData.start.includes('+') ? eventData.start : `${eventData.start}+08:00`,
@@ -114,11 +121,15 @@ export const useCalendarEvents = (organiserId) => {
   
       try {
         const backendEvent = formatEventForBackend(eventData)
+        console.log('Sending to backend:', backendEvent)
         const response = await organiserEventService.createEvent(backendEvent)
+        console.log('Received from backend:', response)
         const newEvent = formatEventForCalendar(response)
-  
+        console.log('Formatted for calendar:', newEvent)
+        
         if (newEvent) {
           events.value = [...events.value, newEvent]
+          console.log('Updated events array:', events.value)
         }
   
         return newEvent

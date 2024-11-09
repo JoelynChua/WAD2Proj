@@ -18,7 +18,8 @@ exports.getAllEvents = async () => {
             events[key].start,
             events[key].end,
             events[key].allDay,
-            events[key].colour
+            events[key].colour,
+            events[key].price
         )
     );
 };
@@ -40,7 +41,8 @@ exports.getEventById = async (id) => {
         event.start,
         event.end,
         event.allDay,
-        event.colour
+        event.colour,
+        event.price
     );
 };
 
@@ -71,6 +73,7 @@ exports.addEvent = async (newEvent) => {
         title: newEvent.title,
         description: newEvent.description || '',
         organiserId: newEvent.organiserId,
+        price: newEvent.price,
         start: newEvent.start,
         end: newEvent.end,
         allDay: newEvent.allDay || false,
@@ -80,14 +83,15 @@ exports.addEvent = async (newEvent) => {
     await eventRef.set(eventData);
 
     return new Event(
-        eventRef.key,
-        eventData.title,
-        eventData.description,
-        eventData.organiserId,
-        eventData.start,
-        eventData.end,
-        eventData.allDay,
-        eventData.colour
+        eventRef.key,          // id
+        eventData.title,       // title
+        eventData.description, // description
+        eventData.organiserId, // organiserId
+        eventData.start,       // start
+        eventData.end,         // end
+        eventData.allDay,      // allDay
+        eventData.colour,      // colour
+        eventData.price        // price
     );
 };
 
@@ -102,8 +106,9 @@ exports.updateEvent = async (id, updatedData) => {
 
     const updatedEvent = {
         title: updatedData.title,
-        description: updatedData.description,
+        description: updatedData.description || '',
         organiserId: updatedData.organiserId,
+        price: updatedData.price,
         start: updatedData.start,
         end: updatedData.end,
         allDay: updatedData.allDay || false,
@@ -111,7 +116,12 @@ exports.updateEvent = async (id, updatedData) => {
     };
 
     await eventRef.update(updatedEvent);
-    return { id, ...updatedEvent, message: 'Event updated successfully' };
+    
+    // Return the event in the correct format
+    return {
+        id,
+        ...updatedEvent
+    };
 };
 
 // Delete

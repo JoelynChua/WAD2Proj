@@ -1,5 +1,5 @@
 <template>
-    <div class="container-fluid vh-100 d-flex flex-column">
+    <div class="container-fluid d-flex flex-column">
         <div class="row h-100 justify-content-center">
             <div id="profilenav" class="col-12 col-md-3 col-lg-2 mt-3 ms-md-3 p-3 pe-lg-0">
                 <div class="p-2">
@@ -18,10 +18,10 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" id="payment-tab" data-bs-toggle="pill" href="#wallet" role="tab"
-                                aria-controls="payment" aria-selected="false">
-                                <i class="fi fi-rr-wallet"></i>
-                                Wallet
+                            <a class="nav-link" id="booking-tab" data-bs-toggle="pill" href="#booking" role="tab"
+                                aria-controls="security" aria-selected="false">
+                                <i class="fi fi-rs-reservation-smartphone"></i>
+                                Bookings
                             </a>
                         </li>
                         <li class="nav-item">
@@ -72,7 +72,7 @@
 
                         <h5 class="mt-5 text-start">Communications</h5>
 
-                        <div class="mt-3 shadow p-3 bg-body hover-effect">
+                        <div id="webselector" class="mt-3 shadow p-3 bg-body hover-effect">
                             <h5 class="text-start p-2">Newsletter</h5>
                             <a-radio-group v-model:value="newsletter">
                                 <div class="d-flex justify-content-around p-2 gap-5">
@@ -97,18 +97,8 @@
                         </div>
                     </div>
 
-                    <div class="tab-pane fade" id="wallet" role="tabpanel" aria-labelledby="payment-tab">
-                        <div class="">
-                            <h5 class="text-start">Wallet</h5>
-                            <div class="shadow p-3 mt-4 hover-effect">
-                                <div v-if="!isFormVisible">
-                                    <p class="mt-4 text-start"><b>Balance</b></p>
-                                    <p class="fs-1 text-start">$ {{ balance }}</p>
-                                    <button class="btn btn-primary" @click="topup(1)">Top-up $1</button>
-                                    <button class="btn btn-primary ms-3" @click="topup(10)">Top-up $10</button>
-                                </div>
-                            </div>
-                        </div>
+                    <div class="tab-pane fade" id="booking" role="tabpanel" aria-labelledby="booking-tab">
+                        <Bookings />
                     </div>
 
                     <div class="tab-pane fade" id="security" role="tabpanel" aria-labelledby="security-tab">
@@ -125,6 +115,7 @@ import { getAuth } from "firebase/auth";
 import { getDatabase, ref, get, update } from "firebase/database";
 import { ref as vueRef } from 'vue';
 import passwordChange from "@/components/profilePassword.vue";
+import Bookings from '@/components/profileBookings.vue'
 
 
 export default {
@@ -151,7 +142,8 @@ export default {
         }
     },
     components: {
-        passwordChange
+        passwordChange,
+        Bookings
     },
     methods: {
         editName() {
@@ -195,7 +187,55 @@ export default {
 
             update(profileRef, { balance: this.balance })
 
+        },
+        updateNewsletter(value) {
+            const auth = getAuth();
+            const user = auth.currentUser;
+            if (user) {
+                const db = getDatabase();
+                const newsletterRef = ref(db, `users/${user.uid}/preferences`);
+
+                update(newsletterRef, { newsletter: value })
+                    .then(() => {
+                        console.log("Newsletter preference updated successfully!");
+                    })
+                    .catch((error) => {
+                        console.error("Failed to update newsletter preference:", error);
+                    });
+            }
+        },
+        updateReminders(value) {
+            const auth = getAuth();
+            const user = auth.currentUser;
+            if (user) {
+                const db = getDatabase();
+                const remindersRef = ref(db, `users/${user.uid}/preferences`);
+                update(remindersRef, { reminders: value })
+                    .then(() => {
+                        console.log("Reminders preference updated successfully!");
+                    })
+                    .catch((error) => {
+                        console.error("Failed to update reminders preference:", error);
+                    });
+            }
+        },
+
+        updatePromotions(value) {
+            const auth = getAuth();
+            const user = auth.currentUser;
+            if (user) {
+                const db = getDatabase();
+                const promotionsRef = ref(db, `users/${user.uid}/preferences`);
+                update(promotionsRef, { promotions: value })
+                    .then(() => {
+                        console.log("Promotions preference updated successfully!");
+                    })
+                    .catch((error) => {
+                        console.error("Failed to update promotions preference:", error);
+                    });
+            }
         }
+
     },
     mounted() {
         const auth = getAuth();
@@ -224,6 +264,9 @@ export default {
                     this.photoURL = data.photoURL || this.photoURL;
                     this.mobileNumber = data.mobileNumber
                     this.balance = data.balance
+                    this.newsletter = data.preferences.newsletter
+                    this.reminders = data.preferences.reminders
+                    this.promotions = data.preferences.promotions
                 } else {
                     // No profile data available
                     console.log("No profile data found for user.");
@@ -233,6 +276,17 @@ export default {
             console.log("No user is currently logged in."); // Log if no user is found
         }
     },
+    watch: {
+        newsletter(newVal) {
+            this.updateNewsletter(newVal);
+        },
+        reminders(newVal) {
+            this.updateReminders(newVal);
+        },
+        promotions(newVal) {
+            this.updatePromotions(newVal);
+        },
+    }
 }
 </script>
 
@@ -283,6 +337,10 @@ export default {
         /* Remove margin on small screens */
         margin-top: 0;
         /* Adjust margin on top for smaller devices */
+    }
+
+    #webselector {
+        display: none;
     }
 
     #profile {

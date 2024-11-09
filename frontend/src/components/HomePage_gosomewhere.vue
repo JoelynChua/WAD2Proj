@@ -2,24 +2,24 @@
     <section class="go-somewhere">
         <h2 class="go-somewhere__title">go somewhere</h2>
         <div class="go-somewhere__grid p-5 pb-0">
-            <div class="go-somewhere__item" @click="this.$router.push('/events')">
+            <a class="go-somewhere__item" href="/events">
                 <i class="fi fi-rs-navigation"></i>
                 find an activity
-            </div>
-            <div class="go-somewhere__item">
-                <i class="fi fi-rr-castle" @click="this.$router.push('/attractionsList')"></i>
+            </a>
+            <a class="go-somewhere__item" href="/attractionsList">
+                <i class="fi fi-rr-castle"></i>
                 find an attraction
-            </div>
+            </a>
         </div>
         <div class="go-somewhere__grid p-5 pt-0">
-            <div class="go-somewhere__item" @click="this.$router.push('/ExpensePage')">
+            <a class="go-somewhere__item" href='/ExpensePage'>
                 <i class="fi fi-rr-shopping-bag"></i>
                 calculate expenses
-            </div>
-            <div class="go-somewhere__item" @click="this.$router.push('/itineraryList')">
+            </a>
+            <a class="go-somewhere__item" href='/itineraryList'>
                 <i class="fi fi-rr-track"></i>
                 build an itinerary
-            </div>
+            </a>
         </div>
     </section>
 </template>
@@ -75,6 +75,11 @@ export default {
 .go-somewhere__item i {
     font-size: 80px;
     color: #bcf0f7;
+}
+
+a {
+    text-decoration: none;
+    color: #fff;
 }
 
 .go-somewhere__item:hover {

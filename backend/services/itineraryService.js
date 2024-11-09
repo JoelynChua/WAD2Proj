@@ -91,7 +91,7 @@ exports.getItineraryByUserEmail = async (userEmail) => {
             const itinerary = itineraries[key];
             return itinerary.collaborators &&
                 Array.isArray(itinerary.collaborators) &&
-                itinerary.collaborators.includes(userID); // Compare using the userID
+                itinerary.collaborators.includes(userEmail); // Compare using the userID
         })
         .map(key => new Itinerary(
             key,  // Itinerary ID

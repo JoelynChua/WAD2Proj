@@ -117,6 +117,10 @@ export default {
         // Optionally, show an error message
       }
     },
+
+
+
+
     authListener() {
       // Listen to the authentication state
       auth.onAuthStateChanged(async (user) => {
@@ -124,36 +128,19 @@ export default {
           // User is signed in
           this.uid = user.uid; // Get the user ID
           this.uEmail = user.email; // Get the user email
-          console.log(user.email);
+          console.log(user.uid, user.email);
 
           try {
-            // Fetch itineraries using the UID
-            let itineraries = await itineraryService.getItineraryByUserID(this.uid);
+            // Attempt to fetch itineraries by email only
+            const itineraries = await this.fetchItineraries(this.uEmail);
+            console.log("Loaded itineraries:", itineraries);
 
-            // If no itineraries are found for the user, try fetching by user email
-            if (itineraries.length === 0) {
-              console.log("No itineraries found, attempting to fetch by email...");
-              itineraries = await itineraryService.getItineraryByUserEmail(this.uEmail);
-            }
-
-            // Store itineraries in the component state
-            this.itineraries = itineraries;
-            console.log(this.itineraries);
+            // Store itineraries in the component state if found
+            this.itineraries = itineraries || []; // Default to an empty array if no itineraries
 
           } catch (error) {
-            console.error("Error fetching itineraries by UID:", error);
-
-            // If the error is a server issue (500), fallback to fetching by email
-            if (error.response && error.response.status === 500) {
-              console.log("500 error occurred. Attempting to fetch itineraries by email...");
-              try {
-                let itinerariesByEmail = await itineraryService.getItineraryByUserEmail(this.uEmail);
-                this.itineraries = itinerariesByEmail;
-                console.log(this.itineraries);
-              } catch (emailError) {
-                console.error("Failed to fetch itineraries by email:", emailError);
-              }
-            }
+            console.error("Error fetching itineraries:", error);
+            this.itineraries = []; // Reset itineraries in case of error
           }
         } else {
           // User is signed out
@@ -163,6 +150,24 @@ export default {
         }
       });
     },
+
+    async fetchItineraries(email) {
+      try {
+        // Fetch itineraries by email only
+        const itineraries = await itineraryService.getItineraryByUserEmail(email);
+
+        console.log("Itineraries fetched by Email:", itineraries);
+
+        return itineraries || []; // Return itineraries or an empty array if none
+      } catch (error) {
+        console.error("Error in fetchItineraries:", error);
+        throw error; // Rethrow the error to be caught in authListener
+      }
+    }
+
+
+
+
 
   },
 };

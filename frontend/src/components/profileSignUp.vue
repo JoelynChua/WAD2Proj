@@ -1,6 +1,6 @@
 <template>
     <div class="container rounded bg-white mt-5 mb-5" style="max-width: 1100px;">
-        <div class="row justify-content-center shadow" >
+        <div class="row justify-content-center shadow">
             <div class="col-md-3 border-right">
                 <div class="d-flex flex-column align-items-center text-center p-3 py-5">
                     <img class="rounded-circle mt-5" width="150px"
@@ -49,7 +49,8 @@
                         </div>
                     </div>
                     <div class="mt-5 text-center">
-                        <button class="btn btn-primary profile-button" type="button" @click="saveProfile">Save Profile</button>
+                        <button class="btn btn-primary profile-button" type="button" @click="saveProfile">Save
+                            Profile</button>
                     </div>
                 </div>
             </div>
@@ -142,10 +143,16 @@ export default {
                 country: this.country,
                 dateOfBirth: this.dob.toDate().toString(),
                 balance: 0,
-                userType: 'customer'
+                userType: 'customer',
+                preferences: {
+                    promotions: false,     // Default to false
+                    reminders: false,      // Default to false
+                    newsletter: 3          // Default to weekly (assuming 3 represents weekly)
+                },
+                events: [],
+
             })
                 .then(() => {
-                    alert('Profile saved successfully!');
                     location.reload();
                 })
                 .catch((error) => {
@@ -158,8 +165,8 @@ export default {
         const auth = getAuth();
         onAuthStateChanged(auth, (user) => {
             if (user) {
-                this.user = user; 
-                this.email = user.email; 
+                this.user = user;
+                this.email = user.email;
             } else {
                 console.log("No user is currently logged in.");
             }

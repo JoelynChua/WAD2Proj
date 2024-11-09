@@ -51,25 +51,130 @@
             </div>
         </div>
     </div>
+    <TicketPopup 
+    :show="showTicketPopup"
+    :title="ticketPopupTitle"
+    :message="ticketPopupMessage"
+    @close="showTicketPopup = false"
+    />
 </template>
 
 <script>
 
 import { Modal } from "bootstrap";
+import { getAuth } from 'firebase/auth';
+import { ref, getDatabase, update, get } from 'firebase/database';
+import TicketPopup from './EventDetails_ticketpopup.vue';
 
 export default {
     name: 'EventNavibar',
-    props: ['event'],
+    props: {
+        event: Object,
+        isOrganiserEvent: {
+            type: Boolean,
+            required: true
+        }
+    },
+    components: {
+    TicketPopup
+    },
     data () {
         return {
             showModal: false,
             copySuccess: false,
+            showTicketPopup: false,
+            ticketPopupMessage: '',
+            ticketPopupTitle: ''
+        }
+    },
+    computed: {
+        eventPrice() {
+            if (this.isOrganiserEvent) {
+                return this.event.price || 'Free';
+            } else {
+                if (this.event.priceRanges && this.event.priceRanges.length > 0) {
+                    return `${this.event.priceRanges[0].min} ${this.event.priceRanges[0].currency}`;
+                }
+                return 'Price not available';
+            }
         }
     },
     methods: {
-        openTickets() {
-            console.log(this.event)
-            window.open(this.event.url, '_blank');
+        async openTickets() {
+            console.log(this.isOrganiserEvent);
+            console.log(this.event);
+            if (this.isOrganiserEvent) {
+                const auth = getAuth();
+                const user = auth.currentUser;
+                
+                if (!user) {
+                    this.ticketPopupTitle = 'Login Required';
+                    this.ticketPopupMessage = 'Please log in to register for this event';
+                    this.showTicketPopup = true;
+                    return;
+                }
+
+                this.isLoading = true;
+                const db = getDatabase();
+                const eventRef = ref(db, `events/${this.event.id}`);
+                
+                try {
+                    const eventSnapshot = await get(eventRef);
+                    const eventData = eventSnapshot.val();
+                    
+                    if (eventData.signups && eventData.signups[user.uid]) {
+                        this.ticketPopupTitle = 'Already Registered';
+                        this.ticketPopupMessage = 'You are already registered for this event';
+                        this.showTicketPopup = true;
+                        return;
+                    }
+
+                    // Check existing bookings
+                    const userRef = ref(db, `users/${user.uid}/bookings`);
+                    const bookingsSnapshot = await get(userRef);
+                    let nextBookingNumber = 1;
+                    
+                    if (bookingsSnapshot.exists()) {
+                        // Get the number of existing bookings
+                        const existingBookings = bookingsSnapshot.val();
+                        nextBookingNumber = Object.keys(existingBookings).length + 1;
+                    }
+
+                    // Create booking object
+                    const booking = {
+                        eventId: this.event.id || '',
+                        title: this.event.title || 'Untitled Event',
+                        date: this.formatDate(this.event.start) || 'TBD',  
+                        time: this.formatTime(this.event.start) || 'TBD',  
+                        price: this.event.price ? `$${this.event.price}` : 'Free'  
+                    };
+
+                    // Create updates object
+                    const updates = {};
+                    
+                    // Add event signup
+                    updates[`events/${this.event.id}/signups/${user.uid}`] = true;
+                    
+                    // Add booking to user's bookings with next number
+                    updates[`users/${user.uid}/bookings/${nextBookingNumber}`] = booking;
+
+                    // Update database
+                    await update(ref(db), updates);
+
+                    this.ticketPopupTitle = 'Success';
+                    this.ticketPopupMessage = 'Successfully registered for the event!';
+                    this.showTicketPopup = true;
+                } catch (error) {
+                    console.error('Error registering:', error);
+                    this.ticketPopupTitle = 'Error';
+                    this.ticketPopupMessage = 'Failed to register for the event';
+                    this.showTicketPopup = true;
+                } finally {
+                    this.isLoading = false;
+                }
+            } else {
+                window.open(this.event.url, '_blank');
+            }
         },
         goToEventsPage() {
             this.$router.back();
@@ -91,6 +196,22 @@ export default {
                 this.copySuccess = false;
             }, 2000);
         },
+        formatDate(dateString) {
+        if (!dateString) return 'TBD';
+        return new Date(dateString).toLocaleDateString('en-US', {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+        },
+        formatTime(dateString) {
+            if (!dateString) return 'TBD';
+            return new Date(dateString).toLocaleTimeString('en-US', {
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
     }
 };
 </script>
