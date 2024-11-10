@@ -88,7 +88,7 @@
 
                             <div class="event-container" v-if="!isOrganiserEvent">
                                 <div class="event-header">Ticket Sales</div>
-                                <div style="margin: 0px 30px;" v-if="eventDetails?.sales?.public?.startDateTime.length">
+                                <div style="margin: 0px 30px;" v-if="eventDetails?.sales?.public?.startDateTime?.length">
                                     <div class="d-inline-block"> {{
                                         formatDateTime(eventDetails?.sales?.public?.startDateTime) }} </div>
                                     <div class="d-inline-block">&nbsp;&nbsp; - &nbsp;&nbsp; </div>

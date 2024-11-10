@@ -129,7 +129,15 @@
                     </div>
                 </div>
             </div>
-            <p v-else>No events available.</p>
+            <div v-else>
+                <div v-if="loading" class="loading">
+                    <img class="loading-image" src="../assets/logo.png"/>
+                    <p>Loading...</p>
+                </div>
+                <div v-else>
+                    No events available.
+                </div>
+            </div>
         </div>
     </div>
 </template>
@@ -171,6 +179,7 @@ export default {
             filteredTicketmasterEvents: [], // New property to store filtered Ticketmaster events
             filteredOrganiserEvents: [], // New property to store filtered organizer events
             isCustomer: false,
+            loading: true,
 
 
         };
@@ -226,6 +235,7 @@ export default {
             // Set up the authentication listener first
             // Fetch events only after the user state has been set
             if (this.userID) {
+                this.loading = true;
                 this.events = await eventService.displayEvents();
                 console.log("events: ",this.events);
                 this.wishlists = await itineraryService.getUserWishlist(this.userID); // Fetch wishlists if userID exists
@@ -236,6 +246,8 @@ export default {
             }
         } catch (error) {
             console.error('Failed to fetch events or wishlists:', error);
+        } finally {
+            this.loading = false;
         }
 
         window.addEventListener('scroll', this.handleScroll);
@@ -443,6 +455,31 @@ export default {
     background: #f9f9f9;
     color: #333;
     padding-top: 135px;
+}
+
+@keyframes bob {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+.loading {
+    width: 50px;
+    animation: bob 1.5s ease-in-out infinite;
+    display: flex;
+    align-items: center;
+    margin: 50px auto;
+}
+
+.loading p {
+    margin: 0 auto;
+}
+
+.loading-image {
+    width: 100%
 }
 
 .hero-section {
