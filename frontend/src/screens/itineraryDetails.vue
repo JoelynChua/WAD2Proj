@@ -23,15 +23,16 @@
                             <div class="row">
                                 <div class="col-lg-4"></div>
                                 <div class="col-lg-6 d-flex justify-content-center" style="margin-top: 30px;">
-                                    <div class="w-50">
+                                    <div class="w-50 ">
                                         <input type="text" class="form-control text-center titleInput" id="title"
-                                            v-model="itineraryDetails.title" required />
+                                            v-model="itineraryDetails.title"
+                                            style="width: auto; padding: 0.375rem 1rem;" required />
                                     </div>
                                 </div>
                             </div>
 
                             <div class="row col-lg-12 mb-3 d-flex justify-content-center" style="margin: 20px;">
-                                <div class="col-6 d-flex align-items-center">
+                                <div class="col-6 d-flex justify-content-center">
                                     <label for="date" class="form-label mb-0 me-2">Date:</label>
                                     <input type="date" class="form-control" style="width: auto; display: inline-block;"
                                         id="date" v-model="itineraryDetails.date" :min="today" required />
@@ -39,7 +40,7 @@
                             </div>
 
                             <div class="row col-lg-12 mb-3 d-flex justify-content-center">
-                                <div class="col-6 d-flex align-items-center">
+                                <div class="col-6 d-flex justify-content-center">
                                     <label for="budget" class="form-label mb-0 me-2">Planned Budget:</label>
                                     <input type="number" class="form-control"
                                         style="width: auto; display: inline-block;" id="budget"
@@ -60,49 +61,54 @@
                                             </tr>
                                         </thead>
 
-                                        <tbody @drop="onDrop($event, event)" @dragover="allowDrop">
+
+                                        <tbody @drop="onDrop($event)" @dragover="allowDrop">
                                             <tr v-for="event in sortedEvents" :key="event.eventID" :draggable="true"
                                                 @dragstart="onDragStart($event, event)" :data-event-id="event.eventID"
                                                 class="draggable-item">
-                                                <td>{{ event.time }}</td>
 
-                                                <!-- Shared Event Details Section -->
+                                                <!-- Timing Column (Fixed, Non-resizable) -->
+                                                <td>
+                                                    {{ event.time }}
+                                                </td>
+
+                                                <!-- Event Details Section (Resizable Column) -->
                                                 <template
                                                     v-if="eventDetails[event.eventID] || organiserEventDetails[event.eventID]">
-                                                    <td class="event-details-wrapper"
-                                                        style="border: 1px solid #ccc; border-radius: 10px; padding: 10px; margin: 10px;">
+                                                    <td colspan=1 :rowspan="getEventRowspan(event)"
+                                                        :style="getColumnStyle(event)" class="event-details-wrapper">
                                                         <div>
-                                                            <!-- Common Title -->
                                                             <strong>{{ eventDetails[event.eventID]?.name ||
                                                                 organiserEventDetails[event.eventID]?.title
                                                                 }}</strong><br>
-                                                            <!-- Common Type -->
                                                             {{ eventDetails[event.eventID]?.type ||
                                                                 organiserEventDetails[event.eventID]?.type }}<br>
-
-                                                            <!-- Additional Data Based on Source -->
                                                             <div v-if="eventDetails[event.eventID]">
                                                                 Status: {{
-                                                                    eventDetails[event.eventID].dates?.status?.code
-                                                                }}
+                                                                    eventDetails[event.eventID].dates?.status?.code }}
                                                             </div>
                                                             <div v-else-if="organiserEventDetails[event.eventID]">
                                                                 Genre: {{ organiserEventDetails[event.eventID]?.genre ||
                                                                     'N/A' }}
                                                             </div>
 
-                                                            <!-- Remove Icon at top-right -->
+                                                            <!-- Remove Icon -->
                                                             <font-awesome-icon :icon="['fas', 'minus']"
                                                                 @click="onRemoveEvent(event.eventID)"
                                                                 class="remove-icon" />
+
+                                                            <!-- Resize Handle -->
+                                                            <div class="resize-handle"
+                                                                @mousedown="startResize($event, event)"></div>
                                                         </div>
                                                     </td>
                                                 </template>
 
-                                                <!-- Attraction Details Section -->
+                                                <!-- Attraction Details Section (Resizable Column) -->
                                                 <template v-else-if="attractionDetails[event.eventID]">
-                                                    <td class="attraction-details-wrapper"
-                                                        style="border: 1px solid #ccc; border-radius: 10px; padding: 10px; margin: 10px;">
+                                                    <td colspan=1 :rowspan="getEventRowspan(event)"
+                                                        :style="getColumnStyle(event)"
+                                                        class="attraction-details-wrapper">
                                                         <div>
                                                             <strong>{{ attractionDetails[event.eventID].name
                                                                 }}</strong><br>
@@ -110,24 +116,38 @@
                                                             Genre: {{
                                                                 attractionDetails[event.eventID].classifications?.[0]?.genre?.name
                                                                 || 'N/A' }}
-                                                            <!-- Remove Icon at top-right -->
+
+                                                            <!-- Remove Icon -->
                                                             <font-awesome-icon :icon="['fas', 'minus']"
                                                                 @click="onRemoveEvent(event.eventID)"
                                                                 class="remove-icon" />
+
+                                                            <!-- Resize Handle -->
+                                                            <div class="resize-handle"
+                                                                @mousedown="startResize($event, event)"></div>
                                                         </div>
                                                     </td>
                                                 </template>
 
                                                 <!-- Default Placeholder Section -->
                                                 <template v-else>
-                                                    <td
-                                                        style="border: 1px solid #ccc; border-radius: 10px; padding: 10px; margin: 10px;">
+                                                    <td class="placeholder-td">
                                                         <span style="color: #aaa; font-style: italic;">Drag and
                                                             drop</span>
                                                     </td>
                                                 </template>
                                             </tr>
                                         </tbody>
+
+
+
+
+
+
+
+
+
+
                                     </table>
                                 </div>
                                 <div v-else>
@@ -177,7 +197,6 @@
 
 
 
-<!-- fewfwefe -->
 
 <script>
 import itineraryService from "../services/itineraryService"; // Update to your itinerary service
@@ -232,10 +251,15 @@ export default {
 
 
             app: null,
-            circle: null
+            circle: null,
             // trailImage: [require('@/assets/pencil.png'), 50, 30], // image path, width, height
             // offsetFromMouse: [10, -20], // x, y offsets from cursor position
             // displayDuration: 0, // duration in seconds
+
+            resizingEvent: null,
+            initialMouseX: 0,
+            initialRowspan: 1,
+            rowspans: {} // Stores the calculated rowspans for each eventID
 
         };
     },
@@ -281,6 +305,18 @@ export default {
             const yyyy = today.getFullYear(); // Year
             return `${yyyy}-${mm}-${dd}`; // Return in YYYY-MM-DD format
         },
+
+
+        eventRowspans() {
+            const rowspans = {};
+            this.sortedEvents.forEach(event => {
+                if (!rowspans[event.eventID]) {
+                    rowspans[event.eventID] = this.getEventRowspan(event);
+                }
+            });
+            return rowspans;
+        },
+
     },
     async created() {
         // Fetch itinerary details and wishlist when component is created
@@ -290,13 +326,13 @@ export default {
     },
     watch: {
         itineraryDetails: {
-            handler(newValue, oldValue) {
+            handler() {
                 // Handle the update logic here
                 this.handleUpdate(); // Automatically call handleUpdate on change
 
                 // Log new and old values to track changes
-                console.log('Itinerary details updated:', newValue);
-                console.log('Previous itinerary details:', oldValue);
+                // console.log('Itinerary details updated:', newValue);
+                // console.log('Previous itinerary details:', oldValue);
             },
             deep: true, // Watch nested properties within itineraryDetails
         },
@@ -662,20 +698,20 @@ export default {
 
                 if (sidebar) {
                     const boundingRect = sidebar.getBoundingClientRect();
-                    console.log('Auto-scroll conditions:', {
-                        bottomDiff: boundingRect.bottom - this.currentClientY,
-                        topDiff: this.currentClientY - boundingRect.top
-                    });
+                    // console.log('Auto-scroll conditions:', {
+                    //     bottomDiff: boundingRect.bottom - this.currentClientY,
+                    //     topDiff: this.currentClientY - boundingRect.top
+                    // });
 
                     // Scroll down if close to bottom
                     if (boundingRect.bottom - this.currentClientY < 50) {
                         sidebar.scrollTop += this.autoScrollSpeed;
-                        console.log('Scrolling down');
+                        // console.log('Scrolling down');
                     }
                     // Scroll up if close to top
                     if (this.currentClientY - boundingRect.top < 50) {
                         sidebar.scrollTop -= this.autoScrollSpeed;
-                        console.log('Scrolling up');
+                        // console.log('Scrolling up');
                     }
                 } else {
                     console.log('Sidebar reference is undefined');
@@ -684,6 +720,91 @@ export default {
                 console.log('isDragging is false, skipping auto-scroll');
             }
         },
+
+
+
+
+
+        // Make the event item width dynamic
+        // Method to return dynamic styles and attributes for the event column based on its timing
+        getColumnStyle(event) {
+            const rowspan = this.getEventRowspan(event);
+            console.log(rowspan, "ROWSPAN STYLE");
+
+            return {
+                rowspan: `${rowspan}`,
+                backgroundColor: 'lightblue' // Example of conditional styling
+            };
+        },
+
+        getEventRowspan(event) {
+            const eventIndex = this.sortedEvents.findIndex(e => e.eventID === event.eventID);
+            const currentTime = event.time; // e.g., '01:00'
+            let totalRowspan = 1; // Initialize with the minimum rowspan of 1
+
+            // Iterate to find only the first next event with the same eventID
+            for (let i = eventIndex + 1; i < this.sortedEvents.length; i++) {
+                if (this.sortedEvents[i].eventID === event.eventID) {
+                    const nextEvent = this.sortedEvents[i];
+                    const nextTime = nextEvent.time; // e.g., '03:00'
+                    console.log(`Next event found for eventID: ${event.eventID}, nextTime: ${nextTime}`);
+
+                    if (nextTime) {
+                        const [currentHour, currentMinute] = currentTime.split(':').map(Number);
+                        const [nextHour, nextMinute] = nextTime.split(':').map(Number);
+
+                        const currentTimeInMinutes = currentHour * 60 + currentMinute;
+                        const nextTimeInMinutes = nextHour * 60 + nextMinute;
+
+                        // Calculate the time difference and convert to rows (+1 for inclusive counting)
+                        const timeDifferenceInMinutes = nextTimeInMinutes - currentTimeInMinutes;
+                        const rowspan = Math.max(1, Math.ceil(timeDifferenceInMinutes / 60) + 1); // Add 1 to include the start
+
+                        console.log(`Calculated rowspan for eventID ${event.eventID}:`, rowspan);
+
+                        // Return the calculated rowspan and stop further iterations
+                        return rowspan;
+                    }
+                }
+            }
+
+            console.log(`Total calculated rowspan for eventID ${event.eventID}:`, totalRowspan);
+            return totalRowspan; // Default return if no next event is found
+        },
+
+
+
+        startResize(event, eventItem) {
+            let startX = event.clientX; // Get the initial mouse position
+            const startRowspan = this.getEventRowspan(eventItem); // Get current rowspan
+
+            const onMouseMove = (e) => {
+                const diff = e.clientX - startX; // Calculate the difference in mouse position
+                const newRowspan = Math.max(startRowspan + Math.floor(diff / 40), 1); // Update rowspan, ensure minimum 1
+                this.updateRowspan(eventItem, newRowspan); // Update rowspan in the data model
+            };
+
+            const onMouseUp = () => {
+                document.removeEventListener('mousemove', onMouseMove);
+                document.removeEventListener('mouseup', onMouseUp);
+            };
+
+            document.addEventListener('mousemove', onMouseMove);
+            document.addEventListener('mouseup', onMouseUp);
+        },
+
+        updateRowspan(eventItem, newRowspan) {
+            eventItem.rowspan = newRowspan; // Only update rowspan
+            console.log(`Updated rowspan for eventID ${eventItem.eventID}:`, newRowspan);
+        },
+
+
+
+
+
+
+
+
 
         // Method to handle the drag start event
         onDragStart(event, draggedItemData) {
@@ -714,9 +835,6 @@ export default {
             clearInterval(this.autoScrollInterval);
             this.isDragging = false;
         },
-
-
-
 
 
 
@@ -975,11 +1093,14 @@ export default {
     cursor: pointer;
     transition: left 0.3s ease;
     z-index: 1100;
+    margin: 10px; /* Add margin here */
 }
 
 .expand-icon.icon-expanded {
     left: 260px;
 }
+
+
 
 /* Table row style when dragging */
 tr.drag-over {
@@ -1220,5 +1341,75 @@ canvas {
         /* Slightly rounded corners */
     }
 
+}
+
+
+/* Styling for the resizable column */
+/* Styling for resizable column */
+.event-details-wrapper,
+.attraction-details-wrapper {
+    position: relative;
+    border: 1px solid #ccc;
+    transition: width 0.2s ease;
+}
+
+/* Resize Handle */
+.resize-handle {
+    position: absolute;
+    bottom: 0;
+    /* Position at the bottom edge of the cell */
+    left: 0;
+    width: 100%;
+    /* Span the entire width of the cell */
+    height: 10px;
+    /* Height of the resize handle */
+    cursor: ns-resize;
+    /* Vertical resize cursor */
+    background-color: rgba(0, 0, 0, 0.1);
+    /* Light background for the resize handle */
+}
+
+/* Show resize handle on hover */
+.event-details-wrapper:hover .resize-handle,
+.attraction-details-wrapper:hover .resize-handle {
+    opacity: 1;
+}
+
+/* Updated Keyframes for resizing animation */
+@keyframes resizeAnimation {
+    0% {
+        background-color: rgba(0, 0, 0, 0.05);
+        transform: scale(1);
+    }
+
+    50% {
+        background-color: rgba(0, 0, 0, 0.1);
+        transform: scale(1.01);
+        /* Slight scale for a subtle effect */
+    }
+
+    100% {
+        background-color: rgba(0, 0, 0, 0.05);
+        transform: scale(1);
+    }
+}
+
+/* Apply the animation to the resizable column during resize */
+.event-details-wrapper.resizing,
+.attraction-details-wrapper.resizing {
+    animation: resizeAnimation 0.4s ease-in-out;
+}
+
+/* Styling for when an element is being dragged */
+.event-details-wrapper.dragging,
+.attraction-details-wrapper.dragging {
+    animation: draggingAnimation 0.3s ease-in-out;
+}
+
+/* Optional styling for the placeholder row */
+.placeholder-td {
+    text-align: center;
+    padding: 10px;
+    background: #f5f5f5;
 }
 </style>

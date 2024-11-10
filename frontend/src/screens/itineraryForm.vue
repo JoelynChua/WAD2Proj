@@ -1,6 +1,6 @@
 <template>
     <div class="container mt-5">
-        <h2>Event Submission Form</h2>
+        <h2>Create Itinerary</h2>
 
         <!-- Display form only if user is signed in -->
         <form v-if="uid" @submit.prevent="handleSubmit">
@@ -25,7 +25,7 @@
                     placeholder="Comma-separated collaborator emails" />
             </div>
 
-            <h3>Timetable</h3>
+            <!-- <h3>Timetable</h3>
             <table class="table table-bordered">
                 <thead>
                     <tr>
@@ -42,7 +42,7 @@
                         </td>
                     </tr>
                 </tbody>
-            </table>
+            </table> -->
 
             <br />
             <button type="submit" class="btn btn-primary">Create</button>
