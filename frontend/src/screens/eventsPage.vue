@@ -2,10 +2,11 @@
     <div class="homepage">
         <div class="hero-section">
             <video ref="backgroundVideo" autoplay muted loop playsinline id="background-video">
-                <source src="https://videos.pexels.com/video-files/4916813/4916813-hd_1920_1080_30fps.mp4" type="video/mp4" />
+                <source src="https://videos.pexels.com/video-files/4916813/4916813-hd_1920_1080_30fps.mp4"
+                    type="video/mp4" />
                 Your browser does not support the video tag.
             </video>
-            <div class="hero-content">                
+            <div class="hero-content">
                 <div class="display-1 z-1">Find Your <span style="color: red">Event</span></div>
             </div>
 
@@ -21,8 +22,8 @@
             </div>
         </div>
 
-        <transition name="popular-event-slide-fade">
-            <PopularEvents v-if="!searchQuery" :events="pop_events" :isEvent="true"/>
+        <transition v-if="!loading" name="popular-event-slide-fade">
+            <PopularEvents v-if="!searchQuery" :events="pop_events" :isEvent="true" />
         </transition>
 
         <!-- Events filter -->
@@ -32,7 +33,7 @@
                 <i class="fi fi-rr-angle-small-down dropdown-icon"></i>
                 <select id="event-filter" class="custom-dropdown" v-model="selectedFilter">
                     <option value="all">All Events</option>
-                    <option value="wishlist">My Wishlist</option>
+                    <option value="wishlist">Self-Hosted</option>
                 </select>
             </div>
         </div>
@@ -41,8 +42,8 @@
         </div>
 
         <!-- Wishlist Filtered Events -->
-        <div class="container mt-4" v-if="selectedFilter === 'wishlist' && filteredEvents.length">
-            <div class="row">
+        <div class="container mt-4" v-if="selectedFilter === 'wishlist'">
+            <div v-if="filteredEvents.length" class="row">
                 <div class="col-lg-4 col-md-6 col-12 mb-4" v-for="event in filteredEvents" :key="event.id">
                     <div class="card event" @click="goToEventDetails(event.id)"
                         style="cursor: pointer; position: relative;">
@@ -67,69 +68,144 @@
 
                         <!-- Event Details -->
                         <div class="card-body text-start">
-                            <h5 class="card-title">{{ event.name }}</h5>
-                            <p class="card-text">Type: {{ event.type }}</p>
-                            <p class="card-text">
-                                {{ new Date(event.dates?.start?.dateTime || event?.start).toLocaleDateString('en-US', {
-                                    weekday: 'short',
-                                    year: 'numeric',
-                                    month: 'short',
-                                    day: 'numeric',
-                                    hour: '2-digit',
-                                    minute: '2-digit'
-                                }) }}
-                            </p>
-                        </div>
+                                <p class="card-text">{{ event.classifications && event.classifications[0] ?
+                                    event.classifications[0].genre.name : event.type }}</p>
+                                <h5 class="card-title fs-4 mb-0">
+                                    <span>
+                                        {{ event.name.length > 48 ? event.name.substring(0, 38) + '...' : event.name }}
+                                    </span>
+                                </h5>
+                                <p class="card-text mt-0">
+                                    {{ new Date(event.dates?.start?.dateTime || event.start).toLocaleDateString('en-US',
+                                        {
+                                            weekday: 'short',
+                                            year: 'numeric',
+                                            month: 'short',
+                                            day: 'numeric',
+                                            hour: '2-digit',
+                                            minute: '2-digit'
+                                    }) }}
+                                </p>
+                                <p v-if="event.type == 'Organiser Event'" class="card-text" style="position: absolute;
+                            color: rgb(51, 51, 51);
+                            font-size: 16px;
+                            bottom: 5px;
+                            right: 25px;
+                            padding: 5px 10px">
+                                    <b>From S${{ event.price }}</b>
+                                </p>
+
+                                <p v-else-if="event.priceRanges" class="card-text" style="position: absolute;
+                            color: rgb(51, 51, 51);
+                            font-size: 16px;
+                            bottom: 5px;
+                            right: 25px;
+                            padding: 5px 10px">
+                                    <b>From {{ event.priceRanges[0].currency == "USD" ? 'US$' :
+                                        event.priceRanges[0].currency }}{{ event.priceRanges[0].min }}</b>
+                                </p>
+
+                                <p v-else class="card-text" style="position: absolute;
+                            color: rgb(51, 51, 51);
+                            font-size: 16px;
+                            bottom: 5px;
+                            right: 25px;
+                            padding: 5px 10px">
+                                    <b>Price TBC</b>
+                                </p>
+                            </div>
                     </div>
                 </div>
+            </div>
+            <div v-else style="margin-bottom: 400px; margin-top: 100px">
+                No events bookmarked
             </div>
         </div>
 
         <!-- All Events (Default View) -->
         <div class="container mt-4" v-else>
-            <div class="row" v-if="sortedEvents.length">
-                <div class="col-lg-4 col-md-6 col-12 mb-4" v-for="event in sortedEvents" :key="event.id">
-                    <div class="card event" @click="goToEventDetails(event.id)"
-                        style="cursor: pointer; position: relative;">
-                        <!-- Event Image Section -->
-                        <div v-if="event.type === 'Organiser Event'" class="custom-event-image"
-                            :style="{ backgroundColor: event.colour || '#1a1a40' }">
-                            <img src="../assets/logo.png" alt="Event logo" class="event-logo" />
-                        </div>
-                        <img v-else :src="event?.images[0]?.url" alt="Event image" class="ticketmaster-image" />
+            <div v-if="!loading" class="container mt-4">
+                <div class="row" v-if="sortedEvents.length">
+                    <div class="col-lg-4 col-md-6 col-12 mb-4" v-for="event in sortedEvents" :key="event.id">
+                        <div class="card event" @click="goToEventDetails(event.id)"
+                            style="cursor: pointer; position: relative;">
+                            <!-- Event Image Section -->
+                            <div v-if="event.type === 'Organiser Event'" class="custom-event-image"
+                                :style="{ backgroundColor: event.colour || '#1a1a40' }">
+                                <img src="../assets/logo.png" alt="Event logo" class="event-logo" />
+                            </div>
+                            <img v-else :src="event?.images[0]?.url" alt="Event image" class="ticketmaster-image" />
 
-                        <!-- Bookmark Icon -->
-                        <div class="icon-container" v-if="!isBookmarked(event.id) && isCustomer">
-                            <font-awesome-icon v-if="userID"
-                                :icon="isBookmarked(event.id) ? ['fas', 'bookmark'] : ['far', 'bookmark']"
-                                class="bookmark-icon" @click.stop="toggleWishlist(event.id)" />
-                        </div>
-                        <div class="fixed-icon-container" v-if="isBookmarked(event.id) && isCustomer">
-                            <font-awesome-icon v-if="userID"
-                                :icon="isBookmarked(event.id) ? ['fas', 'bookmark'] : ['far', 'bookmark']"
-                                class="bookmark-icon" @click.stop="toggleWishlist(event.id)" />
-                        </div>
+                            <!-- Bookmark Icon -->
+                            <div class="icon-container" v-if="!isBookmarked(event.id) && isCustomer">
+                                <font-awesome-icon v-if="userID"
+                                    :icon="isBookmarked(event.id) ? ['fas', 'bookmark'] : ['far', 'bookmark']"
+                                    class="bookmark-icon" @click.stop="toggleWishlist(event.id)" />
+                            </div>
+                            <div class="fixed-icon-container" v-if="isBookmarked(event.id) && isCustomer">
+                                <font-awesome-icon v-if="userID"
+                                    :icon="isBookmarked(event.id) ? ['fas', 'bookmark'] : ['far', 'bookmark']"
+                                    class="bookmark-icon" @click.stop="toggleWishlist(event.id)" />
+                            </div>
 
 
-                        <!-- Event Details -->
-                        <div class="card-body text-start">
-                            <h5 class="card-title fs-4">{{ event.name }}</h5>
-                            <p class="card-text">
-                                {{ new Date(event.dates?.start?.dateTime || event?.start).toLocaleDateString('en-US', {
-                                    weekday: 'short',
-                                    year: 'numeric',
-                                    month: 'short',
-                                    day: 'numeric',
-                                    hour: '2-digit',
-                                    minute: '2-digit'
-                                }) }}
-                            </p>
-                            <p class="card-text">Type: {{ event.classifications && event.classifications[0] ? event.classifications[0].genre.name : event.type }}</p>
+                            <!-- Event Details -->
+                            <div class="card-body text-start">
+                                <p class="card-text">{{ event.classifications && event.classifications[0] ?
+                                    event.classifications[0].genre.name : event.type }}</p>
+                                <h5 class="card-title fs-4 mb-0">
+                                    <span>
+                                        {{ event.name.length > 48 ? event.name.substring(0, 38) + '...' : event.name }}
+                                    </span>
+                                </h5>
+                                <p class="card-text mt-0">
+                                    {{ new Date(event.dates?.start?.dateTime || event.start).toLocaleDateString('en-US',
+                                        {
+                                            weekday: 'short',
+                                            year: 'numeric',
+                                            month: 'short',
+                                            day: 'numeric',
+                                            hour: '2-digit',
+                                            minute: '2-digit'
+                                    }) }}
+                                </p>
+                                <p v-if="event.type == 'Organiser Event'" class="card-text" style="position: absolute;
+                            color: rgb(51, 51, 51);
+                            font-size: 16px;
+                            bottom: 5px;
+                            right: 25px;
+                            padding: 5px 10px">
+                                    <b>From S${{ event.price }}</b>
+                                </p>
+
+                                <p v-else-if="event.priceRanges" class="card-text" style="position: absolute;
+                            color: rgb(51, 51, 51);
+                            font-size: 16px;
+                            bottom: 5px;
+                            right: 25px;
+                            padding: 5px 10px">
+                                    <b>From {{ event.priceRanges[0].currency == "USD" ? 'US$' :
+                                        event.priceRanges[0].currency }}{{ event.priceRanges[0].min }}</b>
+                                </p>
+
+                                <p v-else class="card-text" style="position: absolute;
+                            color: rgb(51, 51, 51);
+                            font-size: 16px;
+                            bottom: 5px;
+                            right: 25px;
+                            padding: 5px 10px">
+                                    <b>Price TBC</b>
+                                </p>
+                            </div>
                         </div>
                     </div>
                 </div>
+                <p v-else>No events available.</p>
             </div>
-            <p v-else>No events available.</p>
+            <div v-if="loading" class="loading">
+                <img class="loading-image" src="../assets/logo.png" />
+                <p>Loading...</p>
+            </div>
         </div>
     </div>
 </template>
@@ -171,6 +247,7 @@ export default {
             filteredTicketmasterEvents: [], // New property to store filtered Ticketmaster events
             filteredOrganiserEvents: [], // New property to store filtered organizer events
             isCustomer: false,
+            loading: true,
 
 
         };
@@ -217,6 +294,8 @@ export default {
             this.pop_events = this.events.slice(0, 8);
         } catch (error) {
             console.error('Failed to fetch events:', error);
+        } finally {
+            this.loading = false;  // Set loading to false after fetching is complete
         }
     },
 
@@ -227,12 +306,12 @@ export default {
             // Fetch events only after the user state has been set
             if (this.userID) {
                 this.events = await eventService.displayEvents();
-                console.log("events: ",this.events);
+                console.log("events: ", this.events);
                 this.wishlists = await itineraryService.getUserWishlist(this.userID); // Fetch wishlists if userID exists
             } else {
                 // If userID is not available yet, you might want to fetch events without wishlists
                 this.events = await eventService.displayEvents();
-                console.log("Events, without userID: ",this.events);
+                console.log("Events, without userID: ", this.events);
             }
         } catch (error) {
             console.error('Failed to fetch events or wishlists:', error);
@@ -271,12 +350,12 @@ export default {
         },
 
         filteredEvents() {
-            if (this.userID && this.wishlists.length) {
-                return this.sortedEvents.filter(event =>
-                    this.wishlists.some(wishlist => wishlist.eventID === event.id)
-                );
-            }
-            return this.sortedEvents;
+            // if (this.userID && this.wishlists.length) {
+            //     return this.sortedEvents.filter(event =>
+            //         this.wishlists.some(wishlist => wishlist.eventID === event.id)
+            //     );
+            // }
+            return this.sortedEvents.filter(event => event.type === "Organiser Event");
         }
     },
 
@@ -318,7 +397,7 @@ export default {
                         console.error("Error checking user type:", error);
                     }
 
-                    this.userID = user.uid; 
+                    this.userID = user.uid;
                     try {
                         await this.reloadWishlists();
 
@@ -551,8 +630,11 @@ export default {
 .search-container input[type='text']:hover {
     background-color: #e0e0e0;
 }
-.popular-event-slide-fade-enter-active, .popular-event-slide-fade-leave-active {
-    transition: opacity 0.3s ease, transform 0.3s ease; /* Adjust timing as needed */
+
+.popular-event-slide-fade-enter-active,
+.popular-event-slide-fade-leave-active {
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    /* Adjust timing as needed */
 }
 
 .popular-event-slide-fade-enter,
@@ -621,7 +703,7 @@ export default {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     transition: all 0.3s ease;
     margin: 0 auto;
-    height: 320px;
+    height: 340px;
 }
 
 .event:hover {
@@ -748,5 +830,33 @@ export default {
 
 .bookmark-icon:hover {
     color: #e74c3c;
+}
+
+.loading {
+    width: 50px;
+    animation: bob 1.5s ease-in-out infinite;
+    display: flex;
+    align-items: center;
+    margin: 50px auto;
+}
+
+.loading p {
+    margin: 0 auto;
+}
+
+.loading-image {
+    width: 100%
+}
+
+@keyframes bob {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-10px);
+    }
 }
 </style>

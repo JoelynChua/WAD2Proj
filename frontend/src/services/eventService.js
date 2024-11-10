@@ -7,8 +7,20 @@ const finalURL = cloudURL; // Use this for development; change it to `cloudURL` 
 async function displayEvents() {
     try {
         const res = await axiosInstance.get(`${finalURL}/api/displayEvents`);
-        // Return the list of events
-        return res.data;
+        console.log("All Events", res.data);
+
+        const uniqueEvents = [];
+        const eventNames = new Set();
+
+        res.data.forEach(event => {
+            if (!eventNames.has(event.name)) {
+                uniqueEvents.push(event);
+                eventNames.add(event.name);
+            }
+        });
+
+        // Return the unique list of events
+        return uniqueEvents;
     } catch (error) {
         console.error("Error fetching events:", error);
         throw error;
@@ -34,7 +46,7 @@ async function goToEventDetails(eventId) {
         }
 
         const res = await axiosInstance.get(`${finalURL}/api/eventDetails/${eventId}`);
-        
+
         // Log the entire response object for debugging
         console.log("Full Response from API:", res);
 
