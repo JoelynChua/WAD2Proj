@@ -12,28 +12,65 @@
             </a>
         </div>
         <div class="go-somewhere__grid p-5 pt-0">
-            <a class="go-somewhere__item" href='/ExpensePage'>
+            <a v-if="!isOrganiser" class="go-somewhere__item" href='/ExpensePage'>
                 <i class="fi fi-rr-shopping-bag"></i>
                 calculate expenses
             </a>
-            <a class="go-somewhere__item" href='/itineraryList'>
+
+            <a v-else class="go-somewhere__item" href='/organizer-dashboard'>
+                <i class="fi fi-rr-dashboard-monitor"></i> 
+                events dashboard
+            </a>
+
+            <a v-if="!isOrganiser" class="go-somewhere__item" href='/itineraryList'>
                 <i class="fi fi-rr-track"></i>
                 build an itinerary
+            </a>
+            <a v-else class="go-somewhere__item" href='/calendar'>
+                <i class="fi fi-rr-pen-clip"></i>
+                create an event
             </a>
         </div>
     </section>
 </template>
 
 <script>
+import { auth, database } from '../firebase/firebaseClientConfig';
+import { onAuthStateChanged } from 'firebase/auth';
+import { ref as firebaseRef, get } from 'firebase/database';
 import '../../node_modules/@flaticon/flaticon-uicons/css/regular/all.css';
 
 
 export default {
     data() {
         return {
+            userType: null,
+
         };
     },
     methods: {
+    },
+    created() {
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                this.isAuthenticated = true;
+
+                // Fetch userType from Firebase Database or Firestore
+                const dbRef = firebaseRef(database, `users/${user.uid}`);
+                const userTypeSnapshot = await get(dbRef);
+                if (userTypeSnapshot.exists()) {
+                    this.userType = userTypeSnapshot.val().userType;
+                }
+            } else {
+                this.isAuthenticated = false;
+                this.userType = null;
+            }
+        });
+    },
+    computed: {
+        isOrganiser() {
+            return this.userType === 'organiser';
+        },
     }
 };
 </script>
@@ -101,16 +138,19 @@ a {
 @media (max-width: 768px) {
     .go-somewhere__item {
         min-width: 120px;
-        padding: 20px; /* Reduced padding */
+        padding: 20px;
+        /* Reduced padding */
         margin: 5px
     }
 
     .go-somewhere__item i {
-        font-size: 60px; /* Smaller icon size */
+        font-size: 60px;
+        /* Smaller icon size */
     }
 
     .go-somewhere__title {
-        font-size: 1.5rem; /* Slightly smaller title font */
+        font-size: 1.5rem;
+        /* Slightly smaller title font */
     }
 }
 </style>

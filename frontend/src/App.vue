@@ -52,12 +52,8 @@ export default {
   flex-direction: column;
 }
 
-#navbuffer {
-  flex-grow: 1; 
-}
-
 #footerbuffer {
-  height: 30px; 
+  flex-grow: 1; 
 }
 
 .AppFooter {

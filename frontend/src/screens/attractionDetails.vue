@@ -36,7 +36,8 @@
                             <a :href="attractionDetails.externalLinks?.homepage?.[0]?.url" target="_blank" style="text-decoration: none; font-size: large; margin: 0px 8px; ">{{ attractionDetails.externalLinks?.homepage?.[0]?.url }}</a>
                         </div>
                         <div class="event-container">
-                            <div class="event-header">Socials</div>
+                            <div v-if="attractionDetails.externalLinks?.facebook?.length || attractionDetails.externalLinks?.instagram?.length || attractionDetails.externalLinks?.twitter?.length || attractionDetails.externalLinks?.youtube?.length" 
+                            class="event-header">Socials</div>
                             <div>
                                 <a v-if="attractionDetails.externalLinks?.facebook?.length"
                                     :href="attractionDetails.externalLinks.facebook[0].url" target="_blank"
