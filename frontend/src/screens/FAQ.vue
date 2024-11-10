@@ -1,12 +1,14 @@
 <template>
-  <div class="faq">
-    <h1>Frequently Asked Questions</h1>
-    <div class="faq-item" v-for="(faq, index) in faqs" :key="index">
-      <button @click="toggleAccordion(index)" class="accordion">
-        {{ faq.question }}
-      </button>
-      <div v-show="activeIndex === index" class="panel">
-        <p>{{ faq.answer }}</p>
+  <div class="container-fluid">
+    <div class="faq">
+      <h1>Frequently Asked Questions</h1>
+      <div class="faq-item" v-for="(faq, index) in faqs" :key="index">
+        <button @click="toggleAccordion(index)" class="accordion">
+          {{ faq.question }}
+        </button>
+        <div v-show="activeIndex === index" class="panel">
+          <p>{{ faq.answer }}</p>
+        </div>
       </div>
     </div>
   </div>
@@ -37,7 +39,7 @@ export default {
 
 <style scoped>
 .faq {
-  max-width: 1200px;
+  width: 80%;
   margin: auto;
   margin-top: 20px;
   margin-bottom: 20px;
@@ -81,8 +83,10 @@ h1 {
 /* Panel Styling (Answer Section) */
 .panel {
   padding: 15px;
-  background-color: #f9f9f9; /* Lighter background for answer section */
-  color: #333333; /* Darker color for readability */
+  background-color: #f9f9f9;
+  /* Lighter background for answer section */
+  color: #333333;
+  /* Darker color for readability */
   border-left: 4px solid #202020;
   margin-top: 5px;
   border-radius: 0 0 5px 5px;
@@ -92,7 +96,7 @@ h1 {
 .panel p {
   margin: 0;
   font-size: 1em;
-  color: #333333; /* Ensure text color contrasts with background */
+  color: #333333;
+  /* Ensure text color contrasts with background */
 }
-
 </style>
