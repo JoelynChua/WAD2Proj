@@ -6,7 +6,7 @@
       <!-- Add itinerary -->
       <button v-if="!loginMessage" style="margin-bottom: 20px; display: block; background-color: #c8e0ea"
         @click="toItineraryForm()" class="btn btn">
-        <span class="plus-sign">New Itinerary +</span>
+        <span class="plus-sign">Create Itinerary</span>
       </button>
 
       <!-- Display login prompt if user is not logged in -->

@@ -1,7 +1,6 @@
 <template>
     <div class="pop-events">
-        <h1 v-if="isEvent" class="mt-3">Check out these popular Events</h1>
-        <h1 v-else class="mt-3">Check out these popular Attractions</h1>
+        <h1 class="mt-3 fe-title">featured</h1>
         <swiper
           :slidesPerView="4"
           :centeredSlides="true"
@@ -98,15 +97,23 @@ export default {
 </script>
 
 <style scoped>
+.fe-title {
+  padding-top: 100px;
+  font-size: 32px;
+  font-weight: bold;
+  text-align: center;
+}
+
 .pop-events {
-    background-color: #333;
-    margin-top: 100px;
+    margin-top: 30px;
+    padding-bottom: 50px !important;
     padding: 1px;
     font-family: graphie, sans-serif;
+    border-bottom: 1px solid silver;
 }
 
 .pop-events h1 {
-    color: #f0f0f0;
+    color: rgb(51, 51, 51);
 }
 
 .event-box {

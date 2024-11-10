@@ -3,10 +3,11 @@
 
         <div class="hero-section">
             <video ref="backgroundVideo" autoplay muted loop playsinline id="background-video">
-                <source src="https://videos.pexels.com/video-files/3116906/3116906-hd_1920_1080_25fps.mp4" type="video/mp4" />
+                <source src="https://videos.pexels.com/video-files/3116906/3116906-hd_1920_1080_25fps.mp4"
+                    type="video/mp4" />
                 Your browser does not support the video tag.
             </video>
-            <div class="hero-content">                
+            <div class="hero-content">
                 <div class="display-1 z-1">Find Your <span style="color: red">Attraction</span></div>
             </div>
 
@@ -15,19 +16,19 @@
                 <div class="form-field search-bar">
                     <div class="search-container">
                         <i class="fi fi-rr-search search-icon"></i>
-                        <input type="text" placeholder="Search for attractions..." aria-label="Search" v-model="searchQuery"
-                            @keyup="searchAttractions(searchQuery)" />
+                        <input type="text" placeholder="Search for attractions..." aria-label="Search"
+                            v-model="searchQuery" @keyup="searchAttractions(searchQuery)" />
                     </div>
                 </div>
             </div>
         </div>
 
-        <transition name="popular-event-slide-fade">
+        <!-- <transition name="popular-event-slide-fade">
             <PopularEvents v-if="!searchQuery" :events="pop_events" :isEvent="false" />
-        </transition>
+        </transition> -->
 
-         <!-- Events filter -->
-         <div v-if="userID" class="filter-container">
+        <!-- Events filter -->
+        <div v-if="userID" class="filter-container">
             <h1>Upcoming Attractions</h1>
             <div class="dropdown-container" v-if="isCustomer">
                 <i class="fi fi-rr-angle-small-down dropdown-icon"></i>
@@ -44,13 +45,14 @@
         <!-- Wishlist Filtered Events -->
         <div class="container mt-4" v-if="selectedFilter === 'wishlist' && filteredAttractions.length">
             <div class="row">
-                <div class="col-lg-4 col-md-6 col-12 mb-4" v-for="attraction in filteredAttractions" :key="attraction.id">
-                    <div class="card event" @click="goToAttractionDetails(attraction.id)"
+                <div class="col-lg-3 col-md-6 col-12 mb-4" v-for="attraction in filteredAttractions"
+                    :key="attraction.id">
+                    <div class="card event pb-0" @click="goToAttractionDetails(attraction.url)"
                         style="cursor: pointer; position: relative;">
 
                         <!-- Image -->
                         <img :src="attraction.images[0].url" alt="Attraction image" class="ticketmaster-image" />
-                        
+
                         <!-- Bookmark Icon -->
                         <div class="icon-container" v-if="!isBookmarked(attraction.id)">
                             <font-awesome-icon v-if="userID"
@@ -64,9 +66,24 @@
                         </div>
 
                         <!-- Event Details -->
-                        <div class="card-body text-start">
-                            <h5 class="card-title">{{ attraction.name }}</h5>
-                            <p class="card-text">Genre: {{ attraction.classifications[0].genre?.name }}</p>
+                        <div class="card-body text-start pb-0" style="position: relative;">
+                            <p v-if="!(attraction.classifications[0].genre?.name.toUpperCase() == 'UNDEFINED')"
+                                class="card-text">
+                                {{ attraction.classifications[0].genre?.name }}
+                            </p>
+
+                            <p v-else style="color: rgb(113, 128, 150); font-size: 16px; margin-bottom: 8px">
+                                Activity
+                            </p>
+
+                            <h5 class="card-title">
+                                <span>
+                                    {{ attraction.name.length > 48 ? attraction.name.substring(0, 48) + '...' :
+                                    attraction.name }}
+                                </span>
+                            </h5>
+                            <p style="position: absolute; bottom: 0px; right: 25px; font-size: 22px"><i
+                                    class="fi fi-rr-address-card"></i></p>
                         </div>
                     </div>
                 </div>
@@ -76,12 +93,13 @@
         <!-- All Events (Default View) -->
         <div v-else class="container mt-4">
             <div class="row" v-if="sortedEvents.length">
-                <div class="col-lg-4 col-md-6 col-12 mb-4" v-for="attraction in sortedEvents" :key="attraction.id">
-                    <div class="card event" @click="goToAttractionDetails(attraction.id)" style="cursor: pointer; position: relative">
+                <div class="col-lg-3 col-md-6 col-12 mb-4" v-for="attraction in sortedEvents" :key="attraction.id">
+                    <div class="card event" @click="goToAttractionDetails(attraction.url)"
+                        style="cursor: pointer; position: relative">
 
                         <!-- Image -->
                         <img :src="attraction.images[0].url" alt="Attraction image" class="ticketmaster-image" />
-                        
+
                         <!-- Bookmark Icon -->
                         <div class="icon-container" v-if="!isBookmarked(attraction.id) && isCustomer">
                             <font-awesome-icon v-if="userID"
@@ -94,10 +112,25 @@
                                 class="bookmark-icon" @click.stop="toggleWishlist(attraction.id)" />
                         </div>
 
-                         <!-- Event Details -->
-                         <div class="card-body text-start">
-                            <h5 class="card-title">{{ attraction.name }}</h5>
-                            <p class="card-text">Genre: {{ attraction.classifications[0].genre?.name }}</p>
+                        <!-- Event Details -->
+                        <div class="card-body text-start pb-0" style="position: relative;">
+                            <p v-if="!(attraction.classifications[0].genre?.name.toUpperCase() == 'UNDEFINED')"
+                                class="card-text">
+                                {{ attraction.classifications[0].genre?.name }}
+                            </p>
+
+                            <p v-else style="color: rgb(113, 128, 150); font-size: 16px; margin-bottom: 8px">
+                                Activity
+                            </p>
+
+                            <h5 class="card-title">
+                                <span>
+                                    {{ attraction.name.length > 48 ? attraction.name.substring(0, 48) + '...' :
+                                        attraction.name }}
+                                </span>
+                            </h5>
+                            <p style="position: absolute; bottom: 0px; right: 25px; font-size: 22px"><i
+                                    class="fi fi-rr-address-card"></i></p>
                         </div>
                     </div>
                 </div>
@@ -118,7 +151,7 @@ import { getAuth } from 'firebase/auth';
 import { ref as dbRef, getDatabase, get } from 'firebase/database';
 
 
-import PopularEvents from '../components/PopularEvents.vue';
+// import PopularEvents from '../components/PopularEvents.vue';
 
 
 library.add(faBookmark, farBookmark);
@@ -127,7 +160,7 @@ export default {
     name: 'attractionList',
     components: {
         FontAwesomeIcon,
-        PopularEvents,
+        // PopularEvents,
 
     },
     data() {
@@ -149,14 +182,14 @@ export default {
         sortedEvents() {
 
             const eventsToUse = this.searchQuery ?
-                this.searchFiltered:
+                this.searchFiltered :
                 this.attractions
             return eventsToUse
         },
         filteredAttractions() {
             if (this.userID && this.wishlists.length) {
-                console.log("this happened: ",this.attractions.filter(event =>
-                this.wishlists.some(wishlist => wishlist.attractionID === event.id)))
+                console.log("this happened: ", this.attractions.filter(event =>
+                    this.wishlists.some(wishlist => wishlist.attractionID === event.id)))
                 return this.attractions.filter(event =>
                     this.wishlists.some(wishlist => wishlist.attractionID === event.id)
                 );
@@ -176,7 +209,7 @@ export default {
     },
 
     mounted() {
-        
+
         window.addEventListener('scroll', this.handleScroll);
     },
 
@@ -190,7 +223,7 @@ export default {
         },
 
         goToAttractionDetails(id) {
-            this.$router.push({ name: 'AttractionDetails', params: { id } });
+            window.open(id, '_blank');
         },
 
         isBookmarked(attractionID) {
@@ -213,7 +246,7 @@ export default {
                     } catch (error) {
                         console.error("Error checking user type:", error);
                     }
-                    
+
                     this.userID = user.uid;
                     try {
                         await this.reloadWishlists();
@@ -266,7 +299,7 @@ export default {
             }
         },
 
-        async searchAttractions (query) {
+        async searchAttractions(query) {
             console.log('Searching with query:', query);
             if (query && query.length > 0) {
                 try {
@@ -274,7 +307,7 @@ export default {
                 } catch (error) {
                     console.error('Error searching events:', error);
                 }
-            } 
+            }
         }
     },
 };
@@ -396,8 +429,10 @@ export default {
     background-color: #e0e0e0;
 }
 
-.popular-event-slide-fade-enter-active, .popular-event-slide-fade-leave-active {
-    transition: opacity 0.3s ease, transform 0.3s ease; /* Adjust timing as needed */
+.popular-event-slide-fade-enter-active,
+.popular-event-slide-fade-leave-active {
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    /* Adjust timing as needed */
 }
 
 .popular-event-slide-fade-enter,
@@ -593,5 +628,4 @@ export default {
 .bookmark-icon:hover {
     color: #e74c3c;
 }
-
 </style>

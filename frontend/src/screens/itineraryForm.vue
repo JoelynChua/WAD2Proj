@@ -1,30 +1,32 @@
 <template>
-    <div class="container mt-5">
-        <h2>Create Itinerary</h2>
-
+    <div class="container mt-5" style="max-width: 500px;">
         <!-- Display form only if user is signed in -->
         <form v-if="uid" @submit.prevent="handleSubmit">
-            <div class="mb-3">
-                <label for="title" class="form-label">Title</label>
-                <input type="text" class="form-control" id="title" v-model="formData.title" required />
-            </div>
+            <div class="mt-3 shadow p-5 bg-body hover-effect text-start">
+                <h2 class="text-start">New Itinerary</h2>
+                <div class="mb-3 mt-4">
+                    <label for="title" class="form-label">Title</label>
+                    <input type="text" class="form-control" id="title" v-model="formData.title" required />
+                </div>
 
-            <div class="mb-3">
-                <label for="budget" class="form-label">Budget</label>
-                <input type="number" class="form-control" id="budget" v-model.number="formData.budget" />
-            </div>
+                <div class="mb-3">
+                    <label for="budget" class="form-label">Budget</label>
+                    <input type="number" class="form-control" id="budget" v-model.number="formData.budget" />
+                </div>
 
-            <div class="mb-3">
-                <label for="date" class="form-label">Date</label>
-                <input type="date" class="form-control" id="date" v-model="formData.date" :min="today" required />
-            </div>
+                <div class="mb-3">
+                    <label for="date" class="form-label">Date</label>
+                    <input type="date" class="form-control" id="date" v-model="formData.date" :min="today" required />
+                </div>
 
-            <div class="mb-3">
-                <label for="collaborators" class="form-label">Collaborators</label>
-                <input type="text" class="form-control" id="collaborators" v-model="formData.collaborators"
-                    placeholder="Comma-separated collaborator emails" />
+                <div class="mb-3">
+                    <label for="collaborators" class="form-label">Collaborators</label>
+                    <input type="text" class="form-control" id="collaborators" v-model="formData.collaborators"
+                        placeholder="Comma-separated collaborator emails" />
+                </div>
+                <br />
+                <button type="submit" class="btn btn-primary">Create</button>
             </div>
-
             <!-- <h3>Timetable</h3>
             <table class="table table-bordered">
                 <thead>
@@ -43,9 +45,6 @@
                     </tr>
                 </tbody>
             </table> -->
-
-            <br />
-            <button type="submit" class="btn btn-primary">Create</button>
         </form>
 
         <!-- Message displayed if user is not signed in -->
@@ -121,7 +120,6 @@ export default {
                         console.log("User Email:", this.email);
 
                         // Initialize the collaborators field with the user's email
-                        this.formData.collaborators = this.email;
                     } else {
                         console.log("No user is currently signed in.");
                     }
@@ -146,11 +144,21 @@ export default {
             console.log(this.formData, "FORMDATA");
 
             // Split the collaborators string into an array of emails
-            const collaboratorsArray = this.formData.collaborators
-                .split(',')
-                .map(collaborator => collaborator.trim()); // Trim any excess spaces
+            const user = auth.currentUser; // Get the currently signed-in user
+            this.email = user.email;
+            let collaboratorsArray = this.formData.collaborators
+                    .split(',')
+                    .map(collaborator => collaborator.trim());
 
-            // Initialize the collaborators object with the current user's UID and email
+            if (collaboratorsArray.length > 0) {
+                collaboratorsArray.push(this.email)
+            } else {
+                collaboratorsArray = [this.email];
+            }
+
+            console.log("Array", collaboratorsArray);
+
+            // Onitialize the collaborators object with the current user's UID and email
             let collaboratorsObj = { [this.uid]: this.email }; // Use let so we can modify the object
 
             // Function to sanitize email by replacing '@' with '_' and other potential issues

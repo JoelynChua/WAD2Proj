@@ -75,9 +75,17 @@
                                     {{ eventDetails.priceRanges[0].max }}{{ eventDetails.priceRanges[0].currency }}
                                 </span>
                                 <span v-else>
-                                    {{ eventDetails.price }}SGD
+                                    {{ eventDetails.price }} SGD
                                 </span>
                             </div>
+
+                            <div class="event-container" v-if="isOrganiserEvent">
+                                <div class="event-header">Description</div>
+                                <div style="margin: 0px 8px;">
+                                    {{  eventDetails.description }}
+                                </div>
+                            </div>
+
 
                             <div class="event-container" v-if="!isOrganiserEvent">
                                 <div class="event-header">Ticket Sales</div>

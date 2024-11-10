@@ -39,6 +39,7 @@
   <!-- If no bookings, show a message -->
   <div v-else>
     <p class="mt-5">No bookings available.</p>
+    <a href="/events">Make Bookings</a>
   </div>
 </template>
 
