@@ -25,7 +25,8 @@
                         placeholder="Comma-separated collaborator emails" />
                 </div>
                 <br />
-                <button type="submit" class="btn btn-primary">Create</button>
+                <button class="btn back" @click="goToPrevPage">Back</button>
+                <button type="submit" class="btn create">Create</button>
             </div>
             <!-- <h3>Timetable</h3>
             <table class="table table-bordered">
@@ -94,6 +95,9 @@ export default {
     },
 
     methods: {
+        goToPrevPage () {
+            this.$router.back();
+        },
         authListener() {
             // Listen to the authentication state
             auth.onAuthStateChanged(async (user) => {
@@ -245,4 +249,95 @@ export default {
 .table {
     margin-top: 20px;
 }
+
+h2 {
+    font-size: 1.8rem;
+    color: #333;
+    font-weight: bold;
+    margin-bottom: 1rem;
+}
+
+.form-label {
+    font-size: 0.9rem;
+    font-weight: bold;
+    color: #555;
+}
+
+.form-control {
+    border-radius: 5px;
+    border: 1px solid #ced4da;
+    padding: 0.75rem;
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+}
+
+.form-control:focus {
+    border-color: #7a5c85; /* Accent color */
+    box-shadow: 0 0 0 0.2rem rgba(122, 92, 133, 0.25); /* Light shadow on focus */
+}
+
+.container {
+    max-width: 500px;
+    margin: 0 auto; /* Center container on the page */
+    padding: 20px;
+}
+
+.shadow {
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1); /* Soft shadow for a modern look */
+    border-radius: 8px; /* Rounded corners */
+}
+
+.btn {
+    font-weight: bold;
+    padding: 10px 20px;
+    border-radius: 5px;
+    border: none;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.back{
+    font-weight: bold;
+    color: #fff;
+    background-color: #000; 
+    padding: 8px 16px; 
+    margin-right: 20px;
+}
+
+.back:hover {
+    background-color: #333;
+    transform: scale(1.05); /* Slight scale on hover */
+}
+
+.create {
+    font-weight: bold;
+    color: #fff;
+    background-color: #7a5c85; 
+    padding: 8px 16px; 
+}
+
+.create:hover {
+    background-color: #5a3e64;
+    transform: scale(1.05); /* Slight scale on hover */
+}
+
+.hover-effect {
+    transition: transform 0.2s ease;
+}
+
+.hover-effect:hover {
+    transform: translateY(-5px); /* Slight lift on hover */
+}
+
+p {
+    color: #777;
+    font-size: 1rem;
+    text-align: center;
+    margin-top: 2rem;
+}
+
+.placeholder {
+    color: #aaa;
+    font-style: italic;
+}
+
 </style>

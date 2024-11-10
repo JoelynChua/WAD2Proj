@@ -1,5 +1,5 @@
 import axiosInstance from '../utils/axiosInstance'; // Import your axios instance, if you have one configured
-// const localURL = "http://localhost:8000";
+// const cloudURL = "http://localhost:8000";
 const cloudURL = "https://wad-2-proj.vercel.app"
 const finalURL = cloudURL; // Use this for development; change it to `cloudURL` when in production
 
@@ -145,6 +145,42 @@ async function deleteWishlist(wishlistID) {
     }
 }
 
+// Function to fetch temporary list items by userID
+async function getTempItemsByUserID(userID) {
+    try {
+        const res = await axiosInstance.get(`${finalURL}/api/templist/user/${userID}`);
+        console.log(res.data);
+        return res.data;
+    } catch (error) {
+        console.error("Error fetching temporary list items:", error);
+        throw error;
+    }
+}
+
+// Function to add a new item to the temporary list
+async function addTempItem(newTempItem) {
+    try {
+        const res = await axiosInstance.post(`${finalURL}/api/addTempItem`, newTempItem);
+        console.log(res.data);
+        return res.data;
+    } catch (error) {
+        console.error("Error adding temporary list item:", error);
+        throw error;
+    }
+}
+
+// Function to delete a temporary list item by ID
+async function deleteTempItem(tempItemID) {
+    try {
+        const res = await axiosInstance.delete(`${finalURL}/api/deleteTempItem/${tempItemID}`);
+        console.log(res.data);
+        return res.data;
+    } catch (error) {
+        console.error("Error deleting temporary list item:", error);
+        throw error;
+    }
+}
+
 export default {
     getAllItinerary,
     getItineraryByID,
@@ -155,5 +191,8 @@ export default {
     deleteItinerary,
     getUserWishlist,
     addWishlist,
-    deleteWishlist
+    deleteWishlist,
+    getTempItemsByUserID,
+    addTempItem,
+    deleteTempItem
 };

@@ -67,8 +67,7 @@
 
                         <!-- Event Details -->
                         <div class="card-body text-start">
-                            <h5 class="card-title">{{ event.name }}</h5>
-                            <p class="card-text">Type: {{ event.type }}</p>
+                            <h5 class="card-title fs-4">{{ event.name }}</h5>
                             <p class="card-text">
                                 {{ new Date(event.dates?.start?.dateTime || event?.start).toLocaleDateString('en-US', {
                                     weekday: 'short',
@@ -79,6 +78,7 @@
                                     minute: '2-digit'
                                 }) }}
                             </p>
+                            <p class="card-text">Type: {{ event.classifications && event.classifications[0] ? event.classifications[0].genre.name : event.type }}</p>
                         </div>
                     </div>
                 </div>

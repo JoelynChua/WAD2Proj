@@ -1,16 +1,14 @@
 <template>
     <div>
-        <button v-if="!loggedIn" @click="handleAuthClick" class="btn btn-info" style="position: fixed; left: 50px;">
+        <button v-if="!loggedIn && !successMessage" @click="handleAuthClick" class="btn btn-info" style="position: fixed; left: 50px;">
             Connect to Google Calendar
         </button>
-        <button v-if="loggedIn" @click="addEvent" class="btn btn-info" style="position: fixed; left: 50px;">Add Itinerary</button>
-        <!-- <button v-else @click="listUpcomingEvents">List Upcoming Events</button> -->
-        <!-- <ul v-if="events.length" style="list-style: none">
-            <li v-for="event in events" :key="event.id">
-                {{ event.summary }} -
-                {{ event.start.dateTime || event.start.date }}
-            </li>
-        </ul> -->
+        <button v-if="loggedIn && !successMessage" @click="checkAndAddOrUpdateEvent" class="btn btn-info" style="position: fixed; left: 50px;">Add Itinerary</button>
+
+        <div v-if="successMessage" class="alert alert-success" role="alert">
+            {{ successMessage }}
+        </div>
+
     </div>
 </template>
 
@@ -30,6 +28,7 @@ export default {
             SCOPES: 'https://www.googleapis.com/auth/calendar',
             events: [],
             loggedIn: false,
+            successMessage: null,
         };
     },
     async mounted() {
@@ -93,6 +92,106 @@ export default {
                     this.loggedIn = false;
                 });
         },
+
+        async checkAndAddOrUpdateEvent() {
+            // Fetch upcoming events to check for a matching event
+            await gapi.client.calendar.events
+                .list({
+                    calendarId: 'primary',
+                    // timeMin: new Date().toISOString(),
+                    showDeleted: false,
+                    singleEvents: true,
+                    orderBy: 'startTime',
+                })
+                .then((response) => {
+                    const events = response.result.items;
+
+                    console.log(events)
+                    // Check if an event with the same title and date already exists
+                    const matchingEvent = events.find((event) => 
+                        event.summary === this.itinerary && 
+                        event.start.date === this.date
+                    );
+
+                    console.log(matchingEvent)
+
+                    if (matchingEvent) {
+                        // If a matching event is found, update it
+                        this.updateEvent(matchingEvent.id);
+                    } else {
+                        // If no matching event is found, create a new event
+                        console.log("this is a new event")
+                        this.addEvent();
+                    }
+                })
+                .catch((error) => {
+                    console.error('Error fetching events:', error);
+                });
+        },
+        
+        addEvent() {
+            const event = {
+                summary: this.itinerary,
+                description: 'Log in to Activity.ai for more details on this itinerary',
+                start: {date: this.date, timeZone: 'Asia/Singapore'},
+                end: {date: this.date, timeZone: 'Asia/Singapore'},
+                reminders: {useDefault: false, overrides: 
+                    [{ method: 'email', minutes: 24 * 60 },
+                    { method: 'popup', minutes: 10 }],
+                },
+            };
+            gapi.client.calendar.events
+                .insert({
+                    calendarId: 'primary',
+                    resource: event,
+                })
+                .then((response) => {
+                    console.log('Event created: ', response.result);
+                    this.events.push(response.result);
+
+                    // success message
+                    this.successMessage = "Itinerary successfully added to Your Google Calendar.";
+                    setTimeout(() => {
+                        this.successMessage = null;
+                    }, 3000);
+                })
+                .catch((error) => {
+                    console.error('Error creating event:', error);
+                });
+        },
+
+        updateEvent(eventId) {
+            const updatedEvent = {
+                summary: this.itinerary,
+                description: 'Log in to Activity.ai for updated details on this itinerary',
+                start: { date: this.date, timeZone: 'Asia/Singapore' },
+                end: { date: this.date, timeZone: 'Asia/Singapore' },
+                reminders: { 
+                    useDefault: false, 
+                    overrides: [
+                        { method: 'email', minutes: 24 * 60 },
+                        { method: 'popup', minutes: 10 }
+                    ],
+                },
+            };
+
+            gapi.client.calendar.events
+                .update({
+                    calendarId: 'primary',
+                    eventId: eventId,
+                    resource: updatedEvent,
+                })
+                .then((response) => {
+                    console.log('Event updated: ', response.result);
+                    this.successMessage = "Itinerary successfully updated.";
+                    setTimeout(() => {
+                        this.successMessage = null;
+                    }, 3000);
+                })
+                .catch((error) => {
+                    console.error('Error updating event:', error);
+                });
+        },
         listUpcomingEvents() {
             if (this.loggedIn) {
                 gapi.client.calendar.events
@@ -123,39 +222,6 @@ export default {
                 console.log('You have not logged into Google Calendar');
             }
         },
-        addEvent() {
-            const event = {
-                summary: this.itinerary,
-                description: 'Log in to Activity.ai for more details on this itinerary',
-                start: {
-                    date: this.date,
-                    timeZone: 'Asia/Singapore',
-                },
-                end: {
-                    date: this.date,
-                    timeZone: 'Asia/Singapore',
-                },
-                reminders: {
-                    useDefault: false,
-                    overrides: [
-                        { method: 'email', minutes: 24 * 60 },
-                        { method: 'popup', minutes: 10 },
-                    ],
-                },
-            };
-            gapi.client.calendar.events
-                .insert({
-                    calendarId: 'primary',
-                    resource: event,
-                })
-                .then((response) => {
-                    console.log('Event created: ', response.result);
-                    this.events.push(response.result);
-                })
-                .catch((error) => {
-                    console.error('Error creating event:', error);
-                });
-        },
     },
     onUnmounted() {
         // Cleanup the event listener
@@ -168,5 +234,11 @@ export default {
 /* Add your styles */
 .btn {
     z-index: 3;
+}
+
+.alert-success {
+    color: #155724;
+    border-color: #c3e6cb;
+    border-radius: 5px;
 }
 </style>

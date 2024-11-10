@@ -138,16 +138,6 @@
                                                 </template>
                                             </tr>
                                         </tbody>
-
-
-
-
-
-
-
-
-
-
                                     </table>
                                 </div>
                                 <div v-else>
@@ -166,7 +156,7 @@
                 <div ref="wishlistSidebar" class="wishlist-sidebar" :class="{ expanded: isExpanded }">
                     <h3 style="text-decoration: underline;">Wishlist</h3>
 
-                    <ul v-if="wishlists.length">
+                    <ul v-if="wishlists.length" class="list-unstyled">
                         <li v-for="wishlist in wishlists" :key="wishlist.id" :draggable="true"
                             @dragstart="onDragStart($event, wishlist)" class="draggable-item"
                             style="border: 1px solid; margin: 5px; border-radius: 5px; padding: 10px;">
@@ -259,11 +249,13 @@ export default {
             resizingEvent: null,
             initialMouseX: 0,
             initialRowspan: 1,
-            rowspans: {} // Stores the calculated rowspans for each eventID
+            rowspans: {}, // Stores the calculated rowspans for each eventID
+
+            temporaryItems: [],// To store items temporarily when they are moved to the events table
 
         };
     },
-    mounted() {
+    async mounted() {
         this.initializeTrail();
         this.authListener();
 
@@ -289,6 +281,7 @@ export default {
         else {
             console.error('eventsTable reference is missing');
         }
+
     },
 
     computed: {
@@ -353,9 +346,13 @@ export default {
                         // Fetch the wishlist after the user ID is available
                         await this.fetchWishlist();
 
+                        await this.fetchTemporaryItems();
+
                         // Fetch itineraries using the UID
                         this.itineraries = await itineraryService.getItineraryByUserID(this.userID);
                         console.log("ITINERARIES", this.itineraries);
+
+                        
 
 
 
@@ -471,7 +468,20 @@ export default {
                 console.error("Failed to fetch itinerary details:", error);
             }
         },
+        async fetchTemporaryItems() {
 
+            try {
+                if (!this.userID) {
+                    throw new Error("User ID not available for fetching temporary items.");
+                }
+                this.temporaryItems = await itineraryService.getTempItemsByUserID(this.userID);
+                console.log("Fetched temp items:", this.temporaryItems);
+
+                
+            } catch (error) {
+                console.error("Error fetching temporary items:", error);
+            }
+        },
 
         async fetchDetails(eventID) {
             try {
@@ -564,13 +574,30 @@ export default {
 
 
         // Method to remove the eventID of a specific event without removing the entire row
-        onRemoveEvent(eventID) {
+        async onRemoveEvent(eventID) {
             const eventToUpdate = this.sortedEvents.find(event => event.eventID === eventID);
 
+            console.log('JJ: this event has been removed', eventToUpdate)
             if (eventToUpdate) {
                 eventToUpdate.eventID = null; // Clear the eventID, keep other details intact
                 eventToUpdate.name = null; // Optionally, clear the name or any other related fields
                 console.log(`Event ${eventID} removed from the itinerary.`);
+                
+                const tempIndex = this.temporaryItems.findIndex(item => item.eventID === eventID || item.attractionID === eventID);
+
+                console.log("Temp Item FOUND:",this.temporaryItems[tempIndex])
+                if (tempIndex !== -1) {
+                    try {
+                        await itineraryService.addWishlist(this.temporaryItems[tempIndex]);
+
+                        console.log()
+                        await itineraryService.deleteTempItem(this.temporaryItems[tempIndex].id); 
+                        this.temporaryItems.splice(tempIndex, 1)
+                        await this.fetchWishlist();
+                    } catch (error) {
+                        console.error("Error moving event back to wishlist:", error);
+                    }
+                }
 
                 // Optionally, call a service to update the state on the server if needed
                 this.handleUpdate(); // Call the update method to save the changes
@@ -579,7 +606,21 @@ export default {
             }
         },
 
+        returnToWishlist(eventID, eventDetails) {
+            // Check if the event is already in the wishlist
+            const existsInWishlist = this.wishlists.some(item => item.eventID === eventID || item.attractionID === eventID);
 
+            if (!existsInWishlist) {
+                // Add the removed item back to the wishlist
+                this.wishlists.push({
+                    id: eventID,  // Ensure this aligns with your data structure
+                    name: eventDetails.name || eventDetails.title,
+                    type: eventDetails.type || eventDetails.genre || 'N/A'
+                });
+
+                console.log(`Event ${eventID} added back to the wishlist.`);
+            }
+        },
 
         async handleUpdate() {
             this.updateMessage = null; // Reset previous success message
@@ -729,7 +770,7 @@ export default {
         // Method to return dynamic styles and attributes for the event column based on its timing
         getColumnStyle(event) {
             const rowspan = this.getEventRowspan(event);
-            console.log(rowspan, "ROWSPAN STYLE");
+            // console.log(rowspan, "ROWSPAN STYLE");
 
             return {
                 rowspan: `${rowspan}`,
@@ -771,7 +812,7 @@ export default {
                 }
             }
 
-            console.log(`Total calculated rowspan for eventID ${event.eventID}:`, totalRowspan);
+            // console.log(`Total calculated rowspan for eventID ${event.eventID}:`, totalRowspan);
             return totalRowspan; // Default return if no next event is found
         },
 
@@ -963,6 +1004,20 @@ export default {
             }
 
             console.log("Updated sortedEvents:", this.sortedEvents); // Verify updated events
+
+            // Temporarily store the item before removing it from the wishlist
+            try {
+                const newTempList = {
+                    userID: this.userID,
+                    eventID: wishlistItem.eventID,
+                    attractionID: wishlistItem.attractionID 
+                }
+                await itineraryService.addTempItem(newTempList);
+                this.temporaryItems = await itineraryService.getTempItemsByUserID(this.userID)
+                console.log("TEMPORARY ITEMS",this.temporaryItems)
+            } catch (error) {
+                console.error("Failed to add item to temporary list:", error);
+            }
 
             // Delete from wishlist
             try {
