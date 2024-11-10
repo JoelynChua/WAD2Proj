@@ -749,4 +749,29 @@ export default {
 .bookmark-icon:hover {
     color: #e74c3c;
 }
+
+.card-body {
+    overflow-y: auto;
+}
+
+/* Custom scrollbar styling */
+.card-body::-webkit-scrollbar {
+    width: 8px;
+    height: 80%;
+}
+
+.card-body::-webkit-scrollbar-track {
+    background: #f1f1f1; 
+    border-radius: 4px; 
+}
+
+.card-body::-webkit-scrollbar-thumb {
+    background-color: #888;
+    border-radius: 4px;
+    border: 2px solid #f1f1f1; 
+}
+
+.card-body::-webkit-scrollbar-thumb:hover {
+    background-color: #555;
+}
 </style>
