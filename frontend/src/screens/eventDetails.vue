@@ -1,30 +1,27 @@
 <template>
     <div>
         <div v-if="loading" class="loading">
-            <img class="loading-image" src="../assets/logo.png"/>
+            <img class="loading-image" src="../assets/logo.png" />
             <p>Loading...</p>
         </div>
         <div v-else>
             <!-- Custom event image handling -->
             <div v-if="isOrganiserEvent" class="row event-hero-wrapper">
-                            <div class="col-2"></div>
-                            <div class="col-8" :style="{ backgroundColor: eventDetails.colour || '#1a1a40', borderRadius: '20px'}">
-                                <img src="../assets/logo.png" alt="Event logo" class="event-hero-custom-image" />
-                            </div>
-                            <div class="col-2"></div>
-                        </div>
-            <div v-else class="row event-hero-wrapper">
-                    <div class="col-2"></div>
-                    <div class="col-8">
-                        <!-- Ticketmaster event image -->
-                        <img 
-                            :src="eventDetails.images?.[0]?.url" 
-                            class="event-hero-image"
-                            alt="Event Image"/>
-                    </div>
-                    <div class="col-2"></div>
+                <div class="col-2"></div>
+                <div class="col-8" :style="{ backgroundColor: eventDetails.colour || '#1a1a40', borderRadius: '20px' }">
+                    <img src="../assets/logo.png" alt="Event logo" class="event-hero-custom-image" />
+                </div>
+                <div class="col-2"></div>
             </div>
-             <!-- Organiser Event specific details  -->
+            <div v-else class="row event-hero-wrapper">
+                <div class="col-2"></div>
+                <div class="col-8">
+                    <!-- Ticketmaster event image -->
+                    <img :src="eventDetails?.images?.[0]?.url" class="event-hero-image" alt="Event Image" />
+                </div>
+                <div class="col-2"></div>
+            </div>
+            <!-- Organiser Event specific details  -->
             <!-- <div v-if="isOrganiserEvent">
                 <h1>{{ isOrganiserEvent ? eventDetails.title : eventDetails.name }}</h1>
                 <p>Type: {{ isOrganiserEvent ? 'Organiser Event' : eventDetails.type }}</p>
@@ -34,7 +31,7 @@
                 <p v-if="eventDetails.location">Location: {{ eventDetails.location }}</p>
                 <p v-if="eventDetails.price">Price: ${{ eventDetails.price }}</p>
             </div> -->
-            <div class="event-details" >
+            <div class="event-details">
                 <div class="row mt-5">
                     <div class="col-2"></div>
                     <div class="col-6">
@@ -48,34 +45,45 @@
                             <div class="event-container">
                                 <div class="event-header">Date and Time</div>
                                 <i class="fi fi-rr-calendar-day" style="margin: 0px 8px;"></i>
-                                <span v-if="!isOrganiserEvent"> {{ eventDetails.dates.start.localDate }}, {{ eventDetails.dates.start.localTime.slice(0,5) }} {{ eventDetails.dates.timezone }}</span>
-                                <span v-else>{{ formatDate(eventDetails.start) }}, {{ formatTime(eventDetails.start) }} SGT</span>
+                                <span v-if="!isOrganiserEvent"> {{ eventDetails?.dates?.start?.localDate }}, {{
+                                    eventDetails?.dates?.start?.localTime.slice(0, 5) }} {{ eventDetails?.dates?.timezone
+                                    }}</span>
+                                <span v-else>{{ formatDate(eventDetails.start) }}, {{ formatTime(eventDetails.start) }}
+                                    SGT</span>
                             </div>
 
                             <div class="event-container" v-if="!isOrganiserEvent">
                                 <div class="event-header">Location</div>
                                 <i class="fi fi-rs-marker" style="margin: 0px 8px;"></i>
-                                <span> {{ eventDetails._embedded.venues[0].name }}</span>
-                                <div style="margin: 0px 30px; color: grey;">{{ eventDetails._embedded.venues[0].address.line1 }}, {{ eventDetails._embedded.venues[0].postalCode }}</div>
+                                <span> {{ eventDetails?._embedded?.venues[0]?.name }}</span>
+                                <div style="margin: 0px 30px; color: grey;">{{
+                                    eventDetails._embedded.venues[0].address.line1 }}, {{
+                                        eventDetails?._embedded?.venues[0]?.postalCode }}</div>
 
-                                <a href="#" @click.prevent="toggleMap" class="toggle-map-link">{{ showMap ? 'Hide map' : 'Show map' }}</a>
-                                <div 
-                                    id="map" 
-                                    :style="{ display: showMap ? 'block' : 'none' }">
+                                <a href="#" @click.prevent="toggleMap" class="toggle-map-link">{{ showMap ? 'Hide map' :
+                                    'Show map' }}</a>
+                                <div id="map" :style="{ display: showMap ? 'block' : 'none' }">
                                 </div>
 
                             </div>
                             <div class="event-container">
                                 <div class="event-header" v-if="!isOrganiserEvent">Price Range</div>
                                 <div class="event-header" v-else>Price</div>
-                                <i class="fi fi-rr-dollar" style="margin: 0px 8px;"></i>
+                                
                                 <span v-if="!isOrganiserEvent">
-                                    {{ eventDetails.priceRanges[0].min }}{{ eventDetails.priceRanges[0].currency}} 
-                                    - 
-                                    {{ eventDetails.priceRanges[0].max }}{{ eventDetails.priceRanges[0].currency }}
+                                    <template v-if="eventDetails?.priceRanges && eventDetails.priceRanges.length > 0">
+                                        <i class="fi fi-rr-dollar" style="margin: 0px 8px;"></i>
+                                        {{ eventDetails.priceRanges[0].min }}{{ eventDetails.priceRanges[0].currency }}
+                                        -
+                                        {{ eventDetails.priceRanges[0].max }}{{ eventDetails.priceRanges[0].currency }}
+                                    </template>
+                                    <template v-else>
+                                        To be released
+                                    </template>
                                 </span>
                                 <span v-else>
-                                    {{ eventDetails.price }} SGD
+                                    <i class="fi fi-rr-dollar" style="margin: 0px 8px;"></i>
+                                    {{ eventDetails.price ? eventDetails.price + ' SGD' : 'To be released' }}
                                 </span>
                             </div>
 
@@ -90,9 +98,11 @@
                             <div class="event-container" v-if="!isOrganiserEvent">
                                 <div class="event-header">Ticket Sales</div>
                                 <div style="margin: 0px 8px;">
-                                    <div class="d-inline-block"> {{ formatDateTime(eventDetails.sales.public.startDateTime) }} </div>
+                                    <div class="d-inline-block"> {{
+                                        formatDateTime(eventDetails?.sales?.public?.startDateTime) }} </div>
                                     <div class="d-inline-block">&nbsp;&nbsp; - &nbsp;&nbsp; </div>
-                                    <div class="d-inline-block"> {{ formatDateTime(eventDetails.sales.public.endDateTime) }} </div> 
+                                    <div class="d-inline-block"> {{
+                                        formatDateTime(eventDetails?.sales?.public?.endDateTime) }} </div>
                                 </div>
                             </div>
                         </div>
@@ -106,13 +116,13 @@
                     </div>
                 </div>
             </div>
-        <EventNaviBar v-if="isCustomer" :event="eventDetails" :isOrganiserEvent="isOrganiserEvent"></EventNaviBar>
-    </div> 
-</div>     
+            <EventNaviBar v-if="isCustomer" :event="eventDetails" :isOrganiserEvent="isOrganiserEvent"></EventNaviBar>
+        </div>
+    </div>
 </template>
 
 
-    
+
 
 <script>
 import eventService from "../services/eventService";
@@ -144,7 +154,7 @@ export default {
         EventNaviBar,
     },
     computed: {
-        eventDate () {
+        eventDate() {
             const date = new Date(this.eventDetails.dates.start.localDate)
             const formattedDate = date.toLocaleDateString(undefined, {
                 weekday: 'long',  // e.g., "Sunday"
@@ -153,8 +163,8 @@ export default {
             });
             return formattedDate
         },
-        
-        
+
+
     },
     async created() {
         await this.checkUserType();
@@ -185,7 +195,7 @@ export default {
                 }
             });
             const user = auth.currentUser;
-            
+
             if (user) {
                 const db = getDatabase();
                 const userRef = dbRef(db, `users/${user.uid}`);
@@ -297,7 +307,7 @@ export default {
             console.log('Fetching event details for ID:', id);
             try {
                 this.loading = true;
-                
+
                 // Try to fetch from organiser events first
                 try {
                     const organiserEvent = await organiserEventService.getEventById(id);
@@ -309,16 +319,17 @@ export default {
                 } catch (error) {
                     console.log('Not an organiser event, trying Ticketmaster...');
                 }
-                
+
                 // If not found in organiser events, try Ticketmaster
                 const ticketmasterEvent = await eventService.goToEventDetails(id);
+                console.log(ticketmasterEvent, "ticketmasterEvent EVENTDETIALSVUE")
                 if (ticketmasterEvent) {
                     this.eventDetails = ticketmasterEvent;
                     this.isOrganiserEvent = false;
                 } else {
                     throw new Error('Event not found');
                 }
-                
+
             } catch (error) {
                 console.error("Failed to fetch event details:", error);
                 // You might want to show an error message to the user here
@@ -326,7 +337,7 @@ export default {
                 this.loading = false;
             }
         },
-            
+
         formatDate(dateString) {
             return dateString.split('T')[0];
         },
@@ -360,9 +371,12 @@ export default {
 
 <style scoped>
 @keyframes bob {
-    0%, 100% {
+
+    0%,
+    100% {
         transform: translateY(0);
     }
+
     50% {
         transform: translateY(-10px);
     }
@@ -393,11 +407,12 @@ export default {
     justify-content: center;
     width: 100%;
     max-height: 450px;
-    height: auto; 
+    height: auto;
     border-radius: 20px;
     overflow: hidden;
 
 }
+
 .event-hero-wrapper {
     display: flex;
     align-items: center;
@@ -408,14 +423,15 @@ export default {
     overflow: hidden;
 
 }
-.event-hero-image {
-  width: 100%;
-  max-height: 450px;
 
-  height: 100%;
-  object-fit: cover;
-  border-radius: 8px;
-  object-position: center;
+.event-hero-image {
+    width: 100%;
+    max-height: 450px;
+
+    height: 100%;
+    object-fit: cover;
+    border-radius: 8px;
+    object-position: center;
 }
 
 .event-hero-custom-image {
@@ -426,49 +442,59 @@ export default {
     border-radius: 8px;
     object-position: center;
 }
+
 .event-container {
     margin: 80px 0px;
 }
+
 .event-header {
     color: #39364f;
     font-size: 30px;
     font-weight: bold;
 }
+
 .event-date {
     font-size: 25px;
 }
+
 .event-title {
     margin: 20px 0px;
     color: #39364f;
     text-transform: uppercase;
     font-size: 60px;
     font-weight: 900;
-    line-height: 1; 
+    line-height: 1;
 }
+
 .toggle-map-link {
-  color: #1a73e8; /* Set to your preferred blue color */
-  cursor: pointer;
-  text-decoration: none;
-  font-weight: bold;
-  position: relative;
-  margin: 0px 30px
+    color: #1a73e8;
+    /* Set to your preferred blue color */
+    cursor: pointer;
+    text-decoration: none;
+    font-weight: bold;
+    position: relative;
+    margin: 0px 30px
 }
 
 .toggle-map-link::after {
-  content: '▼'; /* Downward arrow */
-  font-size: 0.8em;
-  margin-left: 5px;
-  transform: rotate(0deg);
-  transition: transform 0.3s;
+    content: '▼';
+    /* Downward arrow */
+    font-size: 0.8em;
+    margin-left: 5px;
+    transform: rotate(0deg);
+    transition: transform 0.3s;
 }
 
 .toggle-map-link:hover::after {
-  transform: rotate(180deg); /* Rotate for 'Hide map' */
+    transform: rotate(180deg);
+    /* Rotate for 'Hide map' */
 }
 
 .toggle-map-link:hover {
-  color: #125bb5; /* Darker blue on hover */
+    color: #125bb5;
+    /* Darker blue on hover */
 }
+
 #map {
     width: 100%;
     height: 400px;
@@ -487,5 +513,4 @@ export default {
     color: #e74c3c;
     cursor: pointer;
 }
-
 </style>

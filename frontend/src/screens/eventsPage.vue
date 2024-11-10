@@ -475,6 +475,7 @@ export default {
                     }))
                 ].sort((a, b) => a.date - b.date);
             }
+            console.log(this.eventDateMap, "EBENTDATEMAP")
         }
 
     },

@@ -28,15 +28,41 @@ async function searchEventName(eventName) {
 }
 async function goToEventDetails(eventId) {
     try {
+        // Check if eventId is valid before making the request
+        if (!eventId) {
+            throw new Error("Event ID is required");
+        }
+
         const res = await axiosInstance.get(`${finalURL}/api/eventDetails/${eventId}`);
-        console.log(res)
-        // Return the list of events
+        
+        // Log the entire response object for debugging
+        console.log("Full Response from API:", res);
+
+        // Check if the response contains the expected data
+        if (!res.data || typeof res.data !== 'object') {
+            throw new Error("Invalid response data: Expected an object, but got " + typeof res.data);
+        }
+
+        // Optionally log the event details
+        console.log("Event Details:", res.data);
+
+        // Return the event details
         return res.data;
     } catch (error) {
-        console.error("Error fetching events:", error);
+        // Log the error details
+        console.error("Error fetching event details:", error);
+
+        // If the error is an Axios error, log more details (e.g., response status)
+        if (error.response) {
+            console.error("API Response Status:", error.response.status);
+            console.error("API Response Data:", error.response.data);
+        }
+
+        // Re-throw the error to propagate it to the caller
         throw error;
     }
 }
+
 
 
 export default {

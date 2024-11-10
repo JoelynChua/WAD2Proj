@@ -7,10 +7,40 @@ require("dotenv").config();
 let eventObjectsArray = [];
 let attractionObjectsArray = [];
 
+// async function displayEvents(req, res) {
+//     const apiKey = process.env.ticketMasterAPI;
+//     try {
+//         const eventResponse = await axios.get(`https://app.ticketmaster.com/discovery/v2/events.json?countryCode=US&apikey=${apiKey}`);
+//         console.log(eventResponse.data._embedded.events); // Log the events
+
+//         let events = eventResponse.data._embedded.events;
+//         console.log(events); // Display the array of events
+
+//         // Clear the global array before populating it
+//         eventObjectsArray = [];
+
+//         for (let i in events) {
+//             let eventObject = events[i];
+//             let eventName = eventObject.name;
+//             // Push the event object to the global array
+//             eventObjectsArray.push(eventObject);
+//         }
+
+//         console.log(eventObjectsArray, "eventObjectsArray")
+
+//         // Send the fetched events as a response
+//         res.json(eventObjectsArray); // Use the global array of event objects
+//     } catch (error) {
+//         console.error('Error fetching events:', error);
+//         res.status(500).send('Failed to fetch events');
+//     }
+// }
+
+
 async function displayEvents(req, res) {
     const apiKey = process.env.ticketMasterAPI;
     try {
-        const eventResponse = await axios.get(`https://app.ticketmaster.com/discovery/v2/events.json?countryCode=US&apikey=${apiKey}`);
+        const eventResponse = await axios.get(`https://app.ticketmaster.com/discovery/v2/events.json?apikey=${apiKey}&size=180&page=5`);
         console.log(eventResponse.data._embedded.events); // Log the events
 
         let events = eventResponse.data._embedded.events;
@@ -19,23 +49,20 @@ async function displayEvents(req, res) {
         // Clear the global array before populating it
         eventObjectsArray = [];
 
+        // Populate the global array with event objects
         for (let i in events) {
             let eventObject = events[i];
-            let eventName = eventObject.name;
-            // Push the event object to the global array
             eventObjectsArray.push(eventObject);
         }
 
-        console.log(eventObjectsArray, "eventObjectsArray")
-
         // Send the fetched events as a response
         res.json(eventObjectsArray); // Use the global array of event objects
+
     } catch (error) {
         console.error('Error fetching events:', error);
         res.status(500).send('Failed to fetch events');
     }
 }
-
 
 
 
@@ -52,7 +79,7 @@ async function getEventById(req, res) {
 
     try {
         // Fetch the specific event by ID
-        const eventResponse = await axios.get(`https://app.ticketmaster.com/discovery/v2/events/${eventID}.json?apikey=${apiKey}`);
+        const eventResponse = await axios.get(`https://app.ticketmaster.com/discovery/v2/events/${eventID}.json?apikey=${apiKey}&size=180&page=5`);
 
         // Log the event details
         console.log(eventResponse.data); // Log the event details
@@ -62,6 +89,50 @@ async function getEventById(req, res) {
         res.status(500).send('Failed to fetch event');
     }
 }
+
+
+// async function searchEventsByName(req, res) {
+//     const apiKey = process.env.ticketMasterAPI;
+//     const eventName = req.params.eventName; // Extract eventName from request parameters
+
+//     if (!eventName) {
+//         return res.status(400).send('Event name is required');
+//     }
+
+//     try {
+//         console.log(eventName, "EVENTNAME BACK");
+
+//         // Fetch the specific events by keyword
+//         const eventResponse = await axios.get(`https://app.ticketmaster.com/discovery/v2/suggest?keyword=harry&apikey=${apiKey}&page=5`);
+        
+//         // Log the entire response structure for better understanding
+//         console.log("Full event response:", JSON.stringify(eventResponse.data, null, 2)); // Check the full response structure
+
+//         // Ensure that the events are accessed correctly within _embedded
+//         const events = eventResponse.data._embedded ? eventResponse.data._embedded.events : [];
+
+//         // Log the events from search response
+//         console.log("Events from search:", events);
+
+//         // Filter the events to include only those present in the global eventObjectsArray
+//         const filteredEvents = events.filter(event => {
+//             const match = eventObjectsArray.some(globalEvent => globalEvent.id === event.id);
+//             if (match) {
+//                 console.log("Match found:", event.name);
+//             }
+//             return match;
+//         });
+
+//         // Log the filtered events to ensure the correct events are returned
+//         console.log("Filtered events:", filteredEvents);
+
+//         // Send the filtered events as a response
+//         res.json(filteredEvents);
+//     } catch (error) {
+//         console.error('Error fetching event:', error);
+//         res.status(500).send('Failed to search event');
+//     }
+// }
 
 async function searchEventsByName(req, res) {
     const apiKey = process.env.ticketMasterAPI;
@@ -73,16 +144,30 @@ async function searchEventsByName(req, res) {
 
     try {
         console.log(eventName, "EVENTNAME BACK");
-        // Fetch the specific events by keyword
-        const eventResponse = await axios.get(`https://app.ticketmaster.com/discovery/v2/suggest?keyword=${eventName}&countryCode=US&apikey=${apiKey}`);
 
-        // Log the event details
-        console.log(eventResponse.data); // Log the event details
+        // Fetch the specific events by keyword
+        const eventResponse = await axios.get(`https://app.ticketmaster.com/discovery/v2/suggest?keyword=${eventName}&apikey=${apiKey}&page=5`);
+        
+        // Log the entire response structure for better understanding
+        console.log("Full event response:", JSON.stringify(eventResponse.data, null, 2)); // Check the full response structure
+
+        // Ensure that the events are accessed correctly within _embedded
+        const events = eventResponse.data._embedded ? eventResponse.data._embedded.events : [];
+
+        // Log the events from the search response
+        console.log("Events from search:", events);
 
         // Filter the events to include only those present in the global eventObjectsArray
-        const filteredEvents = eventResponse.data._embedded.events.filter(event =>
-            eventObjectsArray.some(globalEvent => globalEvent.id === event.id)
-        );
+        const filteredEvents = events.filter(event => {
+            const match = eventObjectsArray.some(globalEvent => globalEvent.id === event.id);
+            if (match) {
+                console.log("Match found:", event.name);
+            }
+            return match;
+        });
+
+        // Log the filtered events to ensure the correct events are returned
+        console.log("Filtered events:", filteredEvents);
 
         // Send the filtered events as a response
         res.json(filteredEvents);
@@ -91,6 +176,9 @@ async function searchEventsByName(req, res) {
         res.status(500).send('Failed to search event');
     }
 }
+
+
+
 
 async function searchAttractionsByName(req, res) {
     const apiKey = process.env.ticketMasterAPI;

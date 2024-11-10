@@ -762,6 +762,9 @@ export default {
 
                         console.log(`Calculated rowspan for eventID ${event.eventID}:`, rowspan);
 
+                        // Confirming function exit after finding the first match
+                        console.log(`Exiting function after processing eventID ${event.eventID} with calculated rowspan.`);
+
                         // Return the calculated rowspan and stop further iterations
                         return rowspan;
                     }
@@ -771,6 +774,7 @@ export default {
             console.log(`Total calculated rowspan for eventID ${event.eventID}:`, totalRowspan);
             return totalRowspan; // Default return if no next event is found
         },
+
 
 
 
@@ -1093,7 +1097,8 @@ export default {
     cursor: pointer;
     transition: left 0.3s ease;
     z-index: 1100;
-    margin: 10px; /* Add margin here */
+    margin: 10px;
+    /* Add margin here */
 }
 
 .expand-icon.icon-expanded {
