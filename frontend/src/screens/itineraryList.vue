@@ -108,15 +108,21 @@ export default {
     },
 
     async deleteItinerary(itineraryID) {
-      try {
+    try {
+        const isConfirmed = window.confirm("Are you sure you want to delete this itinerary?");
+        if (!isConfirmed) {
+            return; // Exit the function if the user cancels
+        }
+
         await itineraryService.deleteItinerary(itineraryID);
         this.itineraries = this.itineraries.filter(itinerary => itinerary.id !== itineraryID);
         // Optionally, you can show a success message or toast notification
-      } catch (error) {
+    } catch (error) {
         console.error("Error deleting itinerary:", error);
         // Optionally, show an error message
-      }
-    },
+    }
+},
+
 
 
 
@@ -205,7 +211,30 @@ body {
   overflow: auto;
   gap: 20px;
   padding: 2em 0em;
+  width: 100%; /* Make sure the carousel takes full width */
 }
+
+@media (max-width: 600px) {
+  .itinerary-item {
+    width: 100%; /* Adjust to fit smaller screens */
+  }
+  .carousel-client {
+    gap: 10px; /* Reduce gap for smaller screens */
+  }
+}
+
+.carousel-client::-webkit-scrollbar {
+  height: 8px;
+}
+.carousel-client::-webkit-scrollbar-thumb {
+  background-color: #cad8dc;
+  border-radius: 4px;
+}
+.carousel-client::-webkit-scrollbar-track {
+  background-color: #f1f1f1;
+}
+
+
 
 .slide {
   min-width: 200px;
@@ -214,19 +243,28 @@ body {
 }
 
 .itinerary-item {
+  display: inline-block; /* Ensure it acts as an inline-block for flex layout */
   background-color: #cad8dc;
   opacity: 0.8;
   border-radius: 10px;
   text-align: center;
-  padding: 20px;
-  padding-left: 10px;
-  padding-right: 10px;
+  padding: 20px 10px; /* Combined padding-top/bottom and padding-left/right */
+  width: 500px; /* Set a larger custom width to make it longer */
+  max-width: 100%; /* Prevent it from exceeding the container width */
+  box-sizing: border-box; /* Ensure padding is included in the total width */
   cursor: pointer;
+  word-wrap: break-word; /* Ensure long words break and wrap to the next line */
+  overflow-wrap: break-word; /* Allow wrapping on long words */
+  overflow: hidden; /* Prevent content from overflowing */
+  margin: 0 auto; /* Center it horizontally, if needed */
 }
+
 
 .itinerary-item:hover {
   transform: scale(1.05);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
+
 
 .itinerary-title {
   font-size: 18px;
