@@ -30,13 +30,13 @@
         <!-- Events filter -->
         <div v-if="userID" class="filter-container">
             <h1>Upcoming Attractions</h1>
-            <!-- <div class="dropdown-container" v-if="isCustomer">
+            <div class="dropdown-container" v-if="isCustomer">
                 <i class="fi fi-rr-angle-small-down dropdown-icon"></i>
                 <select id="event-filter" class="custom-dropdown" v-model="selectedFilter">
                     <option value="all">All Attractions</option>
                     <option value="wishlist">Bookmarked</option>
                 </select>
-            </div> -->
+            </div>
         </div>
         <div v-else style="padding-top: 135px;">
             <h1>Attractions</h1>
@@ -201,7 +201,7 @@ export default {
                 );
             }
 
-            return this.attractions;
+            return 0;
         }
     },
     async created() {

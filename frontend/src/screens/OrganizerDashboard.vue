@@ -26,7 +26,7 @@
 
       <!-- Signups Table Section -->
       <div class="signups-table component-box m-0 mt-3">
-        <h2>Event Signups</h2>
+        <h2 class="graph">Event Signups</h2>
         <table class="table">
           <thead>
             <tr>
@@ -308,6 +308,13 @@ canvas {
 }
 
 @media (max-width: 1024px) {
+
+  .organizer-dashboard {
+    width: 70%;
+  }
+}
+
+@media (max-width: 400px) {
   .graph {
     display: none;
   }
@@ -317,11 +324,7 @@ canvas {
   }
 }
 
-@media (max-width: 768px) {
-  .smallBrowser {
-    display: block;
-  }
-
+@media (max-width: 300px) {
   .signups-table {
     display: none;
   }
