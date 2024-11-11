@@ -26,7 +26,7 @@ import NotFound from '@/components/NotFound.vue';
 
 const routes = [
     {
-        path: '/',
+        path: '/index.html',
         name: 'Home',
         component: HomePage,
     },

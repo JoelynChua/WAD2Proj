@@ -33,13 +33,99 @@
                 <i class="fi fi-rr-angle-small-down dropdown-icon"></i>
                 <select id="event-filter" class="custom-dropdown" v-model="selectedFilter">
                     <option value="all">All Events</option>
-                    <option value="wishlist">Self-Hosted</option>
+                    <option value="hosted">Self-Hosted</option>
+                    <option v-if="userID" value="wishlist">Wishlist</option>
+
                 </select>
             </div>
         </div>
 
         <!-- Wishlist Filtered Events -->
-        <div class="container mt-4" v-if="selectedFilter === 'wishlist'">
+        <div class="container mt-4" v-if="selectedFilter === 'wishlist' && userID">
+            <div v-if="wishlistEvents" class="row">
+                <div class="col-lg-4 col-md-6 col-12 mb-4" v-for="event in wishlistEvents" :key="event.id">
+                    <div class="card event" @click="goToEventDetails(event.id)"
+                        style="cursor: pointer; position: relative;">
+                        <!-- Event Image Section -->
+                        <div v-if="event.type === 'Organiser Event'" class="custom-event-image"
+                            :style="{ backgroundColor: event.colour || '#1a1a40' }">
+                            <img src="../assets/logo.png" alt="Event logo" class="event-logo" />
+                        </div>
+                        <img v-else :src="event.images[0].url" alt="Event image" class="ticketmaster-image" />
+
+                        <!-- Bookmark Icon -->
+                        <div class="icon-container" v-if="!isBookmarked(event.id)">
+                            <font-awesome-icon v-if="userID"
+                                :icon="isBookmarked(event.id) ? ['fas', 'bookmark'] : ['far', 'bookmark']"
+                                class="bookmark-icon" @click.stop="toggleWishlist(event.id)" />
+                        </div>
+                        <div class="fixed-icon-container" v-else>
+                            <font-awesome-icon v-if="userID"
+                                :icon="isBookmarked(event.id) ? ['fas', 'bookmark'] : ['far', 'bookmark']"
+                                class="bookmark-icon" @click.stop="toggleWishlist(event.id)" />
+                        </div>
+
+                        <!-- Event Details -->
+                        <div class="card-body text-start">
+                            <p class="card-text">{{ event.classifications && event.classifications[0] ?
+                                event.classifications[0].genre.name : event.type }}</p>
+                            <h5 class="card-title fs-4 mb-0">
+                                <span>
+                                    {{ event.name.length > 38 ? event.name.substring(0, 38) + '...' : event.name }}
+                                </span>
+                            </h5>
+                            <p class="card-text mt-0">
+                                {{ new Date(event.dates?.start?.dateTime || event.start).toLocaleDateString('en-US',
+                                    {
+                                        weekday: 'short',
+                                        year: 'numeric',
+                                        month: 'short',
+                                        day: 'numeric',
+                                        hour: '2-digit',
+                                        minute: '2-digit'
+                                    }) }}
+                            </p>
+                            <p v-if="event.type == 'Organiser Event'" class="card-text" style="position: absolute;
+                            color: rgb(51, 51, 51);
+                            font-size: 16px;
+                            bottom: 5px;
+                            right: 25px;
+                            padding: 5px 10px">
+                                <b>From S${{ event.price }}</b>
+                            </p>
+
+                            <p v-else-if="event.priceRanges" class="card-text" style="position: absolute;
+                            color: rgb(51, 51, 51);
+                            font-size: 16px;
+                            bottom: 5px;
+                            right: 25px;
+                            padding: 5px 10px">
+                                <b>From {{ event.priceRanges[0].currency == "USD" ? 'US$' :
+                                    event.priceRanges[0].currency }}{{ event.priceRanges[0].min }}</b>
+                            </p>
+
+                            <p v-else class="card-text" style="position: absolute;
+                            color: rgb(51, 51, 51);
+                            font-size: 16px;
+                            bottom: 5px;
+                            right: 25px;
+                            padding: 5px 10px">
+                                <b>Price TBC</b>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div style="margin-bottom: 50px;">
+                    You have reached the end :-(
+                </div>
+            </div>
+            <div v-else style="margin-bottom: 400px; margin-top: 100px">
+                No wishlist items :-(
+            </div>
+        </div>
+
+        <!-- Self-hosted Filtered Events -->
+        <div class="container mt-4" v-else-if="selectedFilter === 'hosted'">
             <div v-if="filteredEvents.length" class="row">
                 <div class="col-lg-4 col-md-6 col-12 mb-4" v-for="event in filteredEvents" :key="event.id">
                     <div class="card event" @click="goToEventDetails(event.id)"
@@ -118,7 +204,7 @@
                 </div>
             </div>
             <div v-else style="margin-bottom: 400px; margin-top: 100px">
-                No events bookmarked
+                No self-hosted events
             </div>
         </div>
 
@@ -155,7 +241,7 @@
                                     event.classifications[0].genre.name : event.type }}</p>
                                 <h5 class="card-title fs-4 mb-0">
                                     <span>
-                                        {{ event.name.length > 48 ? event.name.substring(0, 38) + '...' : event.name }}
+                                        {{ event.name.length > 38 ? event.name.substring(0, 38) + '...' : event.name }}
                                     </span>
                                 </h5>
                                 <p class="card-text mt-0">
@@ -359,164 +445,175 @@ export default {
             //     );
             // }
             return this.sortedEvents.filter(event => event.type === "Organiser Event");
-        }
+        },
+
+        wishlistEvents() {
+            if (this.userID && this.wishlists.length) {
+                return this.sortedEvents.filter(event =>
+                    this.wishlists.some(wishlist => wishlist.eventID === event.id)
+                );
+            }
+            return 0;
+        },
     },
 
 
-    methods: {
-        handleScroll() {
-            if (window.scrollY > 80) {
-                this.showSearchBar = true;
-            } else {
-                this.showSearchBar = false;
-            }
-        },
-        goToEventDetails(id) {
-            // Use Vue Router's 'push' method to navigate to EventDetails page
-            this.$router.push({ name: 'EventDetails', params: { id } });
-        },
+        methods: {
+            handleScroll() {
+                if (window.scrollY > 80) {
+                    this.showSearchBar = true;
+                } else {
+                    this.showSearchBar = false;
+                }
+            },
+            goToEventDetails(id) {
+                // Use Vue Router's 'push' method to navigate to EventDetails page
+                this.$router.push({ name: 'EventDetails', params: { id } });
+            },
 
-        isBookmarked(eventID) {
-            // Check if the event is in the wishlists
-            return this.wishlists.some(
-                (wishlist) => wishlist.eventID === eventID
-            );
-        },
+            isBookmarked(eventID) {
+                // Check if the event is in the wishlists
+                return this.wishlists.some(
+                    (wishlist) => wishlist.eventID === eventID
+                );
+            },
 
-        authListener() {
-            const auth = getAuth(); // Initialize Firebase auth here
-            // Listen to the authentication state
-            auth.onAuthStateChanged(async (user) => {
-                if (user) {
+            authListener() {
+                const auth = getAuth(); // Initialize Firebase auth here
+                // Listen to the authentication state
+                auth.onAuthStateChanged(async (user) => {
+                    if (user) {
 
-                    const db = getDatabase();
-                    const userRef = dbRef(db, `users/${user.uid}`);
-                    try {
-                        const snapshot = await get(userRef);
-                        if (snapshot.exists()) {
-                            this.isCustomer = snapshot.val().userType === 'customer';
+                        const db = getDatabase();
+                        const userRef = dbRef(db, `users/${user.uid}`);
+                        try {
+                            const snapshot = await get(userRef);
+                            if (snapshot.exists()) {
+                                this.isCustomer = snapshot.val().userType === 'customer';
+                            }
+                        } catch (error) {
+                            console.error("Error checking user type:", error);
                         }
-                    } catch (error) {
-                        console.error("Error checking user type:", error);
+
+                        this.userID = user.uid;
+                        try {
+                            await this.reloadWishlists();
+
+                            // Fetch itineraries using the UID
+                            this.itineraries = await itineraryService.getItineraryByUserID(this.userID);
+                            console.log(this.itineraries);
+
+                        } catch (error) {
+                            console.error('Failed to fetch itineraries:', error);
+                        }
+                    } else {
+                        // User is signed out
+                        console.log('User is signed out');
+                        // Optionally redirect to login page or handle sign-out logic here
+                        // this.$router.push('/login');
                     }
+                });
+            },
 
-                    this.userID = user.uid;
-                    try {
-                        await this.reloadWishlists();
+            async toggleWishlist(eventID) {
+                const existingWishlist = this.wishlists.find(
+                    (wishlist) => wishlist.eventID === eventID
+                );
+                const wishlistID = existingWishlist ? existingWishlist.id : null; // Safely access id
 
-                        // Fetch itineraries using the UID
-                        this.itineraries = await itineraryService.getItineraryByUserID(this.userID);
-                        console.log(this.itineraries);
+                const newWishlist = {
+                    userID: this.userID,
+                    eventID,
+                };
 
-                    } catch (error) {
-                        console.error('Failed to fetch itineraries:', error);
-                    }
-                } else {
-                    // User is signed out
-                    console.log('User is signed out');
-                    // Optionally redirect to login page or handle sign-out logic here
-                    // this.$router.push('/login');
-                }
-            });
-        },
-
-        async toggleWishlist(eventID) {
-            const existingWishlist = this.wishlists.find(
-                (wishlist) => wishlist.eventID === eventID
-            );
-            const wishlistID = existingWishlist ? existingWishlist.id : null; // Safely access id
-
-            const newWishlist = {
-                userID: this.userID,
-                eventID,
-            };
-
-            try {
-                if (!wishlistID) {
-                    // If not bookmarked, add to wishlist
-                    const addedWishlist = await itineraryService.addWishlist(newWishlist);
-                    this.wishlists = [...this.wishlists, addedWishlist];
-                } else {
-                    // If already bookmarked, delete from wishlist
-                    // Delete from wishlist and update wishlists array
-                    await itineraryService.deleteWishlist(wishlistID);
-                    this.wishlists = this.wishlists.filter(
-                        (wishlist) => wishlist.id !== wishlistID
-                    );
-                }
-            } catch (error) {
-                console.error('Failed to update wishlist:', error);
-            }
-        },
-
-        async reloadWishlists() {
-            if (!this.userID) return; // Ensure userID is set
-            try {
-                const wishlists = await itineraryService.getUserWishlist(this.userID);
-                this.wishlists = [...wishlists]; // Spread operator to ensure reactivity
-                console.log('Wishlists reloaded:', this.wishlists);
-            } catch (error) {
-                console.error('Failed to reload wishlists:', error);
-            }
-        },
-
-        // Search
-        async searchEvents(query) {
-            console.log('Searching with query:', query);
-
-            if (query && query.length > 0) {
                 try {
-                    // Search Ticketmaster events
-                    this.filteredTicketmasterEvents = await eventService.searchEventName(query);
+                    if (!wishlistID) {
+                        // If not bookmarked, add to wishlist
+                        const addedWishlist = await itineraryService.addWishlist(newWishlist);
+                        this.wishlists = [...this.wishlists, addedWishlist];
+                    } else {
+                        // If already bookmarked, delete from wishlist
+                        // Delete from wishlist and update wishlists array
+                        await itineraryService.deleteWishlist(wishlistID);
+                        this.wishlists = this.wishlists.filter(
+                            (wishlist) => wishlist.id !== wishlistID
+                        );
+                    }
+                } catch (error) {
+                    console.error('Failed to update wishlist:', error);
+                }
+            },
 
-                    // Search organizer events locally
-                    this.filteredOrganiserEvents = this.organiserEvents.filter(event =>
-                        event.title.toLowerCase().includes(query.toLowerCase()) ||
-                        (event.description && event.description.toLowerCase().includes(query.toLowerCase()))
-                    );
+            async reloadWishlists() {
+                if (!this.userID) return; // Ensure userID is set
+                try {
+                    const wishlists = await itineraryService.getUserWishlist(this.userID);
+                    this.wishlists = [...wishlists]; // Spread operator to ensure reactivity
+                    console.log('Wishlists reloaded:', this.wishlists);
+                } catch (error) {
+                    console.error('Failed to reload wishlists:', error);
+                }
+            },
 
-                    // Update eventDateMap for the filtered results
+            // Search
+            async searchEvents(query) {
+                console.log('Searching with query:', query);
+
+                if (query && query.length > 0) {
+                    try {
+                        // Search Ticketmaster events
+                        this.filteredTicketmasterEvents = await eventService.searchEventName(query);
+
+                        // Search organizer events locally
+                        this.filteredOrganiserEvents = this.organiserEvents.filter(event =>
+                            event.title.toLowerCase().includes(query.toLowerCase()) ||
+                            (event.description && event.description.toLowerCase().includes(query.toLowerCase()))
+                        );
+
+                        console.log("Organ Events", this.filteredOrganiserEvents);
+
+                        // Update eventDateMap for the filtered results
+                        this.eventDateMap = [
+                            ...this.filteredTicketmasterEvents.map(event => ({
+                                id: event.id,
+                                date: new Date(event.dates?.start?.dateTime || event.dates?.start?.localDate),
+                                type: 'ticketmaster'
+                            })),
+                            ...this.filteredOrganiserEvents.map(event => ({
+                                id: event.id,
+                                date: new Date(event.start),
+                                type: 'organiser'
+                            }))
+                        ].sort((a, b) => a.date - b.date);
+
+                    } catch (error) {
+                        console.error('Error searching events:', error);
+                        this.filteredTicketmasterEvents = [];
+                        this.filteredOrganiserEvents = [];
+                    }
+                } else {
+                    // Reset to original state when search query is empty
+                    this.filteredTicketmasterEvents = [];
+                    this.filteredOrganiserEvents = [];
+
+                    // Restore original eventDateMap
                     this.eventDateMap = [
-                        ...this.filteredTicketmasterEvents.map(event => ({
+                        ...this.events.map(event => ({
                             id: event.id,
                             date: new Date(event.dates?.start?.dateTime || event.dates?.start?.localDate),
                             type: 'ticketmaster'
                         })),
-                        ...this.filteredOrganiserEvents.map(event => ({
+                        ...this.organiserEvents.map(event => ({
                             id: event.id,
                             date: new Date(event.start),
                             type: 'organiser'
                         }))
                     ].sort((a, b) => a.date - b.date);
-
-                } catch (error) {
-                    console.error('Error searching events:', error);
-                    this.filteredTicketmasterEvents = [];
-                    this.filteredOrganiserEvents = [];
                 }
-            } else {
-                // Reset to original state when search query is empty
-                this.filteredTicketmasterEvents = [];
-                this.filteredOrganiserEvents = [];
-
-                // Restore original eventDateMap
-                this.eventDateMap = [
-                    ...this.events.map(event => ({
-                        id: event.id,
-                        date: new Date(event.dates?.start?.dateTime || event.dates?.start?.localDate),
-                        type: 'ticketmaster'
-                    })),
-                    ...this.organiserEvents.map(event => ({
-                        id: event.id,
-                        date: new Date(event.start),
-                        type: 'organiser'
-                    }))
-                ].sort((a, b) => a.date - b.date);
             }
-        }
 
-    },
-};
+        },
+    };
 </script>
 
 <style scoped>
@@ -706,7 +803,7 @@ export default {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     transition: all 0.3s ease;
     margin: 0 auto;
-    height: 340px;
+    height: 380px;
 }
 
 .event:hover {
