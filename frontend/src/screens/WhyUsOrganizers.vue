@@ -50,6 +50,12 @@ export default defineComponent({
     position: relative;
 }
 
+@media (max-width: 728px) {
+    .container {
+        font-size: 68px
+    }
+}
+
 .background-img {
     position: absolute;
     width: 100%;
