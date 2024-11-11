@@ -89,16 +89,7 @@
                                                             <strong>{{ eventDetails[event.eventID]?.name ||
                                                                 organiserEventDetails[event.eventID]?.title
                                                                 }}</strong><br>
-                                                            {{ eventDetails[event.eventID]?.type ||
-                                                                organiserEventDetails[event.eventID]?.type }}<br>
-                                                            <div v-if="eventDetails[event.eventID]">
-                                                                Status: {{
-                                                                    eventDetails[event.eventID].dates?.status?.code }}
-                                                            </div>
-                                                            <div v-else-if="organiserEventDetails[event.eventID]">
-                                                                Genre: {{ organiserEventDetails[event.eventID]?.genre ||
-                                                                    'N/A' }}
-                                                            </div>
+                                                       
 
                                                             <!-- Remove Icon -->
                                                             <font-awesome-icon :icon="['fas', 'minus']"
@@ -120,11 +111,7 @@
                                                         <div>
                                                             <strong>{{ attractionDetails[event.eventID].name
                                                                 }}</strong><br>
-                                                            {{ attractionDetails[event.eventID].type || 'N/A' }}<br>
-                                                            Genre: {{
-                                                                attractionDetails[event.eventID].classifications?.[0]?.genre?.name
-                                                                || 'N/A' }}
-
+                                                           
                                                             <!-- Remove Icon -->
                                                             <font-awesome-icon :icon="['fas', 'minus']"
                                                                 @click="onRemoveEvent(event.eventID, event.time)"
@@ -174,7 +161,7 @@
                 <div ref="wishlistSidebar" class="wishlist-sidebar" :class="{ expanded: isExpanded }">
                     <h3 style="text-decoration: underline;">Wishlist</h3>
 
-                    <ul v-if="wishlists.length" class="list-unstyled">
+                    <ul v-if="wishlists.length">
                         <li v-for="wishlist in wishlists" :key="wishlist.id" :draggable="true"
                             @dragstart="onDragStart($event, wishlist)" class="draggable-item"
                             style="border: 1px solid; margin: 5px; border-radius: 5px; padding: 10px;">
@@ -267,9 +254,7 @@ export default {
             resizingEvent: null,
             initialMouseX: 0,
             initialRowspan: 1,
-            rowspans: {}, // Stores the calculated rowspans for each eventID
-
-            temporaryItems: [],
+            rowspans: {} // Stores the calculated rowspans for each eventID
 
         };
     },
@@ -374,7 +359,6 @@ export default {
                     try {
                         // Fetch the wishlist after the user ID is available
                         await this.fetchWishlist();
-                        await this.fetchTemporaryItems();
 
                         // Fetch itineraries using the UID
                         this.itineraries = await itineraryService.getItineraryByUserID(this.userID);
@@ -539,17 +523,6 @@ export default {
             console.error("All fetch attempts failed for eventID:", eventID);
         },
 
-        async fetchTemporaryItems() {
-            try {
-                if (!this.userID) {
-                    throw new Error("User ID not available for fetching temporary items.");
-                }
-                this.temporaryItems = await itineraryService.getTempItemsByUserID(this.userID);
-                console.log("Fetched temp items:", this.temporaryItems);
-            } catch (error) {
-                console.error("Error fetching temporary items:", error);
-            }
-        },
 
         // async updateEventTiming(draggedEventID, newTime) {
         //     try {
@@ -658,39 +631,13 @@ export default {
         //     }
         // },
 
-        async onRemoveEvent(eventID, clickedTime) {
+        onRemoveEvent(eventID, clickedTime) {
             const eventToUpdate = this.sortedEvents.find(event => event.eventID === eventID && event.time === clickedTime);
 
             if (eventToUpdate) {
                 eventToUpdate.eventID = null; // Clear the eventID, keep other details intact
                 eventToUpdate.name = null; // Optionally, clear the name or any other related fields
                 console.log(`Event ${eventID} at time ${clickedTime} removed from the itinerary.`);
-
-                const hasOtherInstances = this.itineraryDetails.events.some(
-                    event => (event.eventID === eventID || event.attractionID === eventID) && event.time !== clickedTime
-                );
-
-                if (!hasOtherInstances) {
-                    // Find the item in temporaryItems
-                    const tempIndex = this.temporaryItems.findIndex(item => item.eventID === eventID || item.attractionID === eventID);
-
-                    console.log("THESE ARE THE ITEMS STILL IN ITINERARYDETAILS.EVENT", this.itineraryDetails.events);
-                    console.log("Temp Item FOUND:", this.temporaryItems[tempIndex]);
-
-                    if (tempIndex !== -1) {
-                        try {
-                            // Add to wishlist and remove from temporary items
-                            await itineraryService.addWishlist(this.temporaryItems[tempIndex]);
-                            await itineraryService.deleteTempItem(this.temporaryItems[tempIndex].id);
-                            this.temporaryItems.splice(tempIndex, 1);
-                            await this.fetchWishlist();
-                        } catch (error) {
-                            console.error("Error moving event back to wishlist:", error);
-                        }
-                    }
-                } else {
-                    console.log(`Other instances of event ${eventID} exist in the itinerary, not moving to wishlist.`);
-                }
 
                 // Optionally, call a service to update the state on the server if needed
                 this.handleUpdate(); // Call the update method to save the changes
@@ -1197,19 +1144,6 @@ export default {
 
             console.log("Updated sortedEvents:", this.sortedEvents); // Verify updated events
 
-            try {
-                const newTempList = {
-                    userID: this.userID,
-                    eventID: wishlistItem.eventID,
-                    attractionID: wishlistItem.attractionID 
-                }
-                await itineraryService.addTempItem(newTempList);
-                this.temporaryItems = await itineraryService.getTempItemsByUserID(this.userID)
-                console.log("TEMPORARY ITEMS", this.temporaryItems)
-            } catch (error) {
-                console.error("Failed to add item to temporary list:", error);
-            }
-
             // Delete from wishlist
             try {
                 await itineraryService.deleteWishlist(wishlistItem.id);
@@ -1301,6 +1235,7 @@ export default {
 </script>
 
 
+
 <style scoped>
 .form-background {
     display: flex;
@@ -1321,15 +1256,22 @@ export default {
 
 
 .date-counter-container {
-    position: absolute; /* Positions it relative to the parent container */
-    bottom: -30px; /* Adjusts the vertical placement */
-    right: 60px; /* Adjusts the horizontal placement */
+    position: absolute;
+    /* Positions it relative to the parent container */
+    bottom: -30px;
+    /* Adjusts the vertical placement */
+    right: 60px;
+    /* Adjusts the horizontal placement */
     font-family: 'Arial', sans-serif;
-    font-size: 25px; /* Adjust for readability */
+    font-size: 25px;
+    /* Adjust for readability */
     font-weight: bold;
     color: magenta;
-    z-index: 9999; /* Ensures it is above other elements */
-}  /* Ensures it is above all other elements */
+    z-index: 9999;
+    /* Ensures it is above other elements */
+}
+
+/* Ensures it is above all other elements */
 
 
 
@@ -1366,6 +1308,24 @@ export default {
 /* Expanded sidebar */
 .wishlist-sidebar.expanded {
     left: 0;
+}
+
+@media (max-width: 768px) {
+    .wishlist-sidebar {
+        top: 180px;
+        /* Sidebar is lower on smaller screens */
+    }
+
+    /* Other properties */
+}
+
+@media (max-width: 480px) {
+    .wishlist-sidebar {
+        top: 200px;
+        /* Sidebar goes even lower for very small screens */
+    }
+
+    /* Other properties */
 }
 
 /* Expand icon */
@@ -1683,17 +1643,20 @@ canvas {
 /* Resize Handle */
 .resize-handle {
     position: absolute;
-    bottom: 0;
-    /* Position at the bottom edge of the cell */
+    bottom: 0; /* Position at the bottom edge of the cell */
     left: 0;
-    width: 100%;
-    /* Span the entire width of the cell */
-    height: 10px;
-    /* Height of the resize handle */
-    cursor: ns-resize;
-    /* Vertical resize cursor */
-    background-color: rgba(0, 0, 0, 0.1);
-    /* Light background for the resize handle */
+    width: 100%; /* Span the entire width of the cell */
+    height: 15px; /* Height of the resize handle */
+    cursor: ns-resize; /* Vertical resize cursor */
+    background-color: rgba(0, 0, 0, 0.1); /* Light background for the resize handle */
+}
+
+/* Responsive design for smaller screens */
+@media (max-width: 768px) {
+    .resize-handle {
+        height: 20px; /* Increase height for better touch support */
+        background-color: rgba(0, 0, 0, 0.2); /* Darken slightly for visibility */
+    }
 }
 
 /* Show resize handle on hover */

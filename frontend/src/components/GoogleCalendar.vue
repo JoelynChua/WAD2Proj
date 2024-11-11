@@ -1,23 +1,44 @@
 <template>
     <div>
-        <button v-if="!loggedIn && !successMessage" @click="handleAuthClick" class="btn btn-info" style="position: fixed; left: 50px;">
+        <button v-if="!loggedIn && !successMessage" @click="handleAuthClick" class="btn btn-custom" style="position: fixed; left: 50px;">
+            <span class="google-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 48 48">
+                    <path fill="#fbc02d" d="M43.6 20.5H42V20H24v8h11.3C34.9 32.7 30.7 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3 0 5.7 1.1 7.8 2.9l5.8-5.8C33.5 5.1 28.1 3 24 3 12.9 3 4 11.9 4 23s8.9 20 20 20c10.2 0 18.3-7.2 19.6-16.5.1-.5.4-2.3.4-3.5z"/>
+                    <path fill="#e53935" d="M6.3 14.9l6.6 4.8C14.5 16 18.9 13 24 13c3 0 5.7 1.1 7.8 2.9l5.8-5.8C33.5 5.1 28.1 3 24 3c-7.4 0-13.7 3.6-17.7 9.1z"/>
+                    <path fill="#4caf50" d="M24 43c5.4 0 10-1.8 13.7-4.8l-6.3-5.2c-1.8 1.3-4.1 2.1-7.4 2.1-4.7 0-8.7-2.7-10.7-6.6l-6.4 4.9C10.1 39.8 16.6 43 24 43z"/>
+                    <path fill="#1565c0" d="M43.6 20.5H42V20H24v8h11.3c-.9 2.5-2.6 4.5-4.9 5.9l6.3 5.2c.4-.4 8-5.9 8-17.1 0-1.2-.1-2.4-.4-3.5z"/>
+                </svg>
+            </span>
             Connect to Google Calendar
         </button>
-        <button v-if="loggedIn && !successMessage" @click="checkAndAddOrUpdateEvent" class="btn btn-info" style="position: fixed; left: 50px;">Add Itinerary</button>
+        <button v-if="loggedIn && !successMessage" @click="checkAndAddOrUpdateEvent" class="btn btn-custom" style="position: fixed; left: 50px;">
+            <font-awesome-icon :icon="['fas', 'calendar-plus']" /> Add Itinerary
+        </button>
 
         <div v-if="successMessage" class="alert alert-success" role="alert">
             {{ successMessage }}
         </div>
-
     </div>
 </template>
+
 
 <script>
 import { gapi } from 'gapi-script';
 import { getGoogleClientId } from '../services/getGoogleClientId';
 import EventBus from '../utils/eventBus.js';
 
+import { library } from '@fortawesome/fontawesome-svg-core';
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
+import { faCalendarPlus } from '@fortawesome/free-solid-svg-icons'; // Import the icon you want to use
+import { faGoogle } from '@fortawesome/free-brands-svg-icons';
+
+// Add the icon to the library
+library.add(faCalendarPlus, faGoogle);
+
 export default {
+    components: {
+        FontAwesomeIcon
+    },
     data() {
         return {
             CLIENT_ID: '',
@@ -81,7 +102,8 @@ export default {
         },
         handleAuthClick() {
             gapi.auth2.getAuthInstance().signIn().catch((error) => {
-                console.error('Error during Google sign-in:', error)});
+                console.error('Error during Google sign-in:', error)
+            });
         },
         async handleSignOutClick() {
             await gapi.auth2
@@ -108,8 +130,8 @@ export default {
 
                     console.log(events)
                     // Check if an event with the same title and date already exists
-                    const matchingEvent = events.find((event) => 
-                        event.summary === this.itinerary && 
+                    const matchingEvent = events.find((event) =>
+                        event.summary === this.itinerary &&
                         event.start.date === this.date
                     );
 
@@ -128,16 +150,17 @@ export default {
                     console.error('Error fetching events:', error);
                 });
         },
-        
+
         addEvent() {
             const event = {
                 summary: this.itinerary,
                 description: 'Log in to Activity.ai for more details on this itinerary',
-                start: {date: this.date, timeZone: 'Asia/Singapore'},
-                end: {date: this.date, timeZone: 'Asia/Singapore'},
-                reminders: {useDefault: false, overrides: 
-                    [{ method: 'email', minutes: 24 * 60 },
-                    { method: 'popup', minutes: 10 }],
+                start: { date: this.date, timeZone: 'Asia/Singapore' },
+                end: { date: this.date, timeZone: 'Asia/Singapore' },
+                reminders: {
+                    useDefault: false, overrides:
+                        [{ method: 'email', minutes: 24 * 60 },
+                        { method: 'popup', minutes: 10 }],
                 },
             };
             gapi.client.calendar.events
@@ -166,8 +189,8 @@ export default {
                 description: 'Log in to Activity.ai for updated details on this itinerary',
                 start: { date: this.date, timeZone: 'Asia/Singapore' },
                 end: { date: this.date, timeZone: 'Asia/Singapore' },
-                reminders: { 
-                    useDefault: false, 
+                reminders: {
+                    useDefault: false,
                     overrides: [
                         { method: 'email', minutes: 24 * 60 },
                         { method: 'popup', minutes: 10 }
@@ -232,9 +255,38 @@ export default {
 
 <style scoped>
 /* Add your styles */
-.btn {
+.btn-custom {
     z-index: 3;
+    background-color: #4285F4;
+    /* Google blue */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 20px;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    /* Space between icon and text */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s, transform 0.2s;
 }
+
+.btn-custom:hover {
+    background-color: #357AE8;
+    /* Darker blue for hover */
+    transform: translateY(-2px);
+}
+
+.btn-custom:active {
+    background-color: #2a68c1;
+    /* Even darker for active state */
+}
+.google-icon svg {
+    width: 20px;
+    height: 20px;
+}
+
 
 .alert-success {
     color: #155724;
