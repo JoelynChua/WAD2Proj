@@ -52,7 +52,7 @@
                             :style="{ backgroundColor: event.colour || '#1a1a40' }">
                             <img src="../assets/logo.png" alt="Event logo" class="event-logo" />
                         </div>
-                        <img v-else :src="event?.images[0]?.url" alt="Event image" class="ticketmaster-image" />
+                        <img v-else :src="event.images[0].url" alt="Event image" class="ticketmaster-image" />
 
                         <!-- Bookmark Icon -->
                         <div class="icon-container" v-if="!isBookmarked(event.id)">

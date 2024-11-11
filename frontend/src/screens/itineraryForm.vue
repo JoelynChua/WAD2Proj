@@ -9,10 +9,10 @@
                     <input type="text" class="form-control" id="title" v-model="formData.title" required />
                 </div>
 
-                <div class="mb-3">
+                <!-- <div class="mb-3">
                     <label for="budget" class="form-label">Budget</label>
                     <input type="number" class="form-control" id="budget" v-model.number="formData.budget" />
-                </div>
+                </div> -->
 
                 <div class="mb-3">
                     <label for="date" class="form-label">Date</label>
