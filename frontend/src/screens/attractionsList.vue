@@ -43,8 +43,8 @@
         </div>
 
         <!-- Wishlist Filtered Events -->
-        <div class="container mt-4" v-if="selectedFilter === 'wishlist' && filteredAttractions.length">
-            <div class="row">
+        <div class="container mt-4" v-if="selectedFilter === 'wishlist'">
+            <div v-if="filteredAttractions.length" class="row">
                 <div class="col-lg-3 col-md-6 col-12 mb-4" v-for="attraction in filteredAttractions"
                     :key="attraction.id">
                     <div class="card event pb-0" @click="goToAttractionDetails(attraction.url)"
@@ -87,6 +87,9 @@
                         </div>
                     </div>
                 </div>
+            </div>
+            <div v-else style="margin-bottom: 400px; margin-top: 100px">
+                No events bookmarked
             </div>
         </div>
 
@@ -194,6 +197,7 @@ export default {
                     this.wishlists.some(wishlist => wishlist.attractionID === event.id)
                 );
             }
+
             return this.attractions;
         }
     },

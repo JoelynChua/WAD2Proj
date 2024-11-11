@@ -20,13 +20,21 @@
                     <!-- Itinerary Update Form -->
                     <div class="row text-center">
                         <form @submit.prevent="handleUpdate">
-                            <div class="row">
+
+                            <div class="row form-background">
                                 <div class="col-lg-4"></div>
-                                <div class="col-lg-6 d-flex justify-content-center" style="margin-top: 30px;">
-                                    <div class="w-50 ">
+
+                                <div class=" d-flex justify-content-center align-items-center position-relative">
+                                    <div class="w-50">
                                         <input type="text" class="form-control text-center titleInput" id="title"
                                             v-model="itineraryDetails.title"
-                                            style="width: auto; padding: 0.375rem 1rem;" required />
+                                            style="width: 100%; padding: 0.375rem 1rem;" required />
+                                    </div>
+                                    <!-- Date Counter -->
+                                    <div class="date-counter-container" v-if="itineraryDetails.date">
+                                        <div class="date-counter">
+                                            <span>{{ daysDifference }}</span> Days more ✨
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -39,14 +47,14 @@
                                 </div>
                             </div>
 
-                            <div class="row col-lg-12 mb-3 d-flex justify-content-center">
+                            <!-- <div class="row col-lg-12 mb-3 d-flex justify-content-center">
                                 <div class="col-6 d-flex justify-content-center">
                                     <label for="budget" class="form-label mb-0 me-2">Planned Budget:</label>
                                     <input type="number" class="form-control"
                                         style="width: auto; display: inline-block;" id="budget"
                                         v-model="itineraryDetails.budget" required />
                                 </div>
-                            </div>
+                            </div> -->
 
                             <!-- Table content -->
                             <div class="row">
@@ -75,8 +83,8 @@
                                                 <!-- Event Details Section (Resizable Column) -->
                                                 <template
                                                     v-if="eventDetails[event.eventID] || organiserEventDetails[event.eventID]">
-                                                    <td colspan=1 :rowspan="getEventRowspan(event)"
-                                                        :style="getColumnStyle(event)" class="event-details-wrapper">
+                                                    <td colspan=1 style="background-color: lightblue"
+                                                        class="event-details-wrapper">
                                                         <div>
                                                             <strong>{{ eventDetails[event.eventID]?.name ||
                                                                 organiserEventDetails[event.eventID]?.title
@@ -94,8 +102,9 @@
 
                                                             <!-- Remove Icon -->
                                                             <font-awesome-icon :icon="['fas', 'minus']"
-                                                                @click="onRemoveEvent(event.eventID)"
+                                                                @click="onRemoveEvent(event.eventID, event.time)"
                                                                 class="remove-icon" />
+
 
                                                             <!-- Resize Handle -->
                                                             <div class="resize-handle"
@@ -106,8 +115,7 @@
 
                                                 <!-- Attraction Details Section (Resizable Column) -->
                                                 <template v-else-if="attractionDetails[event.eventID]">
-                                                    <td colspan=1 :rowspan="getEventRowspan(event)"
-                                                        :style="getColumnStyle(event)"
+                                                    <td colspan=1 style="background-color: lightblue"
                                                         class="attraction-details-wrapper">
                                                         <div>
                                                             <strong>{{ attractionDetails[event.eventID].name
@@ -119,7 +127,7 @@
 
                                                             <!-- Remove Icon -->
                                                             <font-awesome-icon :icon="['fas', 'minus']"
-                                                                @click="onRemoveEvent(event.eventID)"
+                                                                @click="onRemoveEvent(event.eventID, event.time)"
                                                                 class="remove-icon" />
 
                                                             <!-- Resize Handle -->
@@ -138,6 +146,16 @@
                                                 </template>
                                             </tr>
                                         </tbody>
+
+
+
+
+
+
+
+
+
+
                                     </table>
                                 </div>
                                 <div v-else>
@@ -156,7 +174,7 @@
                 <div ref="wishlistSidebar" class="wishlist-sidebar" :class="{ expanded: isExpanded }">
                     <h3 style="text-decoration: underline;">Wishlist</h3>
 
-                    <ul v-if="wishlists.length" class="list-unstyled">
+                    <ul v-if="wishlists.length">
                         <li v-for="wishlist in wishlists" :key="wishlist.id" :draggable="true"
                             @dragstart="onDragStart($event, wishlist)" class="draggable-item"
                             style="border: 1px solid; margin: 5px; border-radius: 5px; padding: 10px;">
@@ -249,13 +267,11 @@ export default {
             resizingEvent: null,
             initialMouseX: 0,
             initialRowspan: 1,
-            rowspans: {}, // Stores the calculated rowspans for each eventID
-
-            temporaryItems: [],// To store items temporarily when they are moved to the events table
+            rowspans: {} // Stores the calculated rowspans for each eventID
 
         };
     },
-    async mounted() {
+    mounted() {
         this.initializeTrail();
         this.authListener();
 
@@ -281,7 +297,6 @@ export default {
         else {
             console.error('eventsTable reference is missing');
         }
-
     },
 
     computed: {
@@ -297,6 +312,18 @@ export default {
             const mm = String(today.getMonth() + 1).padStart(2, '0'); // Month
             const yyyy = today.getFullYear(); // Year
             return `${yyyy}-${mm}-${dd}`; // Return in YYYY-MM-DD format
+        },
+
+        daysDifference() {
+            if (!this.itineraryDetails.date) {
+                return 0;
+            }
+            const today = new Date();
+            const itineraryDate = new Date(this.itineraryDetails.date);
+            const timeDifference = itineraryDate - today;
+            return Math.ceil(timeDifference / (1000 * 60 * 60 * 24)) > 0
+                ? Math.ceil(timeDifference / (1000 * 60 * 60 * 24))
+                : 0;
         },
 
 
@@ -346,13 +373,9 @@ export default {
                         // Fetch the wishlist after the user ID is available
                         await this.fetchWishlist();
 
-                        await this.fetchTemporaryItems();
-
                         // Fetch itineraries using the UID
                         this.itineraries = await itineraryService.getItineraryByUserID(this.userID);
                         console.log("ITINERARIES", this.itineraries);
-
-                        
 
 
 
@@ -468,20 +491,7 @@ export default {
                 console.error("Failed to fetch itinerary details:", error);
             }
         },
-        async fetchTemporaryItems() {
 
-            try {
-                if (!this.userID) {
-                    throw new Error("User ID not available for fetching temporary items.");
-                }
-                this.temporaryItems = await itineraryService.getTempItemsByUserID(this.userID);
-                console.log("Fetched temp items:", this.temporaryItems);
-
-                
-            } catch (error) {
-                console.error("Error fetching temporary items:", error);
-            }
-        },
 
         async fetchDetails(eventID) {
             try {
@@ -527,31 +537,75 @@ export default {
         },
 
 
+        // async updateEventTiming(draggedEventID, newTime) {
+        //     try {
+        //         // Prepare updated itinerary details with eventID null for the old event and new eventID for the new time
+        //         const updatedData = {
+        //             title: this.itineraryDetails.title,
+        //             date: this.itineraryDetails.date,
+        //             budget: this.itineraryDetails.budget,
+        //             collaborators: this.itineraryDetails.collaborators || [],
+        //             events: this.sortedEvents.map(event => {
+        //                 if (event.eventID === draggedEventID) {
+        //                     // Clear the eventID from the old event
+        //                     return {
+        //                         ...event,
+        //                         eventID: null, // Old event: set eventID to null
+        //                     };
+        //                 } else if (event.time === newTime) {
+        //                     // Assign the dragged eventID to the new time slot
+        //                     return {
+        //                         ...event,
+        //                         eventID: draggedEventID, // New event: assign dragged eventID
+        //                     };
+        //                 }
+        //                 return event; // For other events, leave them unchanged
+        //             }),
+        //         };
 
+        //         // Call update itinerary service to save changes
+        //         const id = this.$route.params.id;
+        //         await itineraryService.updateItinerary(id, updatedData);
 
+        //         this.updateMessage = "Event timing updated successfully."; // Success message
+        //         setTimeout(() => {
+        //             this.updateMessage = null;
+        //             location.reload();
+        //         }, 2000);
+
+        //     } catch (error) {
+        //         this.updateError = "Error updating event timing: " + error.message; // Error message
+        //         console.error("Error updating event timing:", error);
+        //     }
+        // },
 
         async updateEventTiming(draggedEventID, newTime) {
             try {
-                // Prepare updated itinerary details with eventID null for the old event and new eventID for the new time
+                // Prepare updated itinerary details by resetting all occurrences of the dragged eventID
                 const updatedData = {
                     title: this.itineraryDetails.title,
                     date: this.itineraryDetails.date,
                     budget: this.itineraryDetails.budget,
                     collaborators: this.itineraryDetails.collaborators || [],
                     events: this.sortedEvents.map(event => {
+                        // Clear the eventID for all occurrences, even if they're not consecutive
                         if (event.eventID === draggedEventID) {
-                            // Clear the eventID from the old event
                             return {
                                 ...event,
-                                eventID: null, // Old event: set eventID to null
-                            };
-                        } else if (event.time === newTime) {
-                            // Assign the dragged eventID to the new time slot
-                            return {
-                                ...event,
-                                eventID: draggedEventID, // New event: assign dragged eventID
+                                eventID: null, // Set eventID to null for all matching events
+                                rowspan: 1, // Reset rowspan if needed
                             };
                         }
+
+                        // Ensure only one event at the new time receives the dragged eventID
+                        if (event.time === newTime) {
+                            return {
+                                ...event,
+                                eventID: draggedEventID, // Set the new time slot with the dragged eventID
+                                rowspan: 1, // Reset rowspan if needed
+                            };
+                        }
+
                         return event; // For other events, leave them unchanged
                     }),
                 };
@@ -563,7 +617,7 @@ export default {
                 this.updateMessage = "Event timing updated successfully."; // Success message
                 setTimeout(() => {
                     this.updateMessage = null;
-                    location.reload();
+                    location.reload(); // Reload to ensure UI reflects the updated state
                 }, 2000);
 
             } catch (error) {
@@ -573,54 +627,40 @@ export default {
         },
 
 
-        // Method to remove the eventID of a specific event without removing the entire row
-        async onRemoveEvent(eventID) {
-            const eventToUpdate = this.sortedEvents.find(event => event.eventID === eventID);
 
-            console.log('JJ: this event has been removed', eventToUpdate)
+        // Method to remove the eventID of a specific event without removing the entire row
+        // onRemoveEvent(eventID) {
+        //     const eventToUpdate = this.sortedEvents.find(event => event.eventID === eventID);
+
+        //     if (eventToUpdate) {
+        //         eventToUpdate.eventID = null; // Clear the eventID, keep other details intact
+        //         eventToUpdate.name = null; // Optionally, clear the name or any other related fields
+        //         console.log(`Event ${eventID} removed from the itinerary.`);
+
+        //         // Optionally, call a service to update the state on the server if needed
+        //         this.handleUpdate(); // Call the update method to save the changes
+        //     } else {
+        //         console.error(`Event with eventID ${eventID} not found.`);
+        //     }
+        // },
+
+        onRemoveEvent(eventID, clickedTime) {
+            const eventToUpdate = this.sortedEvents.find(event => event.eventID === eventID && event.time === clickedTime);
+
             if (eventToUpdate) {
                 eventToUpdate.eventID = null; // Clear the eventID, keep other details intact
                 eventToUpdate.name = null; // Optionally, clear the name or any other related fields
-                console.log(`Event ${eventID} removed from the itinerary.`);
-                
-                const tempIndex = this.temporaryItems.findIndex(item => item.eventID === eventID || item.attractionID === eventID);
-
-                console.log("Temp Item FOUND:",this.temporaryItems[tempIndex])
-                if (tempIndex !== -1) {
-                    try {
-                        await itineraryService.addWishlist(this.temporaryItems[tempIndex]);
-
-                        console.log()
-                        await itineraryService.deleteTempItem(this.temporaryItems[tempIndex].id); 
-                        this.temporaryItems.splice(tempIndex, 1)
-                        await this.fetchWishlist();
-                    } catch (error) {
-                        console.error("Error moving event back to wishlist:", error);
-                    }
-                }
+                console.log(`Event ${eventID} at time ${clickedTime} removed from the itinerary.`);
 
                 // Optionally, call a service to update the state on the server if needed
                 this.handleUpdate(); // Call the update method to save the changes
             } else {
-                console.error(`Event with eventID ${eventID} not found.`);
+                console.error(`Event with eventID ${eventID} and time ${clickedTime} not found.`);
             }
         },
 
-        returnToWishlist(eventID, eventDetails) {
-            // Check if the event is already in the wishlist
-            const existsInWishlist = this.wishlists.some(item => item.eventID === eventID || item.attractionID === eventID);
 
-            if (!existsInWishlist) {
-                // Add the removed item back to the wishlist
-                this.wishlists.push({
-                    id: eventID,  // Ensure this aligns with your data structure
-                    name: eventDetails.name || eventDetails.title,
-                    type: eventDetails.type || eventDetails.genre || 'N/A'
-                });
 
-                console.log(`Event ${eventID} added back to the wishlist.`);
-            }
-        },
 
         async handleUpdate() {
             this.updateMessage = null; // Reset previous success message
@@ -768,27 +808,27 @@ export default {
 
         // Make the event item width dynamic
         // Method to return dynamic styles and attributes for the event column based on its timing
-        getColumnStyle(event) {
-            const rowspan = this.getEventRowspan(event);
-            // console.log(rowspan, "ROWSPAN STYLE");
+        // getColumnStyle(event) {
+        //     const rowspan = this.getEventRowspan(event);
+        //     console.log(rowspan, "ROWSPAN STYLE");
 
-            return {
-                rowspan: `${rowspan}`,
-                backgroundColor: 'lightblue' // Example of conditional styling
-            };
-        },
+        //     return {
+        //         // rowspan: `${rowspan}`,
+        //         backgroundColor: 'lightblue' // Example of conditional styling
+        //     };
+        // },
 
         getEventRowspan(event) {
             const eventIndex = this.sortedEvents.findIndex(e => e.eventID === event.eventID);
             const currentTime = event.time; // e.g., '01:00'
-            let totalRowspan = 1; // Initialize with the minimum rowspan of 1
+            let finalRowspan = undefined; // Variable to store the final valid rowspan
 
             // Iterate to find only the first next event with the same eventID
             for (let i = eventIndex + 1; i < this.sortedEvents.length; i++) {
                 if (this.sortedEvents[i].eventID === event.eventID) {
                     const nextEvent = this.sortedEvents[i];
                     const nextTime = nextEvent.time; // e.g., '03:00'
-                    console.log(`Next event found for eventID: ${event.eventID}, nextTime: ${nextTime}`);
+                    // console.log(`Next event found for eventID: ${event.eventID}, nextTime: ${nextTime}`);
 
                     if (nextTime) {
                         const [currentHour, currentMinute] = currentTime.split(':').map(Number);
@@ -799,23 +839,30 @@ export default {
 
                         // Calculate the time difference and convert to rows (+1 for inclusive counting)
                         const timeDifferenceInMinutes = nextTimeInMinutes - currentTimeInMinutes;
-                        const rowspan = Math.max(1, Math.ceil(timeDifferenceInMinutes / 60) + 1); // Add 1 to include the start
+                        //const calculatedRowspan = Math.max(1, Math.ceil(timeDifferenceInMinutes / 60) + 1); 
+                        // Add 1 to include the start
+                        const calculatedRowspan = Math.max(1, Math.ceil(timeDifferenceInMinutes / 60));
 
-                        console.log(`Calculated rowspan for eventID ${event.eventID}:`, rowspan);
+                        // console.log(`Calculated rowspan for eventID ${event.eventID}:`, calculatedRowspan);
 
-                        // Confirming function exit after finding the first match
-                        console.log(`Exiting function after processing eventID ${event.eventID} with calculated rowspan.`);
-
-                        // Return the calculated rowspan and stop further iterations
-                        return rowspan;
+                        // Only keep the value if it is greater than 1 and break out of the loop
+                        if (calculatedRowspan > 1) {
+                            finalRowspan = calculatedRowspan;
+                            // console.log(finalRowspan, "ASSIGNED AS FINAL ROWSPAN");
+                            break; // Exit the loop after assigning the first valid rowspan
+                        }
                     }
                 }
             }
 
-            // console.log(`Total calculated rowspan for eventID ${event.eventID}:`, totalRowspan);
-            return totalRowspan; // Default return if no next event is found
-        },
+            if (finalRowspan !== undefined) {
+                console.log(`Final valid rowspan for eventID ${event.eventID}:`, finalRowspan);
+                return finalRowspan;
+            }
 
+            console.log(`No valid rowspan (greater than 1) found for eventID ${event.eventID}, returning undefined`);
+            return undefined; // Return undefined if no valid rowspan is found or if finalRowspan <= 1
+        },
 
 
 
@@ -838,10 +885,47 @@ export default {
             document.addEventListener('mouseup', onMouseUp);
         },
 
-        updateRowspan(eventItem, newRowspan) {
-            eventItem.rowspan = newRowspan; // Only update rowspan
+        async updateRowspan(eventItem, newRowspan) {
+            const oldRowspan = eventItem.rowspan; // Store the old rowspan
+            eventItem.rowspan = newRowspan; // Update the event item with the new rowspan
             console.log(`Updated rowspan for eventID ${eventItem.eventID}:`, newRowspan);
+
+            const eventIndex = this.sortedEvents.findIndex(e => e.eventID === eventItem.eventID);
+            if (eventIndex === -1) return; // Ensure eventIndex is valid
+
+            // Determine how many timeslots to update using the result from getEventRowspan
+            const calculatedRowspan = this.getEventRowspan(eventItem);
+            if (calculatedRowspan > 1) {
+                // Iterate through the events and update those within the range of the new rowspan
+                for (let i = eventIndex; i < eventIndex + calculatedRowspan && i < this.sortedEvents.length; i++) {
+                    const event = this.sortedEvents[i];
+                    event.eventID = eventItem.eventID; // Update eventID to indicate this timeslot contains the event
+                    event.rowspan = newRowspan; // Set the new rowspan for each event in the range
+                    console.log(`Updated event at time ${event.time} to include eventID ${event.eventID} with new rowspan ${newRowspan}`);
+                }
+            }
+
+            // Handle old rowspan if necessary (e.g., clearing any gaps left from a change in size)
+            if (oldRowspan > newRowspan) {
+                for (let i = eventIndex + newRowspan; i < eventIndex + oldRowspan && i < this.sortedEvents.length; i++) {
+                    const event = this.sortedEvents[i];
+                    event.eventID = null; // Clear the eventID to indicate that this timeslot is now free
+                    event.rowspan = 1; // Reset the rowspan to 1
+                    console.log(`Cleared event at time ${event.time} as it is no longer part of the resized range`);
+                }
+            }
+
+            // Call the handleUpdate method to save the updated data to the database
+            await this.handleUpdate(); // Await handleUpdate to ensure completion
+
+            // Introduce a slight delay before reloading
+            await new Promise(resolve => setTimeout(resolve, 6000)); // Adjust the delay as needed (500ms)
+
+            window.location.reload(); // Add reload after ensuring the update completes
         },
+
+
+
 
 
 
@@ -896,6 +980,62 @@ export default {
 
 
 
+        // async onDrop(event) {
+        //     // Optional: Reopen sidebar if needed (after the drop)
+        //     if (window.innerWidth <= 768) {
+        //         this.openSidebar();
+        //     }
+        //     this.isDragging = false;
+        //     clearInterval(this.autoScrollInterval);
+
+        //     event.preventDefault(); // Prevent default behavior
+
+        //     // Get the dragged item data
+        //     const wishlistItem = JSON.parse(event.dataTransfer.getData('text/plain'));
+        //     console.log(wishlistItem, "EVENT DRAGGED");
+
+        //     // Find the closest row element that is the target for the drop
+        //     const droppedRow = event.target.closest('tr');
+
+        //     if (droppedRow) {
+        //         const time = droppedRow.querySelector('td:first-child').textContent; // Get the timing from the first cell
+
+        //         console.log("Dropped row:", droppedRow);
+        //         console.log("Time:", time);
+        //         console.log("Wishlist Item:", wishlistItem);
+
+        //         const eventID = wishlistItem.eventID || wishlistItem.attractionID;
+
+        //         // Check the length of the dragged item data to determine the source
+        //         if (eventID) {
+        //             if (Object.keys(wishlistItem).length === 2) {
+        //                 // If length is 2, treat it as coming from the table
+        //                 console.log("Dragging within the table, updating event timing.", wishlistItem.eventID, time);
+        //                 await this.updateEventTiming(wishlistItem.eventID, time); // Await here
+
+        //                 // Instead of location.reload(), we can update the state and re-render the component
+        //                 this.$nextTick(() => {
+        //                     console.log("Event timing updated. DOM should reflect changes.");
+        //                 });
+        //             } else {
+        //                 // Otherwise, treat it as coming from the wishlist
+        //                 console.log("Dragging from the wishlist, adding to event.", wishlistItem, { eventID, time });
+        //                 await this.addToEvent(wishlistItem, { eventID, time }); // Await here
+
+        //                 // Optionally, update the state after adding to the event
+        //                 this.$nextTick(() => {
+        //                     console.log("Wishlist item added to event. DOM should reflect changes.");
+        //                 });
+        //             }
+        //         } else {
+        //             console.error("Wishlist item does not have a valid eventID or attractionID.");
+        //         }
+        //     } else {
+        //         console.error("Dropped event does not have a valid row.");
+        //     }
+        // },
+
+        //new
         async onDrop(event) {
             // Optional: Reopen sidebar if needed (after the drop)
             if (window.innerWidth <= 768) {
@@ -924,12 +1064,24 @@ export default {
 
                 // Check the length of the dragged item data to determine the source
                 if (eventID) {
-                    if (Object.keys(wishlistItem).length === 2) {
+                    // Additional check for multiple objects
+                    if (Array.isArray(wishlistItem)) {
+                        const filteredItem = wishlistItem.find(item => Object.keys(item).length === 2);
+                        if (filteredItem) {
+                            console.log("Dragging within the table, Multiple objects detected. Using item with 2 attributes.", filteredItem);
+                            await this.updateEventTiming(filteredItem.eventID, time);
+
+                            this.$nextTick(() => {
+                                console.log("Event timing updated. DOM should reflect changes.");
+                            });
+                        } else {
+                            console.error("No valid item with 2 attributes found.");
+                        }
+                    } else if (Object.keys(wishlistItem).length === 2) {
                         // If length is 2, treat it as coming from the table
                         console.log("Dragging within the table, updating event timing.", wishlistItem.eventID, time);
                         await this.updateEventTiming(wishlistItem.eventID, time); // Await here
 
-                        // Instead of location.reload(), we can update the state and re-render the component
                         this.$nextTick(() => {
                             console.log("Event timing updated. DOM should reflect changes.");
                         });
@@ -938,7 +1090,6 @@ export default {
                         console.log("Dragging from the wishlist, adding to event.", wishlistItem, { eventID, time });
                         await this.addToEvent(wishlistItem, { eventID, time }); // Await here
 
-                        // Optionally, update the state after adding to the event
                         this.$nextTick(() => {
                             console.log("Wishlist item added to event. DOM should reflect changes.");
                         });
@@ -950,6 +1101,7 @@ export default {
                 console.error("Dropped event does not have a valid row.");
             }
         },
+
 
 
         async removeFromWishlist(wishlistItem) {
@@ -1004,20 +1156,6 @@ export default {
             }
 
             console.log("Updated sortedEvents:", this.sortedEvents); // Verify updated events
-
-            // Temporarily store the item before removing it from the wishlist
-            try {
-                const newTempList = {
-                    userID: this.userID,
-                    eventID: wishlistItem.eventID,
-                    attractionID: wishlistItem.attractionID 
-                }
-                await itineraryService.addTempItem(newTempList);
-                this.temporaryItems = await itineraryService.getTempItemsByUserID(this.userID)
-                console.log("TEMPORARY ITEMS",this.temporaryItems)
-            } catch (error) {
-                console.error("Failed to add item to temporary list:", error);
-            }
 
             // Delete from wishlist
             try {
@@ -1111,13 +1249,47 @@ export default {
 
 
 <style scoped>
+.form-background {
+    display: flex;
+    /* Enables flexbox layout */
+    justify-content: center;
+    /* Centers content horizontally */
+    align-items: center;
+    /* Centers content vertically */
+    background-image: url('https://i.imgur.com/yKCVfQb.gif');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    padding: 50px;
+    /* Adjust as needed */
+    width: 100vw;
+    /* Ensures full width of the viewport */
+}
+
+
+.date-counter-container {
+    position: absolute; /* Positions it relative to the parent container */
+    bottom: -30px; /* Adjusts the vertical placement */
+    right: 60px; /* Adjusts the horizontal placement */
+    font-family: 'Arial', sans-serif;
+    font-size: 25px; /* Adjust for readability */
+    font-weight: bold;
+    color: magenta;
+    z-index: 9999; /* Ensures it is above other elements */
+}  /* Ensures it is above all other elements */
+
+
+
+
+
+
+
 /* Jumbotron -- wishlist */
 /* Regular sidebar styles */
 .sidebar-container {
     position: relative;
     z-index: 10;
     height: 100vh;
-    /* Ensure the container takes full height */
     overflow-y: auto;
     /* Allow vertical scrolling */
 }
@@ -1138,11 +1310,12 @@ export default {
     z-index: 1000;
 }
 
-
+/* Expanded sidebar */
 .wishlist-sidebar.expanded {
     left: 0;
 }
 
+/* Expand icon */
 .expand-icon {
     position: fixed;
     top: 150px;
@@ -1153,11 +1326,52 @@ export default {
     transition: left 0.3s ease;
     z-index: 1100;
     margin: 10px;
-    /* Add margin here */
 }
 
 .expand-icon.icon-expanded {
     left: 260px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .wishlist-sidebar {
+        width: 200px;
+        left: -200px;
+    }
+
+    .wishlist-sidebar.expanded {
+        left: 0;
+    }
+
+    .expand-icon {
+        top: 180px;
+        /* Lower the icon on smaller screens */
+    }
+
+    .expand-icon.icon-expanded {
+        left: 210px;
+    }
+}
+
+@media (max-width: 480px) {
+    .wishlist-sidebar {
+        width: 150px;
+        left: -150px;
+    }
+
+    .wishlist-sidebar.expanded {
+        left: 0;
+    }
+
+    .expand-icon {
+        top: 200px;
+        /* Lower the icon further on very small screens */
+        font-size: 20px;
+    }
+
+    .expand-icon.icon-expanded {
+        left: 160px;
+    }
 }
 
 
@@ -1324,7 +1538,7 @@ canvas {
     position: fixed;
     top: 120px;
     right: 20px;
-    z-index: 1000;
+    z-index: 99999;
     padding: 15px 20px;
     border-radius: 5px;
     color: #fff;
