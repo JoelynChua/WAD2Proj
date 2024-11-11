@@ -184,15 +184,36 @@ body {
   background-color: #eee;
 }
 
-.itinerary-list h2 {
+.itinerary-list h1 {
   text-align: center;
-  font-size: 18px;
-  font-weight: 600;
+  font-size: 2rem;
+  font-weight: 700;
   text-transform: uppercase;
   padding-bottom: 6px;
   color: #000;
   letter-spacing: 0.3px;
   padding: 0;
+}
+
+button.btn {
+  background-color: #c8e0ea;
+  color: #333;
+  font-weight: bold;
+  border: none;
+  border-radius: 5px;
+  padding: 10px 20px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+button.btn:hover {
+  background-color: #b3d2de; /* Slightly darker shade on hover */
+  transform: scale(1.05);
+}
+
+button.btn:focus {
+  outline: none;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
 }
 
 .itinerary-list::after {
@@ -257,6 +278,7 @@ body {
   overflow-wrap: break-word; /* Allow wrapping on long words */
   overflow: hidden; /* Prevent content from overflowing */
   margin: 0 auto; /* Center it horizontally, if needed */
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 
@@ -285,5 +307,6 @@ body {
   right: 10px;
   cursor: pointer;
   color: red;
+  transition: transform 0.2s ease;
 }
 </style>
