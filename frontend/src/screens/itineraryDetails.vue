@@ -20,13 +20,21 @@
                     <!-- Itinerary Update Form -->
                     <div class="row text-center">
                         <form @submit.prevent="handleUpdate">
-                            <div class="row">
+
+                            <div class="row form-background">
                                 <div class="col-lg-4"></div>
-                                <div class="col-lg-6 d-flex justify-content-center" style="margin-top: 30px;">
-                                    <div class="w-50 ">
+
+                                <div class=" d-flex justify-content-center align-items-center position-relative">
+                                    <div class="w-50">
                                         <input type="text" class="form-control text-center titleInput" id="title"
                                             v-model="itineraryDetails.title"
-                                            style="width: auto; padding: 0.375rem 1rem;" required />
+                                            style="width: 100%; padding: 0.375rem 1rem;" required />
+                                    </div>
+                                    <!-- Date Counter -->
+                                    <div class="date-counter-container" v-if="itineraryDetails.date">
+                                        <div class="date-counter">
+                                            <span>{{ daysDifference }}</span> Days more ✨
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -304,6 +312,18 @@ export default {
             const mm = String(today.getMonth() + 1).padStart(2, '0'); // Month
             const yyyy = today.getFullYear(); // Year
             return `${yyyy}-${mm}-${dd}`; // Return in YYYY-MM-DD format
+        },
+
+        daysDifference() {
+            if (!this.itineraryDetails.date) {
+                return 0;
+            }
+            const today = new Date();
+            const itineraryDate = new Date(this.itineraryDetails.date);
+            const timeDifference = itineraryDate - today;
+            return Math.ceil(timeDifference / (1000 * 60 * 60 * 24)) > 0
+                ? Math.ceil(timeDifference / (1000 * 60 * 60 * 24))
+                : 0;
         },
 
 
@@ -1229,6 +1249,41 @@ export default {
 
 
 <style scoped>
+.form-background {
+    display: flex;
+    /* Enables flexbox layout */
+    justify-content: center;
+    /* Centers content horizontally */
+    align-items: center;
+    /* Centers content vertically */
+    background-image: url('https://i.imgur.com/yKCVfQb.gif');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    padding: 50px;
+    /* Adjust as needed */
+    width: 100vw;
+    /* Ensures full width of the viewport */
+}
+
+
+.date-counter-container {
+    position: absolute; /* Positions it relative to the parent container */
+    bottom: -30px; /* Adjusts the vertical placement */
+    right: 60px; /* Adjusts the horizontal placement */
+    font-family: 'Arial', sans-serif;
+    font-size: 25px; /* Adjust for readability */
+    font-weight: bold;
+    color: magenta;
+    z-index: 9999; /* Ensures it is above other elements */
+}  /* Ensures it is above all other elements */
+
+
+
+
+
+
+
 /* Jumbotron -- wishlist */
 /* Regular sidebar styles */
 .sidebar-container {
@@ -1483,7 +1538,7 @@ canvas {
     position: fixed;
     top: 120px;
     right: 20px;
-    z-index: 1000;
+    z-index: 99999;
     padding: 15px 20px;
     border-radius: 5px;
     color: #fff;
