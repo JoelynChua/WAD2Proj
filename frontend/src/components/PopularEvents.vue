@@ -1,7 +1,7 @@
 <template>
     <div class="pop-events">
         <h1 class="mt-3 fe-title">featured</h1>
-        <swiper :slidesPerView="4" :centeredSlides="true" :spaceBetween="50" :grabCursor="true" :pagination="{
+        <swiper :slidesPerView="4" :spaceBetween="50" :grabCursor="true" :pagination="{
             clickable: true,
         }" :modules="modules" :breakpoints="{
             320: {

@@ -18,18 +18,18 @@
           <tr>
             <th>Event</th>
             <th>Date</th>
-            <th>Time</th>
+            <th class="collapsable_2">Time</th>
             <th>Price (S$)</th>
-            <th>Modifications</th>
+            <th class="collapsable">Modifications</th>
           </tr>
         </thead>
         <tbody>
           <tr v-for="(booking, index) in bookings" :key="index">
             <td>{{ booking?.title || 'No title' }}</td>
             <td>{{ booking?.date || 'No date' }}</td>
-            <td>{{ booking?.time || 'No time' }}</td>
+            <td class="collapsable_2">{{ booking?.time || 'No time' }}</td>
             <td>{{ booking?.price ? `${booking.price}` : 'No price' }}</td>
-            <td><button class="btn btn-danger" @click="handleDelete(index)">Remove</button></td>
+            <td class="collapsable"><button class="btn btn-danger" @click="handleDelete(index)">Remove</button></td>
           </tr>
         </tbody>
       </table>
@@ -213,4 +213,16 @@ export default {
   border-radius: 20px;
 
 }
+
+@media (max-width: 500px) {
+  .collapsable {
+    display: none;
+  }
+}
+
+@media (max-width: 400px) {
+  .collapsable_2 {
+    display: none;
+  }
+ }
 </style>

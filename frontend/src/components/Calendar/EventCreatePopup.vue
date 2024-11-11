@@ -57,8 +57,8 @@
               <span class="input-icon">
                 <i class="fi fi-rr-usd-circle"></i>
               </span>
-              <input type="text" v-model="localEvent.price" id="price" class="title-input"
-                placeholder="Price">
+              <input type="number" v-model="localEvent.price" id="price" class="title-input" placeholder="Price" min="0"
+                step="0.01">
             </div>
           </div>
 

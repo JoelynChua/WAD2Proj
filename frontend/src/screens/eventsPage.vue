@@ -27,18 +27,15 @@
         </transition>
 
         <!-- Events filter -->
-        <div v-if="userID" class="filter-container">
+        <div class="filter-container">
             <h1>Upcoming Events</h1>
-            <div class="dropdown-container" v-if="isCustomer">
+            <div class="dropdown-container">
                 <i class="fi fi-rr-angle-small-down dropdown-icon"></i>
                 <select id="event-filter" class="custom-dropdown" v-model="selectedFilter">
                     <option value="all">All Events</option>
                     <option value="wishlist">Self-Hosted</option>
                 </select>
             </div>
-        </div>
-        <div v-else style="padding-top: 135px;">
-            <h1>Upcoming Events</h1>
         </div>
 
         <!-- Wishlist Filtered Events -->
@@ -68,53 +65,56 @@
 
                         <!-- Event Details -->
                         <div class="card-body text-start">
-                                <p class="card-text">{{ event.classifications && event.classifications[0] ?
-                                    event.classifications[0].genre.name : event.type }}</p>
-                                <h5 class="card-title fs-4 mb-0">
-                                    <span>
-                                        {{ event.name.length > 48 ? event.name.substring(0, 38) + '...' : event.name }}
-                                    </span>
-                                </h5>
-                                <p class="card-text mt-0">
-                                    {{ new Date(event.dates?.start?.dateTime || event.start).toLocaleDateString('en-US',
-                                        {
-                                            weekday: 'short',
-                                            year: 'numeric',
-                                            month: 'short',
-                                            day: 'numeric',
-                                            hour: '2-digit',
-                                            minute: '2-digit'
+                            <p class="card-text">{{ event.classifications && event.classifications[0] ?
+                                event.classifications[0].genre.name : event.type }}</p>
+                            <h5 class="card-title fs-4 mb-0">
+                                <span>
+                                    {{ event.name.length > 48 ? event.name.substring(0, 38) + '...' : event.name }}
+                                </span>
+                            </h5>
+                            <p class="card-text mt-0">
+                                {{ new Date(event.dates?.start?.dateTime || event.start).toLocaleDateString('en-US',
+                                    {
+                                        weekday: 'short',
+                                        year: 'numeric',
+                                        month: 'short',
+                                        day: 'numeric',
+                                        hour: '2-digit',
+                                        minute: '2-digit'
                                     }) }}
-                                </p>
-                                <p v-if="event.type == 'Organiser Event'" class="card-text" style="position: absolute;
+                            </p>
+                            <p v-if="event.type == 'Organiser Event'" class="card-text" style="position: absolute;
                             color: rgb(51, 51, 51);
                             font-size: 16px;
                             bottom: 5px;
                             right: 25px;
                             padding: 5px 10px">
-                                    <b>From S${{ event.price }}</b>
-                                </p>
+                                <b>From S${{ event.price }}</b>
+                            </p>
 
-                                <p v-else-if="event.priceRanges" class="card-text" style="position: absolute;
+                            <p v-else-if="event.priceRanges" class="card-text" style="position: absolute;
                             color: rgb(51, 51, 51);
                             font-size: 16px;
                             bottom: 5px;
                             right: 25px;
                             padding: 5px 10px">
-                                    <b>From {{ event.priceRanges[0].currency == "USD" ? 'US$' :
-                                        event.priceRanges[0].currency }}{{ event.priceRanges[0].min }}</b>
-                                </p>
+                                <b>From {{ event.priceRanges[0].currency == "USD" ? 'US$' :
+                                    event.priceRanges[0].currency }}{{ event.priceRanges[0].min }}</b>
+                            </p>
 
-                                <p v-else class="card-text" style="position: absolute;
+                            <p v-else class="card-text" style="position: absolute;
                             color: rgb(51, 51, 51);
                             font-size: 16px;
                             bottom: 5px;
                             right: 25px;
                             padding: 5px 10px">
-                                    <b>Price TBC</b>
-                                </p>
-                            </div>
+                                <b>Price TBC</b>
+                            </p>
+                        </div>
                     </div>
+                </div>
+                <div style="margin-bottom: 50px;">
+                    You have reached the end :-(
                 </div>
             </div>
             <div v-else style="margin-bottom: 400px; margin-top: 100px">
@@ -167,7 +167,7 @@
                                             day: 'numeric',
                                             hour: '2-digit',
                                             minute: '2-digit'
-                                    }) }}
+                                        }) }}
                                 </p>
                                 <p v-if="event.type == 'Organiser Event'" class="card-text" style="position: absolute;
                             color: rgb(51, 51, 51);
@@ -198,6 +198,9 @@
                                 </p>
                             </div>
                         </div>
+                    </div>
+                    <div style="margin-bottom: 50px;">
+                        You have reached the end :-(
                     </div>
                 </div>
                 <p v-else>No events available.</p>
