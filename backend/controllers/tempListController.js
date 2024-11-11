@@ -34,9 +34,19 @@ exports.postTempItem = async (req, res) => {
 // Delete an item from the temp list
 exports.deleteTempItem = async (req, res) => {
     try {
-        const { id } = req.params;
-        console.log(`Deleting temp item with ID: ${id}...`);
-        await tempListService.deleteTempItem(id); // Calls the correct service method
+        const { id } = req.params;  // tempItemID is taken from the route parameter
+        const { userID } = req.query;  // userID is taken from the query parameters
+
+        console.log(`Deleting temp item with ID: ${id} for userID: ${userID}...`);
+        
+        // Ensure both id and userID are provided
+        if (!id || !userID) {
+            return res.status(400).json({ message: 'Missing tempItemID or userID' });
+        }
+
+        // Call the service method with tempItemID and userID
+        await tempListService.deleteTempItem(id, userID);
+
         console.log("Temp item deleted successfully.");
         res.status(200).json({ message: 'Temporary item deleted successfully' });
     } catch (error) {

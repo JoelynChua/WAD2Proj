@@ -51,14 +51,32 @@ exports.addTempItem = async (newTempItem) => {
 };
 
 // Delete an item from temp list by ID
-exports.deleteTempItem = async (id) => {
-    const tempItemRef = db.ref(`tempList/${id}`);
-    const snapshot = await tempItemRef.once('value');
+exports.deleteTempItem = async (id, userID) => {
+    const tempListRef = db.ref(`tempList`);
+    const snapshot = await tempListRef.once('value');
 
-    if (snapshot.exists()) {
+    if (!snapshot.exists()) {
+        throw new Error("Temporary items not found");
+    }
+
+    let tempItemKey = null;
+    let tempItem = null;
+
+    // Iterate over the items to find a match for either eventID or attractionID
+    snapshot.forEach(childSnapshot => {
+        const item = childSnapshot.val();
+        if ((item.eventID === id || item.attractionID === id) && item.userID === userID) {
+            tempItemKey = childSnapshot.key;  // store the key for deletion
+            tempItem = item;
+        }
+    });
+
+    // Check if a matching item was found
+    if (tempItemKey && tempItem) {
+        const tempItemRef = db.ref(`tempList/${tempItemKey}`);
         await tempItemRef.remove();
         return { id, message: 'Temporary item deleted successfully' };
-    } else {
-        throw new Error("Temporary item not found");
+    } else if (!tempItemKey) {
+        throw new Error("Temporary item not found or unauthorized: You can only delete your own items");
     }
 };
