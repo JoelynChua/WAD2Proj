@@ -22,6 +22,8 @@ app.use(cors());
 const { displayEvents, displayAttractions, getEventById, getAttractionsById, searchEventsByName, searchAttractionsByName } = require('../src/api/ticketMasterApi'); // Adjust path if needed
 const itineraryController = require('../controllers/itineraryController');
 const wishlistController = require('../controllers/wishlistController');
+const tempListController = require('../controllers/tempListController');
+
 
 // Define API routes
 router.get('/displayEvents', displayEvents);
@@ -75,5 +77,11 @@ router.delete('/deleteItinerary/:id', itineraryController.deleteItinerary);
 router.get("/wishlist/user/:userID", wishlistController.getWishlistByUserID);
 router.post('/addWishlist', wishlistController.postWishlist);
 router.delete('/deleteWishlist/:id', wishlistController.deleteWishlist);
+
+// Temporary List Routes
+router.get('/templist/user/:userID', tempListController.getTempItemsByUserID);
+router.post('/addTempItem', tempListController.postTempItem);
+router.delete('/deleteTempItem/:id', tempListController.deleteTempItem);
+
 
 module.exports = router;
