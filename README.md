@@ -7,12 +7,12 @@ Deployed website url: https://wad-2-proj-frontend.vercel.app/
 ## Set up Instructions
 1. Download the zip folder to find the instructions document and sample files
 2. Do a "npm i" or "npm install"
-### TO run:
+### To run:
 Running backend: cd backend > npm run dev
 Running frontent: cd frontend > npm run serve
 
 ## Account for testing
-###Users: 
+### Users: 
 
 1. USER: user1@gmail.com
    PASS: 111111
@@ -25,9 +25,7 @@ Running frontent: cd frontend > npm run serve
    PASS: 111111
 ^^ Uncreated, to test sign up process ^^
 
-
-
-###Organisers:
+### Organisers:
 
 1. USER: organiser1@gmail.com
    PASS: 111111
