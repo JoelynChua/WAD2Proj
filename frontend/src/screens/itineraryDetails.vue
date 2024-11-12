@@ -81,21 +81,28 @@
                                                 </td>
 
                                                 <!-- Event Details Section (Resizable Column) -->
+                                                <!-- Event Details Section (Resizable Column) -->
                                                 <template
                                                     v-if="eventDetails[event.eventID] || organiserEventDetails[event.eventID]">
-                                                    <td colspan=1 style="background-color: lightblue"
+                                                    <td colspan="1"
+                                                        :style="{ backgroundColor: 'lightblue', height: `${event.heightFactor * rowHeight}px` }"
                                                         class="event-details-wrapper">
                                                         <div>
-                                                            <strong>{{ eventDetails[event.eventID]?.name ||
-                                                                organiserEventDetails[event.eventID]?.title
-                                                                }}</strong><br>
-                                                       
+                                                            <strong>
+                                                                {{ eventDetails[event.eventID]?.name ||
+                                                                organiserEventDetails[event.eventID]?.title }}
+                                                            </strong><br>
+                                                            <!-- Display the time range if heightFactor > 1 -->
+                                                            <span v-if="event.heightFactor > 1">
+                                                                {{ event.timeRange[0] }} - {{
+                                                                event.timeRange[event.timeRange.length - 1] }}
+                                                            </span>
+                                                            <span v-else>{{ event.time }}</span><br>
 
                                                             <!-- Remove Icon -->
                                                             <font-awesome-icon :icon="['fas', 'minus']"
                                                                 @click="onRemoveEvent(event.eventID, event.time)"
                                                                 class="remove-icon" />
-
 
                                                             <!-- Resize Handle -->
                                                             <div class="resize-handle"
@@ -106,12 +113,19 @@
 
                                                 <!-- Attraction Details Section (Resizable Column) -->
                                                 <template v-else-if="attractionDetails[event.eventID]">
-                                                    <td colspan=1 style="background-color: lightblue"
+                                                    <td colspan="1"
+                                                        :style="{ backgroundColor: 'lightblue', height: `${event.heightFactor * rowHeight}px` }"
                                                         class="attraction-details-wrapper">
                                                         <div>
                                                             <strong>{{ attractionDetails[event.eventID].name
                                                                 }}</strong><br>
-                                                           
+                                                            <!-- Display the time range if heightFactor > 1 -->
+                                                            <span v-if="event.heightFactor > 1">
+                                                                {{ event.timeRange[0] }} - {{
+                                                                event.timeRange[event.timeRange.length - 1] }}
+                                                            </span>
+                                                            <span v-else>{{ event.time }}</span><br>
+
                                                             <!-- Remove Icon -->
                                                             <font-awesome-icon :icon="['fas', 'minus']"
                                                                 @click="onRemoveEvent(event.eventID, event.time)"
@@ -131,6 +145,7 @@
                                                             drop</span>
                                                     </td>
                                                 </template>
+
                                             </tr>
                                         </tbody>
 
@@ -254,7 +269,8 @@ export default {
             resizingEvent: null,
             initialMouseX: 0,
             initialRowspan: 1,
-            rowspans: {} // Stores the calculated rowspans for each eventID
+            rowspans: {}, // Stores the calculated rowspans for each eventID
+            rowHeight: 50,
 
         };
     },
@@ -604,7 +620,7 @@ export default {
                 this.updateMessage = "Event timing updated successfully."; // Success message
                 setTimeout(() => {
                     this.updateMessage = null;
-                    location.reload(); // Reload to ensure UI reflects the updated state
+                    window.location.reload() // Reload to ensure UI reflects the updated state
                 }, 2000);
 
             } catch (error) {
@@ -635,12 +651,37 @@ export default {
             const eventToUpdate = this.sortedEvents.find(event => event.eventID === eventID && event.time === clickedTime);
 
             if (eventToUpdate) {
-                eventToUpdate.eventID = null; // Clear the eventID, keep other details intact
-                eventToUpdate.name = null; // Optionally, clear the name or any other related fields
+                // Clear the eventID and other fields for the removed event
+                eventToUpdate.eventID = null;
+                eventToUpdate.name = null;
+
                 console.log(`Event ${eventID} at time ${clickedTime} removed from the itinerary.`);
 
-                // Optionally, call a service to update the state on the server if needed
-                this.handleUpdate(); // Call the update method to save the changes
+                // Helper function to check if a time already exists in sortedEvents
+                const timeExists = (time) => this.sortedEvents.some(event => event.time === time);
+
+                // Re-add each hidden time as a separate event entry if it does not already exist
+                eventToUpdate.hiddenTimes.forEach(hiddenTime => {
+                    if (!timeExists(hiddenTime)) {
+                        const hiddenEvent = {
+                            time: hiddenTime,
+                            eventID: null,
+                            name: null,
+                            // Additional properties as necessary
+                        };
+                        this.sortedEvents.push(hiddenEvent);
+                        console.log("Added hidden event:", hiddenEvent);
+                    }
+                });
+
+                // Sort the events to ensure they remain in chronological order after re-adding the times
+                this.sortedEvents.sort((a, b) => a.time.localeCompare(b.time));
+
+                // Log the full sorted events array after adding and sorting
+                console.log("Updated sortedEvents array:", this.sortedEvents);
+
+                // Call the update method to save the changes
+                this.handleUpdate();
             } else {
                 console.error(`Event with eventID ${eventID} and time ${clickedTime} not found.`);
             }
@@ -654,11 +695,28 @@ export default {
             this.updateError = null;   // Reset previous error message
 
             try {
-                // Ensure sortedEvents contains the latest dragged event details
-                const updatedEvents = this.sortedEvents.map(event => ({
-                    time: event.time, // Using event object's time
-                    eventID: event.eventID, // Ensure eventID is the correct one after drag
-                }));
+                const updatedEvents = [];
+
+                this.sortedEvents.forEach((event) => {
+                    const lastEvent = updatedEvents[updatedEvents.length - 1];
+
+                    // Check if the current event has an `eventID` and matches the previous one
+                    if (lastEvent && lastEvent.eventID === event.eventID && event.eventID) {
+                        // If it's a consecutive duplicate with a valid eventID, increase heightFactor and store hidden times
+                        lastEvent.heightFactor++;
+                        lastEvent.hiddenTimes.push(event.time); // Store time in hiddenTimes
+                    } else {
+                        // Add new entries for non-duplicates and those with empty/undefined eventID
+                        updatedEvents.push({
+                            time: event.time,
+                            eventID: event.eventID,
+                            heightFactor: 1, // Start with a height factor of 1
+                            timeRange: [event.time], // Start a new time range array
+                            visible: event.eventID ? true : false, // Only mark visible if eventID is defined and not empty
+                            hiddenTimes: [], // Initialize hidden times array
+                        });
+                    }
+                });
 
                 // Prepare updated itinerary details
                 const updatedData = {
@@ -666,14 +724,14 @@ export default {
                     date: this.itineraryDetails.date, // Access date directly from itineraryDetails
                     budget: this.itineraryDetails.budget, // Access budget directly from itineraryDetails
                     collaborators: this.itineraryDetails.collaborators || [], // Access collaborators
-                    events: updatedEvents, // Make sure to use the updated events
+                    events: updatedEvents, // Use the deduplicated events with time ranges and height factors
                 };
 
                 // Call update itinerary service with the latest event data
                 const id = this.$route.params.id;
                 await itineraryService.updateItinerary(id, updatedData);
 
-                console.log("UPDATEDEVENTS", updatedEvents)
+                console.log("UPDATEDEVENTS", updatedEvents);
 
                 this.updateMessage = "Itinerary updated successfully."; // Success message
                 this.firstLoad = false;
@@ -681,10 +739,8 @@ export default {
                 // Clear the success message after 2 seconds
                 setTimeout(() => {
                     this.updateMessage = null;
-                    // location.reload();
                 }, 2000);
-            }
-            catch (error) {
+            } catch (error) {
                 // Only show the error if the wishlist is not empty
                 if (this.wishlists && this.wishlists.length > 0) {
                     this.updateError = "Error updating itinerary: " + error.message; // Error message
@@ -693,6 +749,7 @@ export default {
                 this.firstLoad = false;
             }
         },
+
 
 
 
@@ -1643,19 +1700,26 @@ canvas {
 /* Resize Handle */
 .resize-handle {
     position: absolute;
-    bottom: 0; /* Position at the bottom edge of the cell */
+    bottom: 0;
+    /* Position at the bottom edge of the cell */
     left: 0;
-    width: 100%; /* Span the entire width of the cell */
-    height: 15px; /* Height of the resize handle */
-    cursor: ns-resize; /* Vertical resize cursor */
-    background-color: rgba(0, 0, 0, 0.1); /* Light background for the resize handle */
+    width: 100%;
+    /* Span the entire width of the cell */
+    height: 15px;
+    /* Height of the resize handle */
+    cursor: ns-resize;
+    /* Vertical resize cursor */
+    background-color: rgba(0, 0, 0, 0.1);
+    /* Light background for the resize handle */
 }
 
 /* Responsive design for smaller screens */
 @media (max-width: 768px) {
     .resize-handle {
-        height: 20px; /* Increase height for better touch support */
-        background-color: rgba(0, 0, 0, 0.2); /* Darken slightly for visibility */
+        height: 20px;
+        /* Increase height for better touch support */
+        background-color: rgba(0, 0, 0, 0.2);
+        /* Darken slightly for visibility */
     }
 }
 
