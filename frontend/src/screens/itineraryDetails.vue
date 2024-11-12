@@ -176,7 +176,7 @@
                 <div ref="wishlistSidebar" class="wishlist-sidebar" :class="{ expanded: isExpanded }">
                     <h3 style="text-decoration: underline;">Wishlist</h3>
 
-                    <ul v-if="wishlists.length">
+                    <ul v-if="wishlists.length" class="list-unstyled">
                         <li v-for="wishlist in wishlists" :key="wishlist.id" :draggable="true"
                             @dragstart="onDragStart($event, wishlist)" class="draggable-item"
                             style="border: 1px solid; margin: 5px; border-radius: 5px; padding: 10px;">
