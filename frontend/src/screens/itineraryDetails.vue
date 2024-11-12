@@ -272,6 +272,8 @@ export default {
             rowspans: {}, // Stores the calculated rowspans for each eventID
             rowHeight: 50,
 
+            temporaryItems: [],
+
         };
     },
     mounted() {
@@ -375,6 +377,8 @@ export default {
                     try {
                         // Fetch the wishlist after the user ID is available
                         await this.fetchWishlist();
+
+                        await this.fetchTemporaryItems(); 
 
                         // Fetch itineraries using the UID
                         this.itineraries = await itineraryService.getItineraryByUserID(this.userID);
@@ -495,6 +499,17 @@ export default {
             }
         },
 
+        async fetchTemporaryItems() {
+            try {
+                if (!this.userID) {
+                    throw new Error("User ID not available for fetching temporary items.");
+                }
+                this.temporaryItems = await itineraryService.getTempItemsByUserID(this.userID);
+                console.log("Fetched temp items:", this.temporaryItems);
+            } catch (error) {
+                console.error("Error fetching temporary items:", error);
+            }
+        },
 
         async fetchDetails(eventID) {
             try {
@@ -584,6 +599,23 @@ export default {
 
         async updateEventTiming(draggedEventID, newTime) {
             try {
+                const alreadyInTempList = this.temporaryItems.some(
+                    item => item.eventID === draggedEventID
+                );
+            
+                if (!alreadyInTempList) {
+                    try {
+                        const newTempListItem = {
+                            userID: this.userID,
+                            eventID: draggedEventID,
+                        };
+                        await itineraryService.addTempItem(newTempListItem);
+                        this.temporaryItems.push(newTempListItem); // Update local temp list
+                    } catch (error) {
+                        console.error("Failed to add item to temporary list:", error);
+                    }
+                }
+
                 // Prepare updated itinerary details by resetting all occurrences of the dragged eventID
                 const updatedData = {
                     title: this.itineraryDetails.title,
@@ -647,7 +679,7 @@ export default {
         //     }
         // },
 
-        onRemoveEvent(eventID, clickedTime) {
+        async onRemoveEvent(eventID, clickedTime) {
             const eventToUpdate = this.sortedEvents.find(event => event.eventID === eventID && event.time === clickedTime);
 
             if (eventToUpdate) {
@@ -657,22 +689,57 @@ export default {
 
                 console.log(`Event ${eventID} at time ${clickedTime} removed from the itinerary.`);
 
+                const hasOtherInstances = this.itineraryDetails.events.some(
+                    event => (event.eventID === eventID || event.attractionID === eventID) && event.time !== clickedTime
+                );
+
+                if (!hasOtherInstances) {
+                    // Find the item in temporaryItems
+                    const tempIndex = this.temporaryItems.findIndex(item => item.eventID === eventID || item.attractionID === eventID);
+
+                    console.log("THESE ARE THE ITEMS STILL IN ITINERARYDETAILS.EVENT", this.itineraryDetails.events);
+                    console.log("Temp Item FOUND:", this.temporaryItems[tempIndex]);
+
+                    if (tempIndex !== -1) {
+                        try {
+                            // Add to wishlist and remove from temporary items
+                            const toDeleteID = this.temporaryItems[tempIndex].eventID || this.temporaryItems[tempIndex].attractionID
+                            console.log(toDeleteID)
+                            await itineraryService.addWishlist(this.temporaryItems[tempIndex]);
+                            await itineraryService.deleteTempItem(toDeleteID, this.userID);
+                            this.temporaryItems.splice(tempIndex, 1);
+                            await this.fetchWishlist();
+                        } catch (error) {
+                            console.error("Error moving event back to wishlist:", error);
+                        }
+                    }
+                } else {
+                    console.log(`Other instances of event ${eventID} exist in the itinerary, not moving to wishlist.`);
+    }
+
+
                 // Helper function to check if a time already exists in sortedEvents
-                const timeExists = (time) => this.sortedEvents.some(event => event.time === time);
+                // const timeExists = (time) => this.sortedEvents.some(event => event.time === time);
 
                 // Re-add each hidden time as a separate event entry if it does not already exist
-                eventToUpdate.hiddenTimes.forEach(hiddenTime => {
-                    if (!timeExists(hiddenTime)) {
-                        const hiddenEvent = {
-                            time: hiddenTime,
-                            eventID: null,
-                            name: null,
-                            // Additional properties as necessary
-                        };
-                        this.sortedEvents.push(hiddenEvent);
-                        console.log("Added hidden event:", hiddenEvent);
-                    }
-                });
+                if (eventToUpdate.hiddenTimes && eventToUpdate.hiddenTimes.length > 0) {
+                    // Helper function to check if a time already exists in sortedEvents
+                    const timeExists = (time) => this.sortedEvents.some(event => event.time === time);
+
+                    // Re-add each hidden time as a separate event entry if it does not already exist
+                    eventToUpdate.hiddenTimes.forEach(hiddenTime => {
+                        if (!timeExists(hiddenTime)) {
+                            const hiddenEvent = {
+                                time: hiddenTime,
+                                eventID: null,
+                                name: null,
+                                // Additional properties as necessary
+                            };
+                            this.sortedEvents.push(hiddenEvent);
+                            console.log("Added hidden event:", hiddenEvent);
+                        }
+                    });
+                }
 
                 // Sort the events to ensure they remain in chronological order after re-adding the times
                 this.sortedEvents.sort((a, b) => a.time.localeCompare(b.time));
@@ -1184,6 +1251,28 @@ export default {
         // Method to handle adding the item to the event
         async addToEvent(wishlistItem, { eventID, time }) {
             const id = wishlistItem.eventID || wishlistItem.attractionID;
+
+            const alreadyInTempList = this.temporaryItems.some(
+                item => item.eventID === wishlistItem.eventID || item.attractionID === wishlistItem.attractionID
+            );
+
+            if (!alreadyInTempList) {
+                try {
+                    const newTempList = {
+                        userID: this.userID,
+                        eventID: wishlistItem.eventID,
+                        attractionID: wishlistItem.attractionID 
+                    };
+                    await itineraryService.addTempItem(newTempList);
+                    this.temporaryItems = await itineraryService.getTempItemsByUserID(this.userID);
+                    console.log("TEMPORARY ITEMS", this.temporaryItems);
+                } catch (error) {
+                    console.error("Failed to add item to temporary list:", error);
+                }
+            } else {
+                console.log("Item already exists in the temporary list. Skipping addition to temp list.");
+            }
+
             let existingEvent = this.sortedEvents.find(event => event.time === time);
 
             if (existingEvent) {

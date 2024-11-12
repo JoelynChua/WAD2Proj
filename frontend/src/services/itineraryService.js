@@ -170,9 +170,11 @@ async function addTempItem(newTempItem) {
 }
 
 // Function to delete a temporary list item by ID
-async function deleteTempItem(tempItemID) {
+async function deleteTempItem(tempItemID, userID) {
     try {
-        const res = await axiosInstance.delete(`${finalURL}/api/deleteTempItem/${tempItemID}`);
+        const res = await axiosInstance.delete(`${finalURL}/api/deleteTempItem/${tempItemID}`, {
+            params: { userID }, // Send userID as a query parameter
+        });
         console.log(res.data);
         return res.data;
     } catch (error) {
